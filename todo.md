@@ -101,3 +101,10 @@
 - [x] Integrate CompanyChat into SECIPODetail.tsx below Company Facts section
 - [x] Write vitest tests for new chat functionality (5 tests for citation extraction)
 - [x] Verify no existing pages were modified (all 77 tests pass, landing page confirmed intact)
+
+## Filing Text Ingestion Pipeline
+- [x] Identify a company with S-1 filings in the database (GeoVax Labs, CIK 0000832489)
+- [x] Build script to download actual S-1 filing text from SEC EDGAR (ingest-filing-text.mjs)
+- [x] Chunk the filing text and store in document_chunks table (468 chunks across 16 sections)
+- [x] Test the conversational chat with real grounded data (risk factors question answered with citations)
+- [ ] Add admin-facing "Index Filing" endpoint for future use (deferred)
