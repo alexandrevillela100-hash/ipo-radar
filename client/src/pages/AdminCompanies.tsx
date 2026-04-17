@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,16 +26,54 @@ import {
   FileText,
   Trash2,
   Building2,
+  Pencil,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
+
+interface CompanyFormData {
+  name: string;
+  ticker: string;
+  exchange: string;
+  status: "upcoming" | "priced" | "trading" | "withdrawn";
+  industry: string;
+  sector: string;
+  description: string;
+  headquarters: string;
+  founded: string;
+  ceo: string;
+  employees: string;
+  website: string;
+  priceLow: string;
+  priceHigh: string;
+  leadUnderwriter: string;
+}
+
+const emptyForm: CompanyFormData = {
+  name: "",
+  ticker: "",
+  exchange: "NASDAQ",
+  status: "upcoming",
+  industry: "",
+  sector: "",
+  description: "",
+  headquarters: "",
+  founded: "",
+  ceo: "",
+  employees: "",
+  website: "",
+  priceLow: "",
+  priceHigh: "",
+  leadUnderwriter: "",
+};
 
 export default function AdminCompanies() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
   const utils = trpc.useUtils();
 
   const { data: companies, isLoading } = trpc.company.list.useQuery();
@@ -44,8 +82,19 @@ export default function AdminCompanies() {
     onSuccess: () => {
       utils.company.list.invalidate();
       utils.company.stats.invalidate();
-      setDialogOpen(false);
+      setCreateDialogOpen(false);
       toast.success("Company created successfully");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const updateMutation = trpc.company.update.useMutation({
+    onSuccess: () => {
+      utils.company.list.invalidate();
+      utils.company.stats.invalidate();
+      setEditDialogOpen(false);
+      setEditingCompany(null);
+      toast.success("Company updated successfully");
     },
     onError: (err) => toast.error(err.message),
   });
@@ -58,6 +107,11 @@ export default function AdminCompanies() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const handleEdit = (company: any) => {
+    setEditingCompany(company);
+    setEditDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -99,7 +153,9 @@ export default function AdminCompanies() {
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold tracking-tight">Manage Companies</h2>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+
+          {/* Create Dialog */}
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -111,12 +167,50 @@ export default function AdminCompanies() {
                 <DialogTitle>Add New Company</DialogTitle>
               </DialogHeader>
               <CompanyForm
+                initialData={emptyForm}
                 onSubmit={(data) => createMutation.mutate(data)}
                 isSubmitting={createMutation.isPending}
+                submitLabel="Create Company"
               />
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setEditingCompany(null);
+        }}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit {editingCompany?.name || "Company"}</DialogTitle>
+            </DialogHeader>
+            {editingCompany && (
+              <CompanyForm
+                initialData={{
+                  name: editingCompany.name || "",
+                  ticker: editingCompany.ticker || "",
+                  exchange: editingCompany.exchange || "NASDAQ",
+                  status: editingCompany.status || "upcoming",
+                  industry: editingCompany.industry || "",
+                  sector: editingCompany.sector || "",
+                  description: editingCompany.description || "",
+                  headquarters: editingCompany.headquarters || "",
+                  founded: editingCompany.founded || "",
+                  ceo: editingCompany.ceo || "",
+                  employees: editingCompany.employees || "",
+                  website: editingCompany.website || "",
+                  priceLow: editingCompany.priceLow || "",
+                  priceHigh: editingCompany.priceHigh || "",
+                  leadUnderwriter: editingCompany.leadUnderwriter || "",
+                }}
+                onSubmit={(data) => updateMutation.mutate({ id: editingCompany.id, ...data })}
+                isSubmitting={updateMutation.isPending}
+                submitLabel="Save Changes"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
         {isLoading ? (
           <div className="space-y-3">
@@ -153,6 +247,15 @@ export default function AdminCompanies() {
                         variant="outline"
                         size="sm"
                         className="gap-1"
+                        onClick={() => handleEdit(c)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1"
                         onClick={() => setLocation(`/admin/companies/${c.id}/filings`)}
                       >
                         <FileText className="h-3.5 w-3.5" />
@@ -183,29 +286,17 @@ export default function AdminCompanies() {
 }
 
 function CompanyForm({
+  initialData,
   onSubmit,
   isSubmitting,
+  submitLabel,
 }: {
+  initialData: CompanyFormData;
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
+  submitLabel: string;
 }) {
-  const [form, setForm] = useState({
-    name: "",
-    ticker: "",
-    exchange: "NASDAQ",
-    status: "upcoming" as "upcoming" | "priced" | "trading" | "withdrawn",
-    industry: "",
-    sector: "",
-    description: "",
-    headquarters: "",
-    founded: "",
-    ceo: "",
-    employees: "",
-    website: "",
-    priceLow: "",
-    priceHigh: "",
-    leadUnderwriter: "",
-  });
+  const [form, setForm] = useState<CompanyFormData>(initialData);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,6 +418,33 @@ function CompanyForm({
         </div>
       </div>
 
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs">Founded</Label>
+          <Input
+            value={form.founded}
+            onChange={(e) => setForm({ ...form, founded: e.target.value })}
+            placeholder="e.g. 2019"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">Employees</Label>
+          <Input
+            value={form.employees}
+            onChange={(e) => setForm({ ...form, employees: e.target.value })}
+            placeholder="e.g. 450"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">Website</Label>
+          <Input
+            value={form.website}
+            onChange={(e) => setForm({ ...form, website: e.target.value })}
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs">Price Low ($)</Label>
@@ -356,7 +474,7 @@ function CompanyForm({
       </div>
 
       <Button type="submit" className="w-full" disabled={!form.name || isSubmitting}>
-        {isSubmitting ? "Creating..." : "Create Company"}
+        {isSubmitting ? "Saving..." : submitLabel}
       </Button>
     </form>
   );

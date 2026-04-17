@@ -31,7 +31,7 @@
 - [x] Chat UI embedded below Company Facts on detail page
 - [x] Suggested questions panel (dynamically generated per company from filing content)
 - [x] Source citation display within each chat response (document name + excerpt)
-- [ ] Load persisted chat session history on page mount
+- [x] Load persisted chat session history on page mount
 - [x] Loading states and error handling
 
 ## Admin - Filing Management
@@ -40,7 +40,7 @@
 - [x] SEC filing upload interface per company
 - [x] Filing list with status indicators
 - [x] Document processing status display
-- [ ] Company edit functionality on admin page
+- [x] Company edit functionality on admin page
 
 ## Design & Polish
 - [x] Dark financial terminal theme (navy/slate, accent blues/greens)

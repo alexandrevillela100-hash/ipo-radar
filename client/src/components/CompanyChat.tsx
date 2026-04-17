@@ -42,7 +42,14 @@ export default function CompanyChat({
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [sessionId] = useState(() => nanoid(20));
+  const [sessionId] = useState(() => {
+    const storageKey = `ipo-chat-session-${companyId}`;
+    const existing = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+    if (existing) return existing;
+    const newId = nanoid(20);
+    if (typeof window !== 'undefined') localStorage.setItem(storageKey, newId);
+    return newId;
+  });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
