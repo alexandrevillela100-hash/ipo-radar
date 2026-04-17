@@ -107,4 +107,4 @@
 - [x] Build script to download actual S-1 filing text from SEC EDGAR (ingest-filing-text.mjs)
 - [x] Chunk the filing text and store in document_chunks table (468 chunks across 16 sections)
 - [x] Test the conversational chat with real grounded data (risk factors question answered with citations)
-- [ ] Add admin-facing "Index Filing" endpoint for future use (deferred)
+- [x] Add admin-facing "Index Filing" endpoint (indexing.indexFiling + indexing.indexCompany tRPC procedures)

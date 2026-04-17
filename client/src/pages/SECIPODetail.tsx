@@ -9,10 +9,14 @@ import {
   formatCurrency,
   formatNumber,
 } from "@/lib/fakeFinancials";
+import { useMemo, useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Building2,
   Calendar,
+  Database,
   DollarSign,
   ExternalLink,
   FileText,
@@ -29,9 +33,6 @@ import {
   Star,
   Brain,
 } from "lucide-react";
-import { toast } from "sonner";
-import { useMemo, useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import WatchlistButton from "@/components/WatchlistButton";
 
 /**
@@ -44,9 +45,37 @@ import WatchlistButton from "@/components/WatchlistButton";
  * Route: /ipo/:cik
  * Data: trpc.edgar.companyFilings.useQuery({ cik })
  */
+function IndexFilingsButton({ cik }: { cik: string }) {
+  const indexMutation = trpc.indexing.indexCompany.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Indexed ${data.totalChunks} chunks from ${data.results.length} filing(s)`);
+    },
+    onError: (err) => {
+      toast.error("Indexing failed: " + err.message);
+    },
+  });
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="border-primary/30 text-primary hover:bg-primary/10 text-xs"
+      disabled={indexMutation.isPending}
+      onClick={() => indexMutation.mutate({ companyCik: cik })}
+    >
+      {indexMutation.isPending ? (
+        <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Indexing...</>
+      ) : (
+        <><Database className="w-3 h-3 mr-1.5" /> Index for Chat</>
+      )}
+    </Button>
+  );
+}
+
 export default function SECIPODetail() {
   const [, params] = useRoute("/ipo/:cik");
   const cik = params?.cik ?? "";
+  const { isAuthenticated } = useAuth();
 
   // Single query that returns both company and filings
   const { data, isLoading } = trpc.edgar.companyFilings.useQuery({ cik });
@@ -530,11 +559,16 @@ export default function SECIPODetail() {
 
               {/* Filing History */}
               <div className="p-6 rounded-xl bg-card border border-border/50">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-bold text-foreground">
-                    SEC Filing History
-                  </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    <h2 className="text-lg font-bold text-foreground">
+                      SEC Filing History
+                    </h2>
+                  </div>
+                  {isAuthenticated && filings.length > 0 && (
+                    <IndexFilingsButton cik={cik} />
+                  )}
                 </div>
 
                 {filings.length === 0 ? (

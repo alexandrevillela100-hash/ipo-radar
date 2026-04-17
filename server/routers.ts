@@ -31,6 +31,7 @@ import {
   saveChatSession,
   loadChatSession,
 } from "./rag";
+import { indexFiling, indexAllFilingsForCompany } from "./filingIndexer";
 
 export const appRouter = router({
   system: systemRouter,
@@ -319,6 +320,22 @@ export const appRouter = router({
       .input(z.object({ sessionId: z.string() }))
       .query(async ({ input }) => {
         return loadChatSession(input.sessionId);
+      }),
+  }),
+
+  // ─── Filing Indexing (Admin) ──────────────────────────────────────────
+
+  indexing: router({
+    indexFiling: protectedProcedure
+      .input(z.object({ filingId: z.number() }))
+      .mutation(async ({ input }) => {
+        return indexFiling(input.filingId);
+      }),
+
+    indexCompany: protectedProcedure
+      .input(z.object({ companyCik: z.string() }))
+      .mutation(async ({ input }) => {
+        return indexAllFilingsForCompany(input.companyCik);
       }),
   }),
 
