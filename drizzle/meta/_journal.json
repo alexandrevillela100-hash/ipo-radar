@@ -15,6 +15,20 @@
       "when": 1776384034570,
       "tag": "0001_sour_nocturne",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1776385605078,
+      "tag": "0002_eager_lifeguard",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1776386050056,
+      "tag": "0003_supreme_vulcan",
+      "breakpoints": true
     }
   ]
 }
