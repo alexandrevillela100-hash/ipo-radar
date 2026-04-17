@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1776383816459,
-      "tag": "0000_perpetual_scrambler",
+      "when": 1775855030533,
+      "tag": "0000_petite_zarda",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "5",
-      "when": 1776384034570,
-      "tag": "0001_sour_nocturne",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1776385605078,
-      "tag": "0002_eager_lifeguard",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1776386050056,
-      "tag": "0003_supreme_vulcan",
+      "when": 1775855594228,
+      "tag": "0001_spooky_outlaw_kid",
       "breakpoints": true
     }
   ]

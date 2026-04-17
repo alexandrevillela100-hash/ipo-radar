@@ -1,25 +1,42 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { sdk } from "./_core/sdk";
 import { z } from "zod";
 import {
-  listCompanies, getCompanyBySlug, getCompanyById, createCompany, updateCompany, deleteCompany,
-  listFilingsByCompany, getFilingById, createFiling, updateFiling, deleteFiling,
-  createChunks, deleteChunksByFiling,
-  getOrCreateChatSession, updateChatMessages,
-  getCompanyStats,
+  getAllCompanies,
+  getCompanyByCik,
+  getFilings,
+  getFilingsWithCompanies,
+  getStats,
+  registerEmailSignup,
+  getWatchlistForUser,
+  addToWatchlist,
+  removeFromWatchlist,
+  toggleWatchlistAlerts,
+  getAlertsForUser,
+  markAlertRead,
+  markAllAlertsRead,
+  getUnreadAlertCount,
+  searchCompanies,
+  registerWithPassword,
+  loginWithPassword,
 } from "./db";
-import { chunkDocument, extractText, validateExtraction } from "./chunker";
-import { queryRAG, generateSuggestedQuestions } from "./rag";
-import { storagePut } from "./storage";
-import { nanoid } from "nanoid";
+import { runIngestion } from "./edgarIngestion";
+import { invokeLLM } from "./_core/llm";
+import {
+  generateGroundedResponse,
+  generateSuggestedQuestions,
+  saveChatSession,
+  loadChatSession,
+} from "./rag";
 
 export const appRouter = router({
   system: systemRouter,
 
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -27,268 +44,407 @@ export const appRouter = router({
     }),
   }),
 
-  // ─── Company Routes ─────────────────────────────────────────
-  company: router({
-    list: publicProcedure
-      .input(z.object({
-        status: z.string().optional(),
-        search: z.string().optional(),
-      }).optional())
-      .query(async ({ input }) => {
-        return listCompanies(input);
+  // ─── Email Signup (Start Free) ───────────────────────────────────────────
+
+  signup: router({
+    register: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          source: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const isNew = await registerEmailSignup(input.email, input.source);
+        return { success: true, isNew };
+      }),
+  }),
+
+  // ─── Email/Password Auth ──────────────────────────────────────────────────
+
+  emailAuth: router({
+    register: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          password: z.string().min(8, "Password must be at least 8 characters"),
+          name: z.string().min(1, "Name is required"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const result = await registerWithPassword(input.email, input.password, input.name);
+        if (!result) {
+          return { success: false, error: "Email already registered. Please log in instead." };
+        }
+
+        const sessionToken = await sdk.createSessionToken(result.user.openId, {
+          name: result.user.name || input.name,
+          expiresInMs: ONE_YEAR_MS,
+        });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return { success: true, user: { id: result.user.id, name: result.user.name, email: result.user.email } };
       }),
 
-    getBySlug: publicProcedure
-      .input(z.object({ slug: z.string() }))
+    login: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          password: z.string().min(1, "Password is required"),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const user = await loginWithPassword(input.email, input.password);
+        if (!user) {
+          return { success: false, error: "Invalid email or password." };
+        }
+
+        const sessionToken = await sdk.createSessionToken(user.openId, {
+          name: user.name || "",
+          expiresInMs: ONE_YEAR_MS,
+        });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return { success: true, user: { id: user.id, name: user.name, email: user.email } };
+      }),
+  }),
+
+  // ─── SEC EDGAR Data Routes ──────────────────────────────────────────────
+
+  edgar: router({
+    filings: publicProcedure.query(async () => {
+      return getFilingsWithCompanies();
+    }),
+
+    companyFilings: publicProcedure
+      .input(z.object({ cik: z.string() }))
       .query(async ({ input }) => {
-        return getCompanyBySlug(input.slug);
+        const [company, companyFilings] = await Promise.all([
+          getCompanyByCik(input.cik),
+          getFilings(input.cik),
+        ]);
+        return { company, filings: companyFilings };
+      }),
+
+    companies: publicProcedure.query(async () => {
+      return getAllCompanies();
+    }),
+
+    company: publicProcedure
+      .input(z.object({ cik: z.string() }))
+      .query(async ({ input }) => {
+        return getCompanyByCik(input.cik);
       }),
 
     stats: publicProcedure.query(async () => {
-      return getCompanyStats();
+      return getStats();
     }),
 
-    create: adminProcedure
-      .input(z.object({
-        name: z.string().min(1),
-        ticker: z.string().optional(),
-        exchange: z.string().optional(),
-        status: z.enum(["upcoming", "priced", "trading", "withdrawn"]).optional(),
-        industry: z.string().optional(),
-        sector: z.string().optional(),
-        description: z.string().optional(),
-        headquarters: z.string().optional(),
-        founded: z.string().optional(),
-        ceo: z.string().optional(),
-        employees: z.string().optional(),
-        website: z.string().optional(),
-        logoUrl: z.string().optional(),
-        priceLow: z.string().optional(),
-        priceHigh: z.string().optional(),
-        priceActual: z.string().optional(),
-        sharesOffered: z.number().optional(),
-        offeringSize: z.number().optional(),
-        marketCap: z.number().optional(),
-        expectedDate: z.date().optional(),
-        pricedDate: z.date().optional(),
-        revenue: z.number().optional(),
-        netIncome: z.number().optional(),
-        fiscalYear: z.string().optional(),
-        leadUnderwriter: z.string().optional(),
-      }))
+    ingest: publicProcedure
+      .input(
+        z
+          .object({
+            lookbackDays: z.number().min(1).max(365).default(30),
+          })
+          .optional()
+      )
       .mutation(async ({ input }) => {
-        const slug = input.name.toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "")
-          + "-" + nanoid(6);
-        const id = await createCompany({ ...input, slug });
-        return { id, slug };
+        const lookbackDays = input?.lookbackDays ?? 30;
+        const result = await runIngestion(lookbackDays);
+        return result;
       }),
 
-    update: adminProcedure
-      .input(z.object({
-        id: z.number(),
-        name: z.string().optional(),
-        ticker: z.string().optional(),
-        exchange: z.string().optional(),
-        status: z.enum(["upcoming", "priced", "trading", "withdrawn"]).optional(),
-        industry: z.string().optional(),
-        sector: z.string().optional(),
-        description: z.string().optional(),
-        headquarters: z.string().optional(),
-        founded: z.string().optional(),
-        ceo: z.string().optional(),
-        employees: z.string().optional(),
-        website: z.string().optional(),
-        logoUrl: z.string().optional(),
-        priceLow: z.string().optional(),
-        priceHigh: z.string().optional(),
-        priceActual: z.string().optional(),
-        sharesOffered: z.number().optional(),
-        offeringSize: z.number().optional(),
-        marketCap: z.number().optional(),
-        expectedDate: z.date().optional(),
-        pricedDate: z.date().optional(),
-        revenue: z.number().optional(),
-        netIncome: z.number().optional(),
-        fiscalYear: z.string().optional(),
-        leadUnderwriter: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await updateCompany(id, data);
-        return { success: true };
-      }),
-
-    delete: adminProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await deleteCompany(input.id);
-        return { success: true };
-      }),
-  }),
-
-  // ─── Filing Routes ──────────────────────────────────────────
-  filing: router({
-    listByCompany: publicProcedure
-      .input(z.object({ companyId: z.number() }))
+    search: publicProcedure
+      .input(z.object({ query: z.string().min(1) }))
       .query(async ({ input }) => {
-        return listFilingsByCompany(input.companyId);
+        return searchCompanies(input.query);
+      }),
+  }),
+
+  // ─── Watchlist (requires auth) ──────────────────────────────────────────
+
+  watchlist: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getWatchlistForUser(ctx.user.id);
+    }),
+
+    add: protectedProcedure
+      .input(z.object({ companyCik: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const added = await addToWatchlist(ctx.user.id, input.companyCik);
+        return { success: true, added };
       }),
 
-    upload: adminProcedure
-      .input(z.object({
-        companyId: z.number(),
-        documentType: z.string(),
-        documentName: z.string(),
-        content: z.string(), // base64 encoded file content
-        contentType: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        // 1. Upload file to S3
-        const fileBuffer = Buffer.from(input.content, "base64");
-        const fileKey = `filings/${input.companyId}/${nanoid(10)}-${input.documentName}`;
-        const { key, url } = await storagePut(fileKey, fileBuffer, input.contentType || "application/pdf");
-
-        // 2. Create filing record
-        const filingId = await createFiling({
-          companyId: input.companyId,
-          documentType: input.documentType,
-          documentName: input.documentName,
-          fileUrl: url,
-          fileKey: key,
-          fileSize: fileBuffer.length,
-          status: "processing",
-        });
-
-        // 3. Process the document (extract text and chunk)
-        try {
-          const rawText = Buffer.from(input.content, "base64").toString("utf-8");
-          const text = extractText(rawText);
-
-          // Validate extraction quality
-          const validation = validateExtraction(text);
-          if (!validation.valid) {
-            await updateFiling(filingId, {
-              status: "error",
-              errorMessage: validation.reason || "Failed to extract text from document.",
-            });
-            return { id: filingId, status: "error" as const };
-          }
-
-          const chunks = chunkDocument(text);
-
-          if (chunks.length === 0) {
-            await updateFiling(filingId, {
-              status: "error",
-              errorMessage: "No meaningful text chunks could be extracted from the document.",
-            });
-            return { id: filingId, status: "error" as const };
-          }
-
-          // 4. Store chunks
-          await createChunks(chunks.map(c => ({
-            filingId,
-            companyId: input.companyId,
-            chunkIndex: c.chunkIndex,
-            chunkText: c.chunkText,
-            sectionLabel: c.sectionLabel,
-            tokenCount: c.tokenCount,
-          })));
-
-          // 5. Update filing status
-          await updateFiling(filingId, {
-            status: "ready",
-            chunkCount: chunks.length,
-            processedAt: new Date(),
-          });
-
-          return { id: filingId, status: "ready" as const, chunkCount: chunks.length };
-        } catch (error: any) {
-          await updateFiling(filingId, {
-            status: "error",
-            errorMessage: error.message || "Processing failed",
-          });
-          return { id: filingId, status: "error" as const };
-        }
+    remove: protectedProcedure
+      .input(z.object({ companyCik: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        await removeFromWatchlist(ctx.user.id, input.companyCik);
+        return { success: true };
       }),
 
-    delete: adminProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await deleteFiling(input.id);
+    toggleAlerts: protectedProcedure
+      .input(z.object({ companyCik: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        await toggleWatchlistAlerts(ctx.user.id, input.companyCik);
         return { success: true };
       }),
   }),
 
-  // ─── Chat / RAG Routes ─────────────────────────────────────
+  // ─── Alerts (requires auth) ─────────────────────────────────────────────
+
+  alerts: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getAlertsForUser(ctx.user.id);
+    }),
+
+    unreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return getUnreadAlertCount(ctx.user.id);
+    }),
+
+    markRead: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await markAlertRead(input.alertId, ctx.user.id);
+        return { success: true };
+      }),
+
+    markAllRead: protectedProcedure.mutation(async ({ ctx }) => {
+      await markAllAlertsRead(ctx.user.id);
+      return { success: true };
+    }),
+  }),
+
+  // ─── Stripe Billing ────────────────────────────────────────────────────
+
+  billing: router({
+    status: protectedProcedure.query(async ({ ctx }) => {
+      const { getSubscriptionStatus } = await import("./stripe/stripe");
+      return getSubscriptionStatus(ctx.user.id);
+    }),
+
+    createCheckout: protectedProcedure
+      .input(
+        z.object({
+          planKey: z.string(),
+          origin: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { createCheckoutSession } = await import("./stripe/stripe");
+        return createCheckoutSession({
+          userId: ctx.user.id,
+          email: ctx.user.email || "",
+          name: ctx.user.name,
+          planKey: input.planKey,
+          origin: input.origin,
+        });
+      }),
+
+    createPortalSession: protectedProcedure
+      .input(z.object({ origin: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const { createBillingPortalSession } = await import("./stripe/stripe");
+        return createBillingPortalSession({
+          userId: ctx.user.id,
+          origin: input.origin,
+        });
+      }),
+  }),
+
+  // ─── Company Chat (RAG-based) ────────────────────────────────────────────
+
   chat: router({
     ask: publicProcedure
-      .input(z.object({
-        companyId: z.number(),
-        companySlug: z.string(),
-        question: z.string().min(1).max(2000),
-        sessionId: z.string(),
-        conversationHistory: z.array(z.object({
-          role: z.string(),
-          content: z.string(),
-        })).optional(),
-      }))
+      .input(
+        z.object({
+          cik: z.string(),
+          message: z.string().min(1),
+          sessionId: z.string(),
+          history: z.array(
+            z.object({
+              role: z.enum(["system", "user", "assistant"]),
+              content: z.string(),
+            })
+          ).optional(),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
-        // Get company
-        const company = await getCompanyBySlug(input.companySlug);
+        const company = await getCompanyByCik(input.cik);
         if (!company) {
-          throw new Error("Company not found");
+          return {
+            answer: "Company not found.",
+            citations: [],
+            hasDocuments: false,
+          };
         }
 
-        // Get or create chat session
-        const session = await getOrCreateChatSession(
+        const response = await generateGroundedResponse(
+          input.cik,
+          company.name,
+          input.message,
+          input.history || []
+        );
+
+        // Persist the session
+        const updatedHistory = [
+          ...(input.history || []),
+          { role: "user" as const, content: input.message },
+          { role: "assistant" as const, content: response.answer },
+        ];
+
+        await saveChatSession(
           input.sessionId,
-          input.companyId,
-          ctx.user?.id
+          input.cik,
+          company.id,
+          ctx.user?.id ?? null,
+          updatedHistory
         );
-
-        // Query RAG
-        const response = await queryRAG(
-          input.companyId,
-          company,
-          input.question,
-          input.conversationHistory || []
-        );
-
-        // Update session with new messages
-        const currentMessages = (session.messages || []) as any[];
-        currentMessages.push(
-          { role: "user", content: input.question },
-          { role: "assistant", content: response.answer, citations: response.citations }
-        );
-        await updateChatMessages(input.sessionId, currentMessages);
 
         return response;
       }),
 
-    getHistory: publicProcedure
-      .input(z.object({ sessionId: z.string() }))
+    suggestedQuestions: publicProcedure
+      .input(z.object({ cik: z.string() }))
       .query(async ({ input }) => {
-        const db = (await import("./db")).getDb;
-        const dbInstance = await db();
-        if (!dbInstance) return [];
-        const { chatSessions } = await import("../drizzle/schema");
-        const { eq } = await import("drizzle-orm");
-        const rows = await dbInstance.select().from(chatSessions).where(eq(chatSessions.sessionId, input.sessionId)).limit(1);
-        if (rows.length === 0) return [];
-        return (rows[0].messages || []) as Array<{ role: string; content: string; citations?: Array<{ documentName: string; excerpt: string; sectionLabel?: string }> }>;
+        const company = await getCompanyByCik(input.cik);
+        if (!company) return [];
+        return generateSuggestedQuestions(input.cik, company.name);
       }),
 
-    suggestedQuestions: publicProcedure
-      .input(z.object({
-        companyId: z.number(),
-        companySlug: z.string(),
-      }))
+    loadSession: publicProcedure
+      .input(z.object({ sessionId: z.string() }))
       .query(async ({ input }) => {
-        const company = await getCompanyBySlug(input.companySlug);
-        if (!company) return [];
-        return generateSuggestedQuestions(input.companyId, company);
+        return loadChatSession(input.sessionId);
+      }),
+  }),
+
+  // ─── AI Report Generation ──────────────────────────────────────────────
+
+  aiReport: router({
+    generate: publicProcedure
+      .input(z.object({ cik: z.string() }))
+      .mutation(async ({ input }) => {
+        const [company, companyFilings] = await Promise.all([
+          getCompanyByCik(input.cik),
+          getFilings(input.cik),
+        ]);
+
+        if (!company) {
+          return { success: false, error: "Company not found" };
+        }
+
+        const filingsSummary = companyFilings
+          .map(
+            (f) =>
+              `- ${f.formType} filed on ${f.filingDate} (Accession: ${f.accessionNumber})`
+          )
+          .join("\n");
+
+        const prompt = `You are an institutional equity research analyst writing a First-Look Initiation Report for an upcoming IPO. 
+
+Company: ${company.name}
+CIK: ${company.cik}
+Ticker: ${company.ticker || "TBD"}
+Exchange: ${company.exchange || "TBD"}
+Industry (SIC): ${company.sicDescription || "N/A"} (Code: ${company.sic || "N/A"})
+State of Incorporation: ${company.stateOfIncorporation || "N/A"}
+Headquarters: ${company.businessCity || ""}, ${company.businessState || ""}
+Fiscal Year End: ${company.fiscalYearEnd || "N/A"}
+
+SEC Filing History:
+${filingsSummary || "No filings found"}
+
+Based on the company profile and filing information above, generate a comprehensive First-Look IPO Report in the following JSON format. Be analytical, specific, and use realistic financial analysis language. Generate plausible but clearly hypothetical financial estimates based on the industry and company type.
+
+Return ONLY valid JSON with this exact structure:
+{
+  "executiveSummary": "2-3 paragraph executive summary of the IPO opportunity",
+  "sections": [
+    {
+      "title": "Business Overview",
+      "content": "Detailed analysis of the business model, products/services, and market position"
+    },
+    {
+      "title": "Market Opportunity",
+      "content": "Analysis of the total addressable market, growth drivers, and competitive landscape"
+    },
+    {
+      "title": "Financial Analysis",
+      "content": "Revenue trends, profitability metrics, and key financial ratios (use hypothetical but realistic numbers)"
+    },
+    {
+      "title": "IPO Valuation Assessment",
+      "content": "Estimated valuation range, comparable company analysis, and pricing considerations"
+    },
+    {
+      "title": "Risk Factors",
+      "content": "Key risks including market, operational, regulatory, and financial risks"
+    }
+  ],
+  "risks": [
+    { "title": "Risk name", "severity": "High|Medium|Low", "description": "Brief description" }
+  ],
+  "verdict": {
+    "rating": "Favorable|Neutral|Cautious",
+    "summary": "One paragraph investment verdict"
+  }
+}`;
+
+        try {
+          const response = await invokeLLM({
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are an expert equity research analyst. Return only valid JSON, no markdown formatting.",
+              },
+              { role: "user", content: prompt },
+            ],
+          });
+
+          const rawContent = response.choices?.[0]?.message?.content || "";
+          const content = typeof rawContent === "string" ? rawContent : "";
+          let report;
+          try {
+            const cleaned = content
+              .replace(/```json\n?/g, "")
+              .replace(/```\n?/g, "")
+              .trim();
+            report = JSON.parse(cleaned);
+          } catch {
+            report = {
+              executiveSummary: content,
+              sections: [],
+              risks: [],
+              verdict: {
+                rating: "Neutral",
+                summary: "Report generation produced unstructured output.",
+              },
+            };
+          }
+
+          return {
+            success: true,
+            report: {
+              companyName: company.name,
+              cik: company.cik,
+              ticker: company.ticker || "TBD",
+              industry: company.sicDescription || "N/A",
+              generatedAt: new Date().toISOString(),
+              ...report,
+            },
+          };
+        } catch (error: any) {
+          console.error("[AI Report] LLM invocation failed:", error);
+          return {
+            success: false,
+            error: "Failed to generate report. Please try again.",
+          };
+        }
       }),
   }),
 });

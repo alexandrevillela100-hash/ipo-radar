@@ -1,303 +1,406 @@
 /**
- * RAG (Retrieval-Augmented Generation) engine for grounded IPO Q&A.
- * All responses are strictly grounded in uploaded SEC filings.
+ * RAG Engine — Retrieval-Augmented Generation for SEC Filing Q&A
+ *
+ * Retrieves relevant document chunks from the database, builds a grounded
+ * prompt with strict citation requirements, and invokes the LLM.
+ * All responses are grounded in actual SEC filings — no hallucinations.
  */
 
 import { invokeLLM } from "./_core/llm";
-import { searchChunks, getChunksByCompany, listFilingsByCompany } from "./db";
-import type { DocumentChunk, Company, Filing } from "../drizzle/schema";
+import { getDb } from "./db";
+import { documentChunks, chatSessions, companies } from "../drizzle/schema";
+import { eq, sql, and, desc } from "drizzle-orm";
 
-export interface Citation {
-  documentName: string;
-  excerpt: string;
-  sectionLabel?: string;
-}
-
-export interface RAGResponse {
-  answer: string;
-  citations: Citation[];
-}
-
-const SYSTEM_PROMPT = `You are an IPO research analyst assistant for IPO Radar. Your role is to answer questions about companies preparing for or completing their IPO, strictly based on their SEC filings (S-1, S-1/A, prospectuses, and related documents).
-
-CRITICAL RULES — YOU MUST FOLLOW ALL OF THESE:
-1. ONLY use information from the provided document excerpts below. NEVER generate, infer, or assume information not explicitly stated in the excerpts.
-2. If the provided excerpts do not contain enough information to fully answer the question, state clearly: "Based on the available filing documents, I don't have sufficient information to answer this question completely." Then share only what IS supported by the excerpts.
-3. For EVERY factual claim, reference the source using [Source N] notation (e.g., [Source 1], [Source 3]).
-4. Do NOT speculate, extrapolate, or provide opinions beyond what the documents explicitly state.
-5. Use professional financial language appropriate for investment research.
-6. Format your response with clear markdown: use headers (##), bullet points, and bold text for key figures.
-7. When discussing financial figures, always include the time period, currency context, and whether the figures are audited or unaudited if that information is available in the excerpts.
-8. If a question asks about something not covered in the excerpts at all, say so — do not fabricate an answer.
-
-RESPONSE FORMAT:
-- Start with a direct answer to the question.
-- Support each claim with [Source N] references.
-- Use markdown formatting for readability.
-- End with a brief note if important caveats apply.`;
+// ─── Chunk Retrieval ─────────────────────────────────────────────────────────
 
 /**
- * Build context from retrieved chunks, including filing metadata.
+ * Retrieve the most relevant document chunks for a query.
+ * Uses keyword matching against chunk text and section labels.
  */
-function buildContext(chunks: DocumentChunk[], filingsMap: Map<number, Filing>): string {
-  return chunks.map((chunk, i) => {
-    const filing = filingsMap.get(chunk.filingId);
-    const docName = filing ? `${filing.documentType} — ${filing.documentName}` : "Unknown Document";
-    const section = chunk.sectionLabel ? ` | Section: ${chunk.sectionLabel}` : "";
-    return `[Source ${i + 1}] Document: ${docName}${section}\n---\n${chunk.chunkText}`;
-  }).join("\n\n===\n\n");
+export async function retrieveChunks(
+  companyCik: string,
+  query: string,
+  limit = 12
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Extract meaningful keywords from the query (3+ chars, no stop words)
+  const stopWords = new Set([
+    "the", "and", "for", "are", "but", "not", "you", "all", "can", "had",
+    "her", "was", "one", "our", "out", "has", "his", "how", "its", "may",
+    "who", "did", "get", "let", "say", "she", "too", "use", "what", "when",
+    "where", "which", "will", "with", "this", "that", "from", "they", "been",
+    "have", "many", "some", "them", "than", "each", "make", "like", "does",
+    "into", "over", "such", "about", "their", "would", "could", "should",
+    "these", "other", "there", "being", "those",
+  ]);
+
+  const keywords = query
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 && !stopWords.has(w));
+
+  if (keywords.length === 0) {
+    // Fallback: return first N chunks ordered by section relevance
+    return db
+      .select()
+      .from(documentChunks)
+      .where(eq(documentChunks.companyCik, companyCik))
+      .orderBy(documentChunks.chunkIndex)
+      .limit(limit);
+  }
+
+  // Build a relevance score using LIKE matching
+  const likeClauses = keywords.map(
+    (kw) => sql`(LOWER(${documentChunks.chunkText}) LIKE ${`%${kw}%`})`
+  );
+  const sectionClauses = keywords.map(
+    (kw) => sql`(LOWER(COALESCE(${documentChunks.sectionLabel}, '')) LIKE ${`%${kw}%`})`
+  );
+
+  // Score = number of keyword matches in text + bonus for section label matches
+  const scoreExpr = sql`(${sql.join(likeClauses, sql` + `)} + ${sql.join(sectionClauses, sql` + `)} * 2)`;
+
+  const results = await db
+    .select({
+      id: documentChunks.id,
+      filingId: documentChunks.filingId,
+      companyId: documentChunks.companyId,
+      chunkIndex: documentChunks.chunkIndex,
+      chunkText: documentChunks.chunkText,
+      sectionLabel: documentChunks.sectionLabel,
+      tokenCount: documentChunks.tokenCount,
+      companyCik: documentChunks.companyCik,
+      documentName: documentChunks.documentName,
+      createdAt: documentChunks.createdAt,
+      relevance: scoreExpr.as("relevance"),
+    })
+    .from(documentChunks)
+    .where(eq(documentChunks.companyCik, companyCik))
+    .orderBy(sql`relevance DESC, ${documentChunks.chunkIndex} ASC`)
+    .limit(limit);
+
+  // Filter out zero-relevance results if we have enough matches
+  const relevant = results.filter((r: any) => (r as any).relevance > 0);
+  return relevant.length > 0 ? relevant : results;
+}
+
+// ─── Suggested Questions ─────────────────────────────────────────────────────
+
+/**
+ * Generate suggested questions based on available filing content.
+ * Analyzes section labels and chunk content to produce relevant questions.
+ */
+export async function generateSuggestedQuestions(
+  companyCik: string,
+  companyName: string
+): Promise<string[]> {
+  const db = await getDb();
+  if (!db) return getDefaultQuestions(companyName);
+
+  // Check what sections are available
+  const sections = await db
+    .select({ sectionLabel: documentChunks.sectionLabel })
+    .from(documentChunks)
+    .where(
+      and(
+        eq(documentChunks.companyCik, companyCik),
+        sql`${documentChunks.sectionLabel} IS NOT NULL AND ${documentChunks.sectionLabel} != ''`
+      )
+    )
+    .groupBy(documentChunks.sectionLabel);
+
+  const sectionLabels = sections
+    .map((s) => (s.sectionLabel || "").toLowerCase())
+    .filter(Boolean);
+
+  // Check if there are any chunks at all
+  const [chunkCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(documentChunks)
+    .where(eq(documentChunks.companyCik, companyCik));
+
+  if (!chunkCount || chunkCount.count === 0) {
+    return getDefaultQuestions(companyName);
+  }
+
+  // Use LLM to generate contextual questions based on available sections
+  try {
+    const sectionList = sectionLabels.length > 0
+      ? sectionLabels.join(", ")
+      : "general company information";
+
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: `You generate exactly 5 short, specific questions an investor would ask about a company's IPO filing. Each question should be answerable from SEC filing documents. Return ONLY a JSON array of 5 strings, nothing else.`,
+        },
+        {
+          role: "user",
+          content: `Company: ${companyName} (CIK: ${companyCik}). Available filing sections: ${sectionList}. Generate 5 investor-relevant questions.`,
+        },
+      ],
+    });
+
+    const raw = typeof response.choices?.[0]?.message?.content === "string"
+      ? response.choices[0].message.content
+      : "";
+    const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.slice(0, 5);
+    }
+  } catch {
+    // Fall through to section-based defaults
+  }
+
+  return buildSectionBasedQuestions(companyName, sectionLabels);
+}
+
+function getDefaultQuestions(companyName: string): string[] {
+  return [
+    `What does ${companyName} do?`,
+    `What are the main risk factors?`,
+    `How will IPO proceeds be used?`,
+    `Who are the key executives?`,
+    `What is the competitive landscape?`,
+  ];
+}
+
+function buildSectionBasedQuestions(
+  companyName: string,
+  sectionLabels: string[]
+): string[] {
+  const questions: string[] = [];
+  const sectionSet = new Set(sectionLabels);
+
+  const sectionMap: Record<string, string> = {
+    "risk factors": "What are the key risk factors disclosed in the filing?",
+    "use of proceeds": "How does the company plan to use the IPO proceeds?",
+    "business": `What is ${companyName}'s core business model?`,
+    "management": "Who are the key members of the management team?",
+    "competition": `Who are ${companyName}'s main competitors?`,
+    "financial": `What are ${companyName}'s recent financial results?`,
+    "dilution": "What dilution can existing shareholders expect?",
+    "dividend": "Does the company plan to pay dividends?",
+    "capitalization": "What is the company's capitalization structure?",
+    "description of capital stock": "What types of stock does the company have?",
+  };
+
+  for (const [keyword, question] of Object.entries(sectionMap)) {
+    if (questions.length >= 5) break;
+    const found = sectionLabels.some((s) => s.includes(keyword));
+    if (found) questions.push(question);
+  }
+
+  // Fill remaining with defaults
+  const defaults = getDefaultQuestions(companyName);
+  for (const q of defaults) {
+    if (questions.length >= 5) break;
+    if (!questions.includes(q)) questions.push(q);
+  }
+
+  return questions.slice(0, 5);
+}
+
+// ─── Grounded Chat ───────────────────────────────────────────────────────────
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  answer: string;
+  citations: Array<{
+    documentName: string;
+    sectionLabel: string;
+    excerpt: string;
+  }>;
+  hasDocuments: boolean;
 }
 
 /**
- * Extract citations from the LLM response by matching [Source N] references.
- * Returns the specific relevant portion of each cited chunk.
+ * Generate a grounded response using RAG.
+ * The LLM is strictly instructed to only use information from the provided
+ * document chunks, and to cite sources with [DOC:name|section] markers.
+ */
+export async function generateGroundedResponse(
+  companyCik: string,
+  companyName: string,
+  userMessage: string,
+  conversationHistory: ChatMessage[] = []
+): Promise<ChatResponse> {
+  // Retrieve relevant chunks
+  const chunks = await retrieveChunks(companyCik, userMessage);
+
+  if (chunks.length === 0) {
+    return {
+      answer:
+        "I don't have any SEC filing documents for this company yet. Once S-1 or other filing documents are uploaded and indexed, I'll be able to answer questions grounded in the actual filings.",
+      citations: [],
+      hasDocuments: false,
+    };
+  }
+
+  // Build context from chunks
+  const contextParts = chunks.map((chunk, i) => {
+    const docName = chunk.documentName || "SEC Filing";
+    const section = chunk.sectionLabel || "General";
+    return `[Source ${i + 1}: ${docName} — ${section}]\n${chunk.chunkText}`;
+  });
+
+  const context = contextParts.join("\n\n---\n\n");
+
+  const systemPrompt = `You are an IPO research analyst assistant for ${companyName}. You answer questions STRICTLY based on the SEC filing documents provided below. 
+
+CRITICAL RULES:
+1. ONLY use information from the provided document excerpts. Do NOT add any information from your general knowledge.
+2. If the documents don't contain enough information to answer the question, say so explicitly.
+3. After each factual claim, cite the source using this exact format: [DOC:document_name|section_name]
+4. Be precise and analytical. Use financial terminology appropriately.
+5. Format your response with clear structure using markdown.
+6. If asked about something not covered in the documents, respond: "This information is not available in the current filing documents."
+
+AVAILABLE DOCUMENT EXCERPTS:
+${context}`;
+
+  // Build messages array with conversation history
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    { role: "system", content: systemPrompt },
+  ];
+
+  // Add recent conversation history (last 6 messages to stay within context)
+  const recentHistory = conversationHistory.slice(-6);
+  for (const msg of recentHistory) {
+    if (msg.role !== "system") {
+      messages.push({ role: msg.role, content: msg.content });
+    }
+  }
+
+  // Add current user message
+  messages.push({ role: "user", content: userMessage });
+
+  try {
+    const response = await invokeLLM({ messages });
+
+    const rawContent = response.choices?.[0]?.message?.content;
+    const answer = typeof rawContent === "string" ? rawContent : "";
+
+    // Extract citations from [DOC:name|section] markers
+    const citations = extractCitations(answer, chunks);
+
+    return {
+      answer,
+      citations,
+      hasDocuments: true,
+    };
+  } catch (error) {
+    console.error("[RAG] LLM invocation failed:", error);
+    return {
+      answer:
+        "I encountered an error while processing your question. Please try again.",
+      citations: [],
+      hasDocuments: true,
+    };
+  }
+}
+
+/**
+ * Extract citation markers from the LLM response and match them to source chunks.
  */
 export function extractCitations(
   answer: string,
-  chunks: DocumentChunk[],
-  filingsMap: Map<number, Filing>
-): Citation[] {
-  const citations: Citation[] = [];
-  const sourceRefs = answer.match(/\[Source\s+(\d+)\]/g) || [];
-  const seenIndices = new Set<number>();
+  chunks: Array<{ documentName?: string | null; sectionLabel?: string | null; chunkText: string }>
+): Array<{ documentName: string; sectionLabel: string; excerpt: string }> {
+  const citationRegex = /\[DOC:([^\]|]+)\|([^\]]+)\]/g;
+  const seen = new Set<string>();
+  const citations: Array<{ documentName: string; sectionLabel: string; excerpt: string }> = [];
 
-  for (const ref of sourceRefs) {
-    const match = ref.match(/\d+/);
-    if (!match) continue;
-    const idx = parseInt(match[0], 10) - 1;
-    if (idx < 0 || idx >= chunks.length || seenIndices.has(idx)) continue;
-    seenIndices.add(idx);
+  let match;
+  while ((match = citationRegex.exec(answer)) !== null) {
+    const docName = match[1].trim();
+    const section = match[2].trim();
+    const key = `${docName}|${section}`;
 
-    const chunk = chunks[idx];
-    const filing = filingsMap.get(chunk.filingId);
-    const docName = filing ? `${filing.documentType} — ${filing.documentName}` : "Unknown Document";
+    if (seen.has(key)) continue;
+    seen.add(key);
 
-    // Find the most relevant sentence(s) from the chunk that relate to the context
-    // around where [Source N] appears in the answer
-    const excerpt = extractRelevantExcerpt(chunk.chunkText);
-
-    citations.push({
-      documentName: docName,
-      excerpt,
-      sectionLabel: chunk.sectionLabel || undefined,
+    // Find the matching chunk to get an excerpt
+    const matchingChunk = chunks.find((c) => {
+      const chunkDoc = (c.documentName || "SEC Filing").toLowerCase();
+      const chunkSection = (c.sectionLabel || "General").toLowerCase();
+      return (
+        chunkDoc.includes(docName.toLowerCase()) ||
+        docName.toLowerCase().includes(chunkDoc)
+      ) && (
+        chunkSection.includes(section.toLowerCase()) ||
+        section.toLowerCase().includes(chunkSection)
+      );
     });
+
+    const excerpt = matchingChunk
+      ? matchingChunk.chunkText.substring(0, 200) + (matchingChunk.chunkText.length > 200 ? "..." : "")
+      : "";
+
+    citations.push({ documentName: docName, sectionLabel: section, excerpt });
   }
 
   return citations;
 }
 
-/**
- * Extract the most meaningful excerpt from a chunk.
- * Picks the first substantive paragraph/sentences up to ~400 chars.
- */
-export function extractRelevantExcerpt(chunkText: string): string {
-  // Split into sentences
-  const sentences = chunkText
-    .split(/(?<=[.!?])\s+/)
-    .filter(s => s.trim().length > 20);
+// ─── Chat Session Persistence ────────────────────────────────────────────────
 
-  if (sentences.length === 0) {
-    return chunkText.substring(0, 400).trim() + (chunkText.length > 400 ? "..." : "");
-  }
-
-  // Build excerpt from sentences up to ~400 chars
-  let excerpt = "";
-  for (const sentence of sentences) {
-    if (excerpt.length + sentence.length > 400) break;
-    excerpt += (excerpt ? " " : "") + sentence.trim();
-  }
-
-  if (!excerpt) {
-    excerpt = sentences[0].substring(0, 400);
-  }
-
-  return excerpt + (chunkText.length > excerpt.length ? "..." : "");
-}
-
-/**
- * Main RAG query function.
- * Retrieves relevant chunks, builds context, and queries the LLM.
- */
-export async function queryRAG(
+export async function saveChatSession(
+  sessionId: string,
+  companyCik: string,
   companyId: number,
-  company: Company,
-  question: string,
-  conversationHistory: Array<{ role: string; content: string }> = []
-): Promise<RAGResponse> {
-  // 1. Retrieve relevant chunks
-  const chunks = await searchChunks(companyId, question, 15);
+  userId: number | null,
+  messages: ChatMessage[]
+) {
+  const db = await getDb();
+  if (!db) return;
 
-  if (chunks.length === 0) {
-    return {
-      answer: "No SEC filing documents have been uploaded for this company yet. Please ask an administrator to upload the relevant filings (S-1, prospectus, etc.) so I can provide grounded answers based on the actual documents.",
-      citations: [],
-    };
-  }
-
-  // 2. Get filing metadata for citations
-  const companyFilings = await listFilingsByCompany(companyId);
-  const filingsMap = new Map<number, Filing>();
-  for (const f of companyFilings) {
-    filingsMap.set(f.id, f);
-  }
-
-  // 3. Build context
-  const context = buildContext(chunks, filingsMap);
-
-  // 4. Build messages
-  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-    { role: "system", content: SYSTEM_PROMPT },
-    {
-      role: "system",
-      content: `You are answering questions about **${company.name}**${company.ticker ? ` (${company.ticker})` : ""}${company.industry ? `, in the ${company.industry} industry` : ""}.\n\nHere are the relevant excerpts from their SEC filings. Use ONLY these excerpts to answer:\n\n${context}`,
-    },
-  ];
-
-  // Add conversation history (last 6 exchanges max)
-  const recentHistory = conversationHistory.slice(-12);
-  for (const msg of recentHistory) {
-    if (msg.role === "user" || msg.role === "assistant") {
-      messages.push({ role: msg.role as "user" | "assistant", content: msg.content });
-    }
-  }
-
-  // Add the current question
-  messages.push({ role: "user", content: question });
-
-  // 5. Invoke LLM
-  const result = await invokeLLM({ messages });
-  const answer = typeof result.choices[0]?.message?.content === "string"
-    ? result.choices[0].message.content
-    : "I was unable to generate a response. Please try again.";
-
-  // 6. Extract citations
-  const citations = extractCitations(answer, chunks, filingsMap);
-
-  return { answer, citations };
-}
-
-/**
- * Generate suggested questions for a company based on available filing content.
- * Questions are specific to the company and grounded in what the filings actually contain.
- */
-export async function generateSuggestedQuestions(companyId: number, company: Company): Promise<string[]> {
-  const chunks = await getChunksByCompany(companyId);
-
-  if (chunks.length === 0) {
-    // No filings uploaded — return generic but useful prompts
-    return [
-      `What does ${company.name} do?`,
-      "What are the key risk factors?",
-      "How will the IPO proceeds be used?",
-    ];
-  }
-
-  // Collect unique section labels and sample content from different sections
-  const sectionSamples = new Map<string, string>();
-  for (const chunk of chunks) {
-    const label = chunk.sectionLabel || "GENERAL";
-    if (!sectionSamples.has(label)) {
-      sectionSamples.set(label, chunk.chunkText.substring(0, 300));
-    }
-  }
-
-  const sectionsInfo = Array.from(sectionSamples.entries())
-    .slice(0, 10)
-    .map(([label, sample]) => `Section: ${label}\nSample: ${sample}`)
-    .join("\n\n---\n\n");
+  const messagesJson = JSON.stringify(messages);
 
   try {
-    const result = await invokeLLM({
-      messages: [
-        {
-          role: "system",
-          content: `You generate suggested questions for users exploring IPO filings. The questions must be:
-1. Specific to this company (use the company name)
-2. Answerable from the filing sections provided
-3. Covering different aspects: business model, risks, financials, use of proceeds, competition, management
-4. Written as natural questions a potential investor would ask
-
-Return ONLY a JSON object with a "questions" array of exactly 5 strings.`,
-        },
-        {
-          role: "user",
-          content: `Company: ${company.name}${company.ticker ? ` (${company.ticker})` : ""}
-Industry: ${company.industry || "Not specified"}
-Status: ${company.status}
-
-Available filing content by section:
-
-${sectionsInfo}
-
-Generate 5 specific, insightful questions about ${company.name}'s IPO.`,
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "suggested_questions",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              questions: {
-                type: "array",
-                items: { type: "string" },
-              },
-            },
-            required: ["questions"],
-            additionalProperties: false,
-          },
-        },
-      },
-    });
-
-    const content = typeof result.choices[0]?.message?.content === "string"
-      ? result.choices[0].message.content
-      : "";
-
-    const parsed = JSON.parse(content);
-    if (Array.isArray(parsed.questions) && parsed.questions.length > 0) {
-      return parsed.questions.slice(0, 5);
-    }
-  } catch (e) {
-    console.error("[RAG] Failed to generate suggested questions:", e);
+    await db
+      .insert(chatSessions)
+      .values({
+        sessionId,
+        companyCik,
+        companyId,
+        userId,
+        messages: messagesJson,
+      })
+      .onDuplicateKeyUpdate({
+        set: { messages: messagesJson },
+      });
+  } catch (error) {
+    console.error("[RAG] Failed to save chat session:", error);
   }
+}
 
-  // Fallback: section-aware questions specific to this company
-  const fallback: string[] = [];
-  const sections = Array.from(sectionSamples.keys());
+export async function loadChatSession(
+  sessionId: string
+): Promise<ChatMessage[]> {
+  const db = await getDb();
+  if (!db) return [];
 
-  if (sections.some(s => s.includes("RISK"))) {
-    fallback.push(`What are the key risk factors for ${company.name}'s business?`);
-  }
-  if (sections.some(s => s.includes("PROCEEDS"))) {
-    fallback.push(`How does ${company.name} plan to use the IPO proceeds?`);
-  }
-  if (sections.some(s => s.includes("BUSINESS") || s.includes("COMPANY"))) {
-    fallback.push(`What is ${company.name}'s core business model?`);
-  }
-  if (sections.some(s => s.includes("FINANCIAL") || s.includes("DISCUSSION"))) {
-    fallback.push(`What are ${company.name}'s key financial metrics and trends?`);
-  }
-  if (sections.some(s => s.includes("COMPENSATION") || s.includes("MANAGEMENT"))) {
-    fallback.push(`Who are the key executives at ${company.name}?`);
-  }
+  const result = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.sessionId, sessionId))
+    .limit(1);
 
-  // Fill remaining with generic company-specific questions
-  while (fallback.length < 5) {
-    const generic = [
-      `What competitive advantages does ${company.name} have?`,
-      `What is ${company.name}'s growth strategy?`,
-      `What market does ${company.name} operate in?`,
-      `What are the terms of ${company.name}'s IPO offering?`,
-      `What is ${company.name}'s revenue model?`,
-    ];
-    for (const q of generic) {
-      if (fallback.length >= 5) break;
-      if (!fallback.includes(q)) fallback.push(q);
-    }
-  }
+  if (result.length === 0 || !result[0].messages) return [];
 
-  return fallback.slice(0, 5);
+  try {
+    return JSON.parse(result[0].messages);
+  } catch {
+    return [];
+  }
 }

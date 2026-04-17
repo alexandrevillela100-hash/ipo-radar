@@ -1,53 +1,103 @@
-# IPO Radar - Project TODO
+# Project TODO
 
-## Database & Schema
-- [x] Companies table (name, ticker, exchange, status, industry, metrics, etc.)
-- [x] SEC filings table (company_id, document_type, file_url, upload date)
-- [x] Document chunks table (filing_id, chunk_text, chunk_index, section_label)
-- [x] Chat history table (company_id, user_id, messages)
+## Design System — Dark Terminal Luxe
+- [x] Deep charcoal background, teal primary, gold highlights in index.css
+- [x] DM Sans + JetBrains Mono typography via Google Fonts
+- [x] Grain overlay and radial gradient hero effects
+- [x] OKLCH color tokens for all design variables
+- [x] Dark theme as default in ThemeProvider
 
-## Backend API
-- [x] Company CRUD procedures (list, get by id/slug)
-- [x] Filing upload and management procedures (admin only)
-- [x] Document chunking logic on upload
-- [x] RAG chat procedure: retrieve relevant chunks + invoke LLM with grounding
-- [x] Suggested questions generation per company based on filing content
-- [x] Source citation extraction in LLM responses
+## Public Marketing Pages
+- [x] Landing page with hero, SEC pipeline bar, Upcoming/Recent IPOs, features grid
+- [x] IPO Discovery page with search and filters
+- [x] IPO Calendar (public view)
+- [x] Sectors overview page
+- [x] Company Comparison page
+- [x] Filing Diff Viewer page
+- [x] Market Commentary page
+- [x] Pricing page with tier comparison
+- [x] About page
+- [x] Contact page
+- [x] Legal (Terms/Privacy) page
+- [x] Sample Report Preview page
 
-## Frontend - IPO Dashboard
-- [x] Public landing/dashboard page listing all tracked IPOs
-- [x] Status badges (upcoming, priced, trading)
-- [x] Key metrics display per company card (price range, size, date, exchange)
-- [x] Search and filter functionality
-- [x] Link through to individual company detail pages
+## Authenticated App Shell
+- [x] Sidebar-navigated AppShell layout
+- [x] IPO Calendar (authenticated, with filing dots)
+- [x] IPO News feed with filter tabs
+- [x] IPO Stats with charts and breakdowns
+- [x] Screens with filterable data tables
 
-## Frontend - Company Detail Page
-- [x] Company Facts section (name, ticker, exchange, offering size, price range, expected date, industry)
-- [x] Company overview/description section
-- [x] Key metrics cards
-- [x] Fix negative currency formatting (e.g. -$12M instead of $-12,000,000)
+## User Dashboard
+- [x] Watchlist page (persisted to database)
+- [x] Alerts management page (persisted to database)
+- [x] Saved Reports page
+- [x] Account Settings page
 
-## Frontend - Conversational Chat Interface
-- [x] Chat UI embedded below Company Facts on detail page
-- [x] Suggested questions panel (dynamically generated per company from filing content)
-- [x] Source citation display within each chat response (document name + excerpt)
-- [x] Load persisted chat session history on page mount
-- [x] Loading states and error handling
+## Authentication
+- [x] Email/password login page with tabs (Sign In / Create Account)
+- [x] bcrypt password hashing
+- [x] JWT session management
+- [x] Start Free email registration flow
 
-## Admin - Filing Management
-- [x] Admin dashboard page
-- [x] Company management page (add/delete companies)
-- [x] SEC filing upload interface per company
-- [x] Filing list with status indicators
-- [x] Document processing status display
-- [x] Company edit functionality on admin page
+## SEC EDGAR Integration Pipeline
+- [x] EDGAR client module (server/edgar/client.ts)
+- [x] Real-time S-1/F-1 filing ingestion
+- [x] SIC-to-sector mapping
+- [x] Company submissions and XBRL financial data
+- [x] Full-text filing search
+- [x] EDGAR ingestion pipeline (edgarIngestion.ts)
 
-## Design & Polish
-- [x] Dark financial terminal theme (navy/slate, accent blues/greens)
-- [x] Inter font integration
-- [x] Professional data-dense card layouts
+## AI-Generated IPO Initiation Reports
+- [x] AI Report page with Generate button
+- [x] LLM-powered report using verified SEC data only
+- [x] Section-by-section narrative output
+- [x] No hallucinated financial figures
+
+## Database Schema
+- [x] users table
+- [x] companies table
+- [x] filings table
+- [x] emailSignups table
+- [x] watchlistItems table
+- [x] userAlerts table
+- [x] Drizzle ORM with full migration history
+
+## Stripe Subscription Billing
+- [x] Checkout session creation endpoint
+- [x] Webhook handler for subscription events
+- [x] Paywall gate component
+- [x] Subscription management page
+
+## Global UX Utilities
+- [x] Command-palette search (⌘K)
+- [x] Watchlist toggle button component
+- [x] Alert notification bell with unread count
+- [x] Navbar with auth-aware state
+- [x] Footer component
+- [x] Error boundary
 
 ## Testing
-- [x] Vitest tests for document chunking (extractText, validateExtraction, chunkDocument)
-- [x] Vitest tests for auth logout
-- [x] Vitest tests for RAG response format (citation extraction, excerpt generation)
+- [x] 72-test Vitest suite covering auth, EDGAR, watchlist, alerts, and Stripe (exceeds 56-test requirement)
+
+## Bug Fixes
+- [x] Fix NotFound page to use Dark Terminal Luxe theme (was using light background)
+
+## GitHub Integration
+- [x] Push all project files to GitHub repository (alexandrevillela100-hash/IPO-Tracker-)
+
+## Landing Page Enhancements
+- [x] Add "Common Questions" FAQ section with Usuro.ai-style visuals
+- [x] Clickable question switching with subtle transitions
+- [x] Animation between question states (Framer Motion)
+
+## Conversational Chat Feature (NEW)
+- [x] Add document_chunks table to schema for RAG retrieval
+- [x] Add chat_sessions and chat_messages tables for persistence
+- [x] Create chunker utility for processing SEC filing text
+- [x] Create RAG engine (retrieve chunks + grounded LLM responses with citations)
+- [x] Add chat tRPC procedures (sendMessage, getHistory, getSuggestedQuestions)
+- [x] Build CompanyChat UI component with message display, input, citations, suggested questions
+- [x] Integrate CompanyChat into SECIPODetail.tsx below Company Facts section
+- [x] Write vitest tests for new chat functionality (5 tests for citation extraction)
+- [x] Verify no existing pages were modified (all 77 tests pass, landing page confirmed intact)

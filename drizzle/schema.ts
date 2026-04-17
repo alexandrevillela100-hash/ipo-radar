@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, bigint, decimal, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -9,7 +9,12 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
+  passwordHash: varchar("passwordHash", { length: 256 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 256 }),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 256 }),
+  subscriptionTier: mysqlEnum("subscriptionTier", ["free", "pro", "enterprise"]).default("free").notNull(),
+  subscriptionStatus: varchar("subscriptionStatus", { length: 32 }).default("none"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -18,45 +23,22 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-/**
- * IPO Companies table — stores all tracked IPO companies.
- */
+// ─── SEC EDGAR Companies ────────────────────────────────────────────────────
 export const companies = mysqlTable("companies", {
   id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+  cik: varchar("cik", { length: 10 }).notNull().unique(),
+  name: varchar("name", { length: 512 }).notNull(),
   ticker: varchar("ticker", { length: 20 }),
-  exchange: varchar("exchange", { length: 50 }),
-  status: mysqlEnum("status", ["upcoming", "priced", "trading", "withdrawn"]).default("upcoming").notNull(),
-  industry: varchar("industry", { length: 255 }),
-  sector: varchar("sector", { length: 255 }),
-  description: text("description"),
-  headquarters: varchar("headquarters", { length: 255 }),
-  founded: varchar("founded", { length: 10 }),
-  ceo: varchar("ceo", { length: 255 }),
-  employees: varchar("employees", { length: 50 }),
-  website: varchar("website", { length: 500 }),
-  logoUrl: varchar("logoUrl", { length: 1000 }),
-
-  // Offering details
-  priceLow: decimal("priceLow", { precision: 10, scale: 2 }),
-  priceHigh: decimal("priceHigh", { precision: 10, scale: 2 }),
-  priceActual: decimal("priceActual", { precision: 10, scale: 2 }),
-  sharesOffered: bigint("sharesOffered", { mode: "number" }),
-  offeringSize: bigint("offeringSize", { mode: "number" }),
-  marketCap: bigint("marketCap", { mode: "number" }),
-  expectedDate: timestamp("expectedDate"),
-  pricedDate: timestamp("pricedDate"),
-
-  // Financials snapshot
-  revenue: bigint("revenue", { mode: "number" }),
-  netIncome: bigint("netIncome", { mode: "number" }),
-  fiscalYear: varchar("fiscalYear", { length: 10 }),
-
-  // Underwriters
-  leadUnderwriter: varchar("leadUnderwriter", { length: 500 }),
-
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-
+  exchange: varchar("exchange", { length: 20 }),
+  sic: varchar("sic", { length: 10 }),
+  sicDescription: varchar("sicDescription", { length: 256 }),
+  stateOfIncorporation: varchar("stateOfIncorporation", { length: 10 }),
+  businessAddress: text("businessAddress"),
+  businessCity: varchar("businessCity", { length: 128 }),
+  businessState: varchar("businessState", { length: 10 }),
+  businessZip: varchar("businessZip", { length: 20 }),
+  fiscalYearEnd: varchar("fiscalYearEnd", { length: 4 }),
+  entityType: varchar("entityType", { length: 64 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -64,30 +46,63 @@ export const companies = mysqlTable("companies", {
 export type Company = typeof companies.$inferSelect;
 export type InsertCompany = typeof companies.$inferInsert;
 
-/**
- * SEC Filings table — stores uploaded documents per company.
- */
+// ─── SEC EDGAR Filings ──────────────────────────────────────────────────────
 export const filings = mysqlTable("filings", {
   id: int("id").autoincrement().primaryKey(),
-  companyId: int("companyId").notNull(),
-  documentType: varchar("documentType", { length: 50 }).notNull(), // S-1, S-1/A, prospectus, etc.
-  documentName: varchar("documentName", { length: 500 }).notNull(),
-  fileUrl: varchar("fileUrl", { length: 1000 }).notNull(),
-  fileKey: varchar("fileKey", { length: 500 }).notNull(),
-  fileSize: bigint("fileSize", { mode: "number" }),
-  status: mysqlEnum("filingStatus", ["processing", "ready", "error"]).default("processing").notNull(),
-  chunkCount: int("chunkCount").default(0),
-  errorMessage: text("errorMessage"),
-  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
-  processedAt: timestamp("processedAt"),
+  accessionNumber: varchar("accessionNumber", { length: 25 }).notNull().unique(),
+  companyCik: varchar("companyCik", { length: 10 }).notNull(),
+  formType: varchar("formType", { length: 10 }).notNull(),
+  filingDate: varchar("filingDate", { length: 10 }).notNull(),
+  primaryDocument: varchar("primaryDocument", { length: 256 }),
+  primaryDocDescription: varchar("primaryDocDescription", { length: 512 }),
+  filingUrl: text("filingUrl"),
+  filingStatus: varchar("filingStatus", { length: 20 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Filing = typeof filings.$inferSelect;
 export type InsertFiling = typeof filings.$inferInsert;
 
-/**
- * Document Chunks table — stores chunked text from filings for RAG retrieval.
- */
+// ─── Email Signups ────────────────────────────────────────────────────────
+export const emailSignups = mysqlTable("emailSignups", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  source: varchar("source", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailSignup = typeof emailSignups.$inferSelect;
+export type InsertEmailSignup = typeof emailSignups.$inferInsert;
+
+// ─── Watchlist ──────────────────────────────────────────────────────────────
+export const watchlistItems = mysqlTable("watchlistItems", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  companyCik: varchar("companyCik", { length: 10 }).notNull(),
+  alertsEnabled: int("alertsEnabled").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WatchlistItem = typeof watchlistItems.$inferSelect;
+export type InsertWatchlistItem = typeof watchlistItems.$inferInsert;
+
+// ─── User Alerts ────────────────────────────────────────────────────────────
+export const userAlerts = mysqlTable("userAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: varchar("type", { length: 32 }).notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  message: text("message"),
+  companyCik: varchar("companyCik", { length: 10 }),
+  isRead: int("isRead").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserAlert = typeof userAlerts.$inferSelect;
+export type InsertUserAlert = typeof userAlerts.$inferInsert;
+
+// ─── Document Chunks (for RAG) ─────────────────────────────────────────────
 export const documentChunks = mysqlTable("document_chunks", {
   id: int("id").autoincrement().primaryKey(),
   filingId: int("filingId").notNull(),
@@ -96,21 +111,22 @@ export const documentChunks = mysqlTable("document_chunks", {
   chunkText: text("chunkText").notNull(),
   sectionLabel: varchar("sectionLabel", { length: 500 }),
   tokenCount: int("tokenCount"),
+  companyCik: varchar("companyCik", { length: 10 }),
+  documentName: varchar("documentName", { length: 512 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type DocumentChunk = typeof documentChunks.$inferSelect;
 export type InsertDocumentChunk = typeof documentChunks.$inferInsert;
 
-/**
- * Chat sessions table — stores conversation history per user per company.
- */
+// ─── Chat Sessions ─────────────────────────────────────────────────────────
 export const chatSessions = mysqlTable("chat_sessions", {
   id: int("id").autoincrement().primaryKey(),
   companyId: int("companyId").notNull(),
   userId: int("userId"),
   sessionId: varchar("sessionId", { length: 64 }).notNull().unique(),
-  messages: json("messages").$type<Array<{ role: string; content: string; citations?: Array<{ documentName: string; excerpt: string }> }>>().default([]),
+  messages: text("messages"), // JSON array of messages
+  companyCik: varchar("companyCik", { length: 10 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

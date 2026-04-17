@@ -1,13 +1,17 @@
-import { eq, desc, asc, sql, and, like, inArray } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
-  InsertUser, users,
-  companies, InsertCompany, Company,
-  filings, InsertFiling, Filing,
-  documentChunks, InsertDocumentChunk, DocumentChunk,
-  chatSessions, InsertChatSession, ChatSession,
+  InsertUser,
+  users,
+  companies,
+  filings,
+  emailSignups,
+  watchlistItems,
+  userAlerts,
+  InsertCompany,
+  InsertFiling,
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -23,22 +27,28 @@ export async function getDb() {
   return _db;
 }
 
-// ─── User Helpers ───────────────────────────────────────────────
+// ─── User Helpers ───────────────────────────────────────────────────────────
 
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
   }
+
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot upsert user: database not available");
     return;
   }
+
   try {
-    const values: InsertUser = { openId: user.openId };
+    const values: InsertUser = {
+      openId: user.openId,
+    };
     const updateSet: Record<string, unknown> = {};
+
     const textFields = ["name", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
+
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
@@ -46,7 +56,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values[field] = normalized;
       updateSet[field] = normalized;
     };
+
     textFields.forEach(assignNullable);
+
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
@@ -55,16 +67,21 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
+
     if (!values.lastSignedIn) {
       values.lastSignedIn = new Date();
     }
+
     if (Object.keys(updateSet).length === 0) {
       updateSet.lastSignedIn = new Date();
     }
-    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
+      set: updateSet,
+    });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -73,236 +90,341 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
+
   return result.length > 0 ? result[0] : undefined;
 }
 
-// ─── Company Helpers ────────────────────────────────────────────
+// ─── Company Helpers ────────────────────────────────────────────────────────
 
-export async function listCompanies(filters?: { status?: string; search?: string }) {
+export async function upsertCompany(company: InsertCompany): Promise<void> {
   const db = await getDb();
-  if (!db) return [];
-  let query = db.select().from(companies);
-  const conditions = [];
-  if (filters?.status && filters.status !== "all") {
-    conditions.push(eq(companies.status, filters.status as any));
+  if (!db) {
+    console.warn("[Database] Cannot upsert company: database not available");
+    return;
   }
-  if (filters?.search) {
-    conditions.push(
-      sql`(${companies.name} LIKE ${`%${filters.search}%`} OR ${companies.ticker} LIKE ${`%${filters.search}%`})`
-    );
-  }
-  if (conditions.length > 0) {
-    query = query.where(and(...conditions)) as any;
-  }
-  return (query as any).orderBy(desc(companies.updatedAt));
+
+  await db
+    .insert(companies)
+    .values(company)
+    .onDuplicateKeyUpdate({
+      set: {
+        name: company.name,
+        ticker: company.ticker,
+        exchange: company.exchange,
+        sic: company.sic,
+        sicDescription: company.sicDescription,
+        stateOfIncorporation: company.stateOfIncorporation,
+        businessAddress: company.businessAddress,
+        businessCity: company.businessCity,
+        businessState: company.businessState,
+        businessZip: company.businessZip,
+        fiscalYearEnd: company.fiscalYearEnd,
+        entityType: company.entityType,
+      },
+    });
 }
 
-export async function getCompanyBySlug(slug: string) {
+export async function getAllCompanies() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(companies).orderBy(desc(companies.updatedAt));
+}
+
+export async function getCompanyByCik(cik: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(companies).where(eq(companies.slug, slug)).limit(1);
+
+  const result = await db
+    .select()
+    .from(companies)
+    .where(eq(companies.cik, cik))
+    .limit(1);
+
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getCompanyById(id: number) {
+// ─── Filing Helpers ─────────────────────────────────────────────────────────
+
+export async function insertFilingIfNew(
+  filing: InsertFiling
+): Promise<boolean> {
   const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(companies).where(eq(companies.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
-}
+  if (!db) {
+    console.warn("[Database] Cannot insert filing: database not available");
+    return false;
+  }
 
-export async function createCompany(data: InsertCompany) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(companies).values(data);
-  return result[0].insertId;
-}
-
-export async function updateCompany(id: number, data: Partial<InsertCompany>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(companies).set(data).where(eq(companies.id, id));
-}
-
-export async function deleteCompany(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(documentChunks).where(eq(documentChunks.companyId, id));
-  await db.delete(filings).where(eq(filings.companyId, id));
-  await db.delete(chatSessions).where(eq(chatSessions.companyId, id));
-  await db.delete(companies).where(eq(companies.id, id));
-}
-
-// ─── Filing Helpers ─────────────────────────────────────────────
-
-export async function listFilingsByCompany(companyId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(filings).where(eq(filings.companyId, companyId)).orderBy(desc(filings.uploadedAt));
-}
-
-export async function getFilingById(id: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const result = await db.select().from(filings).where(eq(filings.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
-}
-
-export async function createFiling(data: InsertFiling) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(filings).values(data);
-  return result[0].insertId;
-}
-
-export async function updateFiling(id: number, data: Partial<InsertFiling>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(filings).set(data).where(eq(filings.id, id));
-}
-
-export async function deleteFiling(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(documentChunks).where(eq(documentChunks.filingId, id));
-  await db.delete(filings).where(eq(filings.id, id));
-}
-
-// ─── Document Chunk Helpers ─────────────────────────────────────
-
-export async function createChunks(chunks: InsertDocumentChunk[]) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  if (chunks.length === 0) return;
-  // Insert in batches of 100
-  for (let i = 0; i < chunks.length; i += 100) {
-    const batch = chunks.slice(i, i + 100);
-    await db.insert(documentChunks).values(batch);
+  try {
+    await db.insert(filings).values(filing);
+    return true;
+  } catch (error: any) {
+    if (error?.code === "ER_DUP_ENTRY" || error?.cause?.code === "ER_DUP_ENTRY") {
+      return false;
+    }
+    throw error;
   }
 }
 
-export async function getChunksByCompany(companyId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(documentChunks)
-    .where(eq(documentChunks.companyId, companyId))
-    .orderBy(asc(documentChunks.filingId), asc(documentChunks.chunkIndex));
-}
-
-export async function getChunksByFiling(filingId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(documentChunks)
-    .where(eq(documentChunks.filingId, filingId))
-    .orderBy(asc(documentChunks.chunkIndex));
-}
-
-export async function deleteChunksByFiling(filingId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(documentChunks).where(eq(documentChunks.filingId, filingId));
-}
-
-/**
- * Simple keyword-based retrieval for RAG.
- * Searches chunk text for keywords and returns the most relevant chunks.
- */
-export async function searchChunks(companyId: number, query: string, limit = 15): Promise<DocumentChunk[]> {
+export async function getFilings(companyCik?: string) {
   const db = await getDb();
   if (!db) return [];
 
-  // Extract keywords from the query (remove common stop words)
-  const stopWords = new Set(["the", "a", "an", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "will", "would", "could", "should", "may", "might", "shall", "can", "need", "dare", "ought", "used", "to", "of", "in", "for", "on", "with", "at", "by", "from", "as", "into", "through", "during", "before", "after", "above", "below", "between", "out", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "each", "every", "both", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "just", "because", "but", "and", "or", "if", "while", "about", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "it", "its", "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "they", "them", "their", "theirs", "themselves"]);
-
-  const keywords = query.toLowerCase()
-    .replace(/[^\w\s]/g, "")
-    .split(/\s+/)
-    .filter(w => w.length > 2 && !stopWords.has(w));
-
-  if (keywords.length === 0) {
-    // Return first N chunks if no meaningful keywords
-    return db.select().from(documentChunks)
-      .where(eq(documentChunks.companyId, companyId))
-      .orderBy(asc(documentChunks.chunkIndex))
-      .limit(limit);
+  if (companyCik) {
+    return db
+      .select()
+      .from(filings)
+      .where(eq(filings.companyCik, companyCik))
+      .orderBy(desc(filings.filingDate));
   }
 
-  // Build a relevance score using LIKE matches
-  const conditions = keywords.map(kw =>
-    sql`LOWER(${documentChunks.chunkText}) LIKE ${`%${kw}%`}`
+  return db.select().from(filings).orderBy(desc(filings.filingDate));
+}
+
+export async function getFilingsWithCompanies() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select({
+      filing: filings,
+      company: companies,
+    })
+    .from(filings)
+    .innerJoin(companies, eq(filings.companyCik, companies.cik))
+    .orderBy(desc(filings.filingDate));
+
+  return results;
+}
+
+// ─── Email Signup Helpers ───────────────────────────────────────────────────
+
+export async function registerEmailSignup(email: string, source?: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.insert(emailSignups).values({ email: email.toLowerCase().trim(), source });
+    return true;
+  } catch (error: any) {
+    if (
+      error?.code === "ER_DUP_ENTRY" ||
+      error?.cause?.code === "ER_DUP_ENTRY" ||
+      error?.message?.includes("Duplicate entry") ||
+      error?.cause?.message?.includes("Duplicate entry")
+    ) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+// ─── Watchlist Helpers ─────────────────────────────────────────────────────
+
+export async function getWatchlistForUser(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select({ watchlistItem: watchlistItems, company: companies })
+    .from(watchlistItems)
+    .innerJoin(companies, eq(watchlistItems.companyCik, companies.cik))
+    .where(eq(watchlistItems.userId, userId))
+    .orderBy(desc(watchlistItems.createdAt));
+}
+
+export async function addToWatchlist(userId: number, companyCik: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const existing = await db
+    .select()
+    .from(watchlistItems)
+    .where(sql`${watchlistItems.userId} = ${userId} AND ${watchlistItems.companyCik} = ${companyCik}`)
+    .limit(1);
+
+  if (existing.length > 0) return false;
+
+  await db.insert(watchlistItems).values({ userId, companyCik });
+  return true;
+}
+
+export async function removeFromWatchlist(userId: number, companyCik: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .delete(watchlistItems)
+    .where(sql`${watchlistItems.userId} = ${userId} AND ${watchlistItems.companyCik} = ${companyCik}`);
+}
+
+export async function toggleWatchlistAlerts(userId: number, companyCik: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.execute(
+    sql`UPDATE watchlistItems SET alertsEnabled = IF(alertsEnabled = 1, 0, 1) WHERE userId = ${userId} AND companyCik = ${companyCik}`
   );
-
-  // Score = number of keyword matches
-  const scoreExpr = sql<number>`(${sql.join(
-    keywords.map(kw => sql`IF(LOWER(${documentChunks.chunkText}) LIKE ${`%${kw}%`}, 1, 0)`),
-    sql` + `
-  )})`;
-
-  // Get chunks that match at least one keyword
-  const orCondition = sql`(${sql.join(conditions, sql` OR `)})`;
-
-  const results = await db.select({
-    id: documentChunks.id,
-    filingId: documentChunks.filingId,
-    companyId: documentChunks.companyId,
-    chunkIndex: documentChunks.chunkIndex,
-    chunkText: documentChunks.chunkText,
-    sectionLabel: documentChunks.sectionLabel,
-    tokenCount: documentChunks.tokenCount,
-    createdAt: documentChunks.createdAt,
-    score: scoreExpr,
-  })
-    .from(documentChunks)
-    .where(and(eq(documentChunks.companyId, companyId), orCondition))
-    .orderBy(sql`${scoreExpr} DESC`)
-    .limit(limit);
-
-  return results.map(({ score, ...chunk }) => chunk);
 }
 
-// ─── Chat Session Helpers ───────────────────────────────────────
+// ─── Alert Helpers ─────────────────────────────────────────────────────────
 
-export async function getOrCreateChatSession(sessionId: string, companyId: number, userId?: number) {
+export async function getAlertsForUser(userId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) return [];
 
-  const existing = await db.select().from(chatSessions)
-    .where(eq(chatSessions.sessionId, sessionId)).limit(1);
+  return db
+    .select()
+    .from(userAlerts)
+    .where(eq(userAlerts.userId, userId))
+    .orderBy(desc(userAlerts.createdAt));
+}
 
-  if (existing.length > 0) return existing[0];
+export async function markAlertRead(alertId: number, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
 
-  await db.insert(chatSessions).values({
-    sessionId,
-    companyId,
-    userId: userId ?? null,
-    messages: [],
+  await db
+    .update(userAlerts)
+    .set({ isRead: 1 })
+    .where(sql`${userAlerts.id} = ${alertId} AND ${userAlerts.userId} = ${userId}`);
+}
+
+export async function markAllAlertsRead(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(userAlerts)
+    .set({ isRead: 1 })
+    .where(eq(userAlerts.userId, userId));
+}
+
+export async function getUnreadAlertCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(userAlerts)
+    .where(sql`${userAlerts.userId} = ${userId} AND ${userAlerts.isRead} = 0`);
+
+  return result?.count ?? 0;
+}
+
+// ─── Email/Password Auth Helpers ──────────────────────────────────────────
+
+import { hash, compare } from "bcryptjs";
+
+export async function registerWithPassword(
+  email: string,
+  password: string,
+  name: string
+): Promise<{ user: typeof users.$inferSelect; isNew: boolean } | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const existing = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return null;
+  }
+
+  const passwordHash = await hash(password, 12);
+  const openId = `email_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+  await db.insert(users).values({
+    openId,
+    name,
+    email: normalizedEmail,
+    passwordHash,
+    loginMethod: "email",
+    lastSignedIn: new Date(),
   });
 
-  const created = await db.select().from(chatSessions)
-    .where(eq(chatSessions.sessionId, sessionId)).limit(1);
-  return created[0];
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
+
+  return user ? { user, isNew: true } : null;
 }
 
-export async function updateChatMessages(sessionId: string, messages: any[]) {
+export async function loginWithPassword(
+  email: string,
+  password: string
+): Promise<typeof users.$inferSelect | null> {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(chatSessions)
-    .set({ messages })
-    .where(eq(chatSessions.sessionId, sessionId));
+  if (!db) return null;
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+    .limit(1);
+
+  if (!user || !user.passwordHash) return null;
+
+  const isValid = await compare(password, user.passwordHash);
+  if (!isValid) return null;
+
+  await db
+    .update(users)
+    .set({ lastSignedIn: new Date() })
+    .where(eq(users.id, user.id));
+
+  return user;
 }
 
-// ─── Stats Helpers ──────────────────────────────────────────────
+// ─── Search Helpers ────────────────────────────────────────────────────────
 
-export async function getCompanyStats() {
+export async function searchCompanies(query: string) {
   const db = await getDb();
-  if (!db) return { total: 0, upcoming: 0, priced: 0, trading: 0 };
-  const result = await db.select({
-    total: sql<number>`COUNT(*)`,
-    upcoming: sql<number>`SUM(CASE WHEN ${companies.status} = 'upcoming' THEN 1 ELSE 0 END)`,
-    priced: sql<number>`SUM(CASE WHEN ${companies.status} = 'priced' THEN 1 ELSE 0 END)`,
-    trading: sql<number>`SUM(CASE WHEN ${companies.status} = 'trading' THEN 1 ELSE 0 END)`,
-  }).from(companies);
-  return result[0] ?? { total: 0, upcoming: 0, priced: 0, trading: 0 };
+  if (!db) return [];
+
+  const searchTerm = `%${query}%`;
+  return db
+    .select()
+    .from(companies)
+    .where(
+      sql`${companies.name} LIKE ${searchTerm} OR ${companies.ticker} LIKE ${searchTerm} OR ${companies.sicDescription} LIKE ${searchTerm} OR ${companies.cik} LIKE ${searchTerm}`
+    )
+    .orderBy(desc(companies.updatedAt))
+    .limit(20);
+}
+
+export async function getStats() {
+  const db = await getDb();
+  if (!db) return { companies: 0, filings: 0 };
+
+  const [companyCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(companies);
+  const [filingCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(filings);
+
+  return {
+    companies: companyCount?.count ?? 0,
+    filings: filingCount?.count ?? 0,
+  };
 }
