@@ -1,518 +1,216 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  MessageSquare,
-  FileText,
-  BarChart3,
-  ChevronDown,
-  Sparkles,
-  BookOpen,
-  Send,
-} from "lucide-react";
 
-/* ─── Demo Data ─────────────────────────────────────────────────────── */
+/* ─── Demo Scenarios ────────────────────────────────────────────────── */
 
-interface Citation {
-  doc: string;
-  excerpt: string;
-}
-
-interface ChartBar {
-  label: string;
-  revenue: number;
-  ebitdaMargin: number;
-}
-
-interface DemoStep {
+interface Scenario {
+  tab: string;
   question: string;
   answer: string;
-  citations: Citation[];
-  chart?: ChartBar[];
-  followUps: string[];
 }
 
-const DEMO_STEPS: DemoStep[] = [
+const SCENARIOS: Scenario[] = [
   {
-    question: "What are the key risk factors for this IPO?",
+    tab: "Risk Analysis",
+    question:
+      "What are the key risk factors in NovaTech AI's S-1 filing that investors should evaluate?",
     answer:
-      "Based on the S-1 filing, NovaTech AI faces several material risk factors:\n\n**1. Revenue Concentration** — 68% of revenue comes from three enterprise clients. Loss of any major customer could materially impact operations.\n\n**2. Regulatory Uncertainty** — The company operates in AI/ML markets subject to evolving regulations across the EU (AI Act) and US jurisdictions.\n\n**3. Negative Cash Flow** — The company has not achieved profitability, reporting net losses of $42.3M in FY2024 and $31.8M in FY2023.\n\n**4. Competitive Landscape** — Direct competition from well-capitalized incumbents including major cloud providers expanding AI offerings.",
-    citations: [
-      {
-        doc: "S-1 Filing — Risk Factors (p. 24)",
-        excerpt:
-          '"We derived approximately 68% of our revenue from our three largest customers for the year ended December 31, 2024..."',
-      },
-      {
-        doc: "S-1 Filing — Risk Factors (p. 31)",
-        excerpt:
-          '"We have incurred net losses of $42.3 million and $31.8 million for the fiscal years ended December 31, 2024 and 2023, respectively..."',
-      },
-    ],
-    followUps: [
-      "How will the IPO proceeds be used?",
-      "Who are the lead underwriters?",
-      "What is the company's competitive advantage?",
-    ],
+      'Risk analysis complete. 4 material risk factors identified: Revenue Concentration — 68% of revenue from three enterprise clients (S-1, p. 24). Regulatory Uncertainty — operations subject to evolving EU AI Act and US regulations. Negative Cash Flow — net losses of $42.3M (FY2024) and $31.8M (FY2023). Competitive Pressure — direct competition from well-capitalized cloud providers expanding AI offerings. Full risk assessment with severity ratings saved to your workspace.',
   },
   {
-    question: "Show me revenue and EBITDA margin trends",
+    tab: "Financial Deep Dive",
+    question:
+      "Show me revenue growth and EBITDA margin trends from the S-1 with forward estimates",
     answer:
-      "Here are NovaTech AI's financial highlights from the S-1 filing:\n\nRevenue has grown at a **73% CAGR** over the past three years, from $28.4M in FY2022 to $85.1M in FY2024. However, EBITDA margins remain negative, improving from -89% to -38% as the company scales.\n\nManagement projects reaching EBITDA breakeven by Q3 2026 based on current growth trajectory and planned cost optimization initiatives.",
-    citations: [
-      {
-        doc: "S-1 Filing — Financial Statements (p. 67)",
-        excerpt:
-          '"Total revenue increased 42% year-over-year to $85.1 million for the fiscal year ended December 31, 2024..."',
-      },
-      {
-        doc: "S-1 Filing — Use of Proceeds (p. 42)",
-        excerpt:
-          '"We intend to use approximately 40% of the net proceeds for research and development, 30% for sales and marketing expansion..."',
-      },
-    ],
-    chart: [
-      { label: "FY2022", revenue: 28.4, ebitdaMargin: -89 },
-      { label: "FY2023", revenue: 59.9, ebitdaMargin: -52 },
-      { label: "FY2024", revenue: 85.1, ebitdaMargin: -38 },
-      { label: "FY2025E", revenue: 118, ebitdaMargin: -15 },
-    ],
-    followUps: [
-      "What are the comparable public companies?",
-      "What is the expected valuation range?",
-      "Break down the cost structure",
-    ],
+      "Financial analysis complete. Revenue CAGR of 73% over three years: $28.4M (FY2022) → $59.9M (FY2023) → $85.1M (FY2024). EBITDA margins improving: -89% → -52% → -38%. Management projects breakeven by Q3 2026. Gross margin stable at 71-74%. R&D spend at 45% of revenue, declining from 62%. IPO proceeds allocation: 40% R&D, 30% sales expansion, 20% working capital, 10% potential acquisitions.",
+  },
+  {
+    tab: "Competitive Landscape",
+    question:
+      "Map the competitive landscape for NovaTech AI's enterprise ML platform market",
+    answer:
+      "Competitive mapping complete. 3 tiers identified: Direct Competitors — DataRobot ($1.2B valuation), H2O.ai ($1.7B), C3.ai (NYSE: AI, $3.1B market cap). Adjacent Threats — AWS SageMaker, Google Vertex AI, Azure ML expanding into mid-market. Differentiation — NovaTech's edge in on-premise deployment and regulatory compliance tooling. Market size: $14.2B (2024) growing to $38.6B (2028). NovaTech's estimated share: 0.6%. Full competitive matrix with positioning analysis generated.",
   },
 ];
 
-/* ─── Typing Effect Hook ────────────────────────────────────────────── */
+const CYCLE_INTERVAL = 7000;
+const TYPING_SPEED = 18;
 
-function useTypingEffect(text: string, speed: number = 35, startTyping: boolean = false) {
+/* ─── Typing Hook ───────────────────────────────────────────────────── */
+
+function useTypingEffect(text: string, speed: number, start: boolean) {
   const [displayed, setDisplayed] = useState("");
-  const [isDone, setIsDone] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!startTyping) {
+    if (!start) {
       setDisplayed("");
-      setIsDone(false);
+      setDone(false);
       return;
     }
     setDisplayed("");
-    setIsDone(false);
+    setDone(false);
     let i = 0;
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
       if (i >= text.length) {
-        clearInterval(interval);
-        setIsDone(true);
+        clearInterval(iv);
+        setDone(true);
       }
     }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed, startTyping]);
+    return () => clearInterval(iv);
+  }, [text, speed, start]);
 
-  return { displayed, isDone };
+  return { displayed, done };
 }
 
-/* ─── Mini Bar Chart ────────────────────────────────────────────────── */
-
-function MiniChart({ data, animate }: { data: ChartBar[]; animate: boolean }) {
-  const maxRevenue = Math.max(...data.map((d) => d.revenue));
-
-  return (
-    <div className="mt-4 p-4 rounded-lg bg-background/60 border border-border/40">
-      <div className="flex items-center gap-2 mb-3">
-        <BarChart3 className="w-3.5 h-3.5 text-primary" />
-        <span className="text-[11px] font-semibold text-foreground/80 uppercase tracking-wider">
-          Revenue ($M) & EBITDA Margin
-        </span>
-      </div>
-      <div className="flex items-end gap-3 h-32">
-        {data.map((d, i) => {
-          const height = (d.revenue / maxRevenue) * 100;
-          return (
-            <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[10px] font-mono text-muted-foreground">
-                {d.ebitdaMargin > 0 ? "+" : ""}
-                {d.ebitdaMargin}%
-              </span>
-              <motion.div
-                className="w-full rounded-t-sm relative overflow-hidden"
-                style={{ backgroundColor: d.label.includes("E") ? "oklch(0.75 0.15 180 / 0.3)" : "oklch(0.75 0.15 180 / 0.6)" }}
-                initial={{ height: 0 }}
-                animate={animate ? { height: `${height}%` } : { height: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.15, ease: "easeOut" }}
-              >
-                {d.label.includes("E") && (
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,oklch(0.75_0.15_180/0.15)_3px,oklch(0.75_0.15_180/0.15)_6px)]" />
-                )}
-              </motion.div>
-              <div className="text-center">
-                <span className="text-[10px] font-mono font-semibold text-foreground/90 block">
-                  ${d.revenue}
-                </span>
-                <span className="text-[9px] text-muted-foreground">{d.label}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex items-center gap-4 mt-3 pt-2 border-t border-border/30">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "oklch(0.75 0.15 180 / 0.6)" }} />
-          <span className="text-[10px] text-muted-foreground">Actual</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-sm bg-[repeating-linear-gradient(45deg,transparent,transparent_1px,oklch(0.75_0.15_180/0.3)_1px,oklch(0.75_0.15_180/0.3)_2px)]" style={{ backgroundColor: "oklch(0.75 0.15 180 / 0.15)" }} />
-          <span className="text-[10px] text-muted-foreground">Estimate</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Citation Badge ────────────────────────────────────────────────── */
-
-function CitationBadge({ citations, show }: { citations: Citation[]; show: boolean }) {
-  const [expanded, setExpanded] = useState(false);
-
-  if (!show) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="mt-3"
-    >
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-1.5 text-[11px] font-medium text-primary/80 hover:text-primary transition-colors cursor-pointer"
-      >
-        <BookOpen className="w-3 h-3" />
-        {citations.length} source{citations.length > 1 ? "s" : ""} cited
-        <ChevronDown
-          className={`w-3 h-3 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-2 space-y-2">
-              {citations.map((c, i) => (
-                <div
-                  key={i}
-                  className="p-2.5 rounded-md bg-primary/5 border border-primary/10"
-                >
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <FileText className="w-3 h-3 text-primary/60" />
-                    <span className="text-[10px] font-semibold text-primary/70">
-                      {c.doc}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground italic leading-relaxed">
-                    {c.excerpt}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-/* ─── Formatted Answer Text ─────────────────────────────────────────── */
-
-function FormattedAnswer({ text }: { text: string }) {
-  // Simple markdown-like rendering for bold and newlines
-  const parts = text.split(/(\*\*[^*]+\*\*|\n\n|\n)/g);
-  return (
-    <div className="text-[13px] text-foreground/90 leading-relaxed">
-      {parts.map((part, i) => {
-        if (part === "\n\n") return <div key={i} className="h-3" />;
-        if (part === "\n") return <br key={i} />;
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return (
-            <span key={i} className="font-semibold text-foreground">
-              {part.slice(2, -2)}
-            </span>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </div>
-  );
-}
-
-/* ─── Main Demo Component ───────────────────────────────────────────── */
+/* ─── Main Component ────────────────────────────────────────────────── */
 
 export default function ConversationalDemo() {
-  const [activeStep, setActiveStep] = useState(0);
-  const [phase, setPhase] = useState<"typing-q" | "waiting" | "answer" | "done">("typing-q");
-  const [showChart, setShowChart] = useState(false);
-  const [showCitations, setShowCitations] = useState(false);
-  const [showFollowUps, setShowFollowUps] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [phase, setPhase] = useState<"loading" | "typing" | "done">("loading");
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const step = DEMO_STEPS[activeStep];
+  const scenario = SCENARIOS[activeTab];
 
-  const { displayed: typedQuestion, isDone: questionDone } = useTypingEffect(
-    step.question,
-    40,
-    phase === "typing-q"
+  // Phase transitions
+  useEffect(() => {
+    setPhase("loading");
+    const t = setTimeout(() => setPhase("typing"), 1200);
+    return () => clearTimeout(t);
+  }, [activeTab]);
+
+  const { displayed, done } = useTypingEffect(
+    scenario.answer,
+    TYPING_SPEED,
+    phase === "typing" || phase === "done"
   );
 
-  // Auto-advance phases
   useEffect(() => {
-    if (questionDone && phase === "typing-q") {
-      const timer = setTimeout(() => setPhase("waiting"), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [questionDone, phase]);
+    if (done) setPhase("done");
+  }, [done]);
 
-  useEffect(() => {
-    if (phase === "waiting") {
-      const timer = setTimeout(() => setPhase("answer"), 1200);
-      return () => clearTimeout(timer);
-    }
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase === "answer") {
-      const citTimer = setTimeout(() => setShowCitations(true), 600);
-      const chartTimer = step.chart
-        ? setTimeout(() => setShowChart(true), 900)
-        : undefined;
-      const followTimer = setTimeout(() => {
-        setShowFollowUps(true);
-        setPhase("done");
-      }, 1500);
-      return () => {
-        clearTimeout(citTimer);
-        if (chartTimer) clearTimeout(chartTimer);
-        clearTimeout(followTimer);
-      };
-    }
-  }, [phase, step.chart]);
-
-  // Auto-scroll chat
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [phase, showChart, showCitations, showFollowUps]);
-
-  // Auto-cycle between demo steps
+  // Auto-cycle
   useEffect(() => {
     if (phase !== "done") return;
-    const timer = setTimeout(() => {
-      handleNextStep((activeStep + 1) % DEMO_STEPS.length);
-    }, 6000);
-    return () => clearTimeout(timer);
-  }, [phase, activeStep]);
+    timerRef.current = setTimeout(() => {
+      setActiveTab((prev) => (prev + 1) % SCENARIOS.length);
+    }, CYCLE_INTERVAL);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [phase]);
 
-  const handleNextStep = useCallback((idx: number) => {
-    setActiveStep(idx);
-    setPhase("typing-q");
-    setShowChart(false);
-    setShowCitations(false);
-    setShowFollowUps(false);
-  }, []);
+  const handleTabClick = (idx: number) => {
+    if (idx === activeTab) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setActiveTab(idx);
+  };
 
   return (
-    <section className="py-16 sm:py-20">
-      <div className="container">
-        {/* Section Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <MessageSquare className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-semibold text-primary tracking-wide uppercase">
-              Conversational Intelligence
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
-            Talk to the filing.{" "}
-            <span className="text-primary">Get real answers.</span>
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground max-w-2xl mx-auto">
-            Ask any question about an IPO — risk factors, financials, competitive
-            landscape — and get answers grounded entirely in SEC documents with
-            full source citations.
-          </p>
-        </div>
+    <div className="w-full max-w-3xl mx-auto mt-2 px-4 sm:px-0">
+      {/* ── Tab Bar ─────────────────────────────────────────────── */}
+      <div className="flex border-b border-border/40">
+        {SCENARIOS.map((s, i) => (
+          <button
+            key={s.tab}
+            onClick={() => handleTabClick(i)}
+            className={`
+              flex-1 py-3 text-[13px] sm:text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer
+              border-b-2 -mb-[1px]
+              ${
+                i === activeTab
+                  ? "text-primary border-primary"
+                  : "text-muted-foreground/60 border-transparent hover:text-muted-foreground"
+              }
+            `}
+          >
+            {s.tab}
+          </button>
+        ))}
+      </div>
 
-        {/* Demo Chat Window */}
-        <div className="max-w-2xl mx-auto">
-          <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-2xl shadow-black/20">
-            {/* Chat Header */}
-            <div className="px-5 py-3.5 border-b border-border/40 bg-secondary/30 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-foreground block leading-tight">
-                    NovaTech AI, Inc.
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">
-                    S-1 Filing · NASDAQ · Technology
-                  </span>
-                </div>
+      {/* ── Chat Area ───────────────────────────────────────────── */}
+      <div className="mt-0 rounded-b-xl bg-card/60 border border-t-0 border-border/30 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="p-5 space-y-4"
+          >
+            {/* User message */}
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-primary"
+                >
+                  <path
+                    d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
+                    fill="currentColor"
+                  />
+                </svg>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-400 font-medium">
-                  Grounded in SEC filings
-                </span>
-              </div>
+              <p className="text-[13px] sm:text-sm text-foreground/80 leading-relaxed pt-1 italic">
+                {scenario.question}
+              </p>
             </div>
 
-            {/* Chat Messages */}
-            <div className="p-5 space-y-4 min-h-[340px] max-h-[440px] overflow-y-auto scrollbar-thin">
-              {/* User Question */}
-              <AnimatePresence mode="wait">
-                {(phase === "typing-q" || phase === "waiting" || phase === "answer" || phase === "done") && (
-                  <motion.div
-                    key={`q-${activeStep}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex justify-end"
-                  >
-                    <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-md bg-primary/15 border border-primary/20">
-                      <p className="text-[13px] text-foreground">
-                        {phase === "typing-q" ? typedQuestion : step.question}
-                        {phase === "typing-q" && (
-                          <span className="inline-block w-[2px] h-[14px] bg-primary ml-0.5 animate-pulse align-text-bottom" />
-                        )}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Thinking Indicator */}
-              {phase === "waiting" && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center gap-2 pl-1"
+            {/* AI response */}
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 w-7 h-7 rounded-full bg-primary/30 flex items-center justify-center mt-0.5">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-primary"
                 >
-                  <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-primary/50"
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          delay: i * 0.2,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">
-                    Searching filings...
-                  </span>
-                </motion.div>
-              )}
-
-              {/* AI Answer */}
-              {(phase === "answer" || phase === "done") && (
-                <motion.div
-                  key={`a-${activeStep}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="pl-1"
-                >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-primary" />
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                  <path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="flex-1 min-h-[60px] pt-1">
+                {phase === "loading" ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-1.5 h-1.5 rounded-full bg-primary/60"
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            delay: i * 0.2,
+                          }}
+                        />
+                      ))}
                     </div>
-                    <span className="text-[11px] font-semibold text-primary/70">
-                      IPO Radar AI
+                    <span className="text-[12px] sm:text-[13px] text-primary/60 font-medium">
+                      Analyzing...
                     </span>
                   </div>
-                  <FormattedAnswer text={step.answer} />
-
-                  {/* Chart */}
-                  {step.chart && showChart && (
-                    <MiniChart data={step.chart} animate={showChart} />
-                  )}
-
-                  {/* Citations */}
-                  <CitationBadge citations={step.citations} show={showCitations} />
-                </motion.div>
-              )}
-
-              {/* Follow-up Suggestions */}
-              {showFollowUps && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="pt-2"
-                >
-                  <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-semibold mb-2 block">
-                    Suggested follow-ups
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {step.followUps.map((q, i) => (
-                      <button
-                        key={i}
-                        onClick={() =>
-                          handleNextStep(
-                            (activeStep + 1) % DEMO_STEPS.length
-                          )
-                        }
-                        className="px-3 py-1.5 rounded-full bg-secondary/60 border border-border/40 text-[11px] text-foreground/80 hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all duration-200 cursor-pointer"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input Bar (decorative) */}
-            <div className="px-5 py-3.5 border-t border-border/40 bg-secondary/20">
-              <div className="flex items-center gap-3">
-                <div className="flex-1 px-4 py-2.5 rounded-xl bg-background/60 border border-border/40 text-[13px] text-muted-foreground/50">
-                  Ask about risk factors, financials, management...
-                </div>
-                <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <Send className="w-4 h-4 text-primary/50" />
-                </div>
+                ) : (
+                  <p className="text-[13px] sm:text-sm text-foreground/70 leading-relaxed">
+                    {displayed}
+                    {!done && (
+                      <span className="inline-block w-[2px] h-[14px] bg-primary/70 ml-0.5 animate-pulse align-text-bottom" />
+                    )}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Step Indicators */}
-          <div className="flex items-center justify-center gap-2 mt-5">
-            {DEMO_STEPS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => handleNextStep(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  i === activeStep
-                    ? "bg-primary w-6"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </section>
+    </div>
   );
 }

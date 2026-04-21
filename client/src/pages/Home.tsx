@@ -220,32 +220,17 @@ export default function Home() {
                 Request Sample Report
               </Button>
             </div>
+            <p className="mt-4 text-xs text-muted-foreground/70 font-medium tracking-wide">
+              Free plan included &middot; No credit card required &middot; Monitors S-1, S-1/A, F-1, F-1/A
+            </p>
+          </div>
+
+          {/* Conversational AI Demo — integrated into hero */}
+          <div className="mt-14">
+            <ConversationalDemo />
           </div>
         </div>
       </section>
-
-      {/* Trust/Proof Bar */}
-      <section className="border-y border-border/50 bg-secondary/30">
-        <div className="container py-4">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-muted-foreground font-medium tracking-wide">
-            {[
-              "Monitors S-1, S-1/A, F-1, F-1/A",
-              "SEC-powered source ingestion",
-              "Amendment tracking",
-              "AI-generated first-look reports",
-              "Watchlists & alerts",
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary/60" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Conversational AI Demo */}
-      <ConversationalDemo />
 
       {/* SEC Sync Control Bar */}
       <section className="py-6 border-b border-border/50">

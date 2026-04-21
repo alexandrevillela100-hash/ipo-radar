@@ -115,3 +115,11 @@
 - [x] Include a financial chart animation (revenue/EBITDA)
 - [x] Add suggested follow-up questions in the demo
 - [x] Insert demo section after hero on Home page
+
+## Conversational Demo Redesign (Usuro.ai style)
+- [x] Redesign ConversationalDemo to match Usuro.ai pattern: tab switcher + minimal chat
+- [x] Tab bar with 3 IPO use cases (Risk Analysis, Financial Deep Dive, Competitive Landscape)
+- [x] Minimal chat interface: user avatar + question, AI avatar + typed response
+- [x] Typing animation on AI response with "Analyzing..." loading state
+- [x] Auto-cycle between tabs with smooth transitions
+- [x] Integrate seamlessly below hero section (not as a separate boxed section)
