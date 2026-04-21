@@ -108,3 +108,10 @@
 - [x] Chunk the filing text and store in document_chunks table (468 chunks across 16 sections)
 - [x] Test the conversational chat with real grounded data (risk factors question answered with citations)
 - [x] Add admin-facing "Index Filing" endpoint (indexing.indexFiling + indexing.indexCompany tRPC procedures)
+
+## Conversational Demo on Landing Page
+- [x] Build animated ConversationalDemo component with typing effect
+- [x] Show question being typed, then answer appearing with citations
+- [x] Include a financial chart animation (revenue/EBITDA)
+- [x] Add suggested follow-up questions in the demo
+- [x] Insert demo section after hero on Home page

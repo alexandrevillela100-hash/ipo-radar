@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import IPOCard from "@/components/IPOCard";
 import SECIPOCard from "@/components/SECIPOCard";
+import ConversationalDemo from "@/components/ConversationalDemo";
 import { ipoCompanies, marketStats as mockStats } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
@@ -242,6 +243,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Conversational AI Demo */}
+      <ConversationalDemo />
 
       {/* SEC Sync Control Bar */}
       <section className="py-6 border-b border-border/50">
