@@ -1,11 +1,9 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import IPOCard from "@/components/IPOCard";
 import SECIPOCard from "@/components/SECIPOCard";
-import ConversationalDemo from "@/components/ConversationalDemo";
 import { ipoCompanies, marketStats as mockStats } from "@/lib/data";
-import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import {
   Radar,
@@ -19,11 +17,8 @@ import {
   FileText,
   AlertTriangle,
   Zap,
-  RefreshCw,
   Database,
   Loader2,
-  CheckCircle2,
-  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation, Link } from "wouter";
@@ -108,22 +103,6 @@ export default function Home() {
 
   // ─── Real SEC Data ──────────────────────────────────────────────────────
   const filingsQuery = trpc.edgar.filings.useQuery();
-  const statsQuery = trpc.edgar.stats.useQuery();
-  const ingestMutation = trpc.edgar.ingest.useMutation({
-    onSuccess: (result) => {
-      // Refetch data after ingestion
-      filingsQuery.refetch();
-      statsQuery.refetch();
-      toast.success("SEC sync complete", {
-        description: `Found ${result.filingsFound} filings, stored ${result.newFilingsStored} new ones. ${result.errors.length > 0 ? `${result.errors.length} errors.` : ""}`,
-      });
-    },
-    onError: (error) => {
-      toast.error("SEC sync failed", {
-        description: error.message,
-      });
-    },
-  });
 
   // Deduplicate filings: show only the most recent filing per company
   const uniqueFilings = useMemo(() => {
@@ -137,7 +116,6 @@ export default function Home() {
   }, [filingsQuery.data]);
 
   const hasRealData = uniqueFilings.length > 0;
-  const dbStats = statsQuery.data ?? { companies: 0, filings: 0 };
 
   // Split filings into Upcoming (initial filings) and Recent (amendments)
   const upcomingIPOs = useMemo(() => {
@@ -161,196 +139,175 @@ export default function Home() {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const weekStr = oneWeekAgo.toISOString().slice(0, 10);
 
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const monthStr = thirtyDaysAgo.toISOString().slice(0, 10);
+
     const thisWeek = filingsQuery.data.filter(
       (f) => f.filing.filingDate >= weekStr
     );
-    const amendments = filingsQuery.data.filter(
+    const amendmentsWeek = filingsQuery.data.filter(
       (f) =>
         f.filing.formType.includes("/A") && f.filing.filingDate >= weekStr
     );
+    const last30 = filingsQuery.data.filter(
+      (f) => f.filing.filingDate >= monthStr
+    );
+    const activeIssuers30 = new Set(last30.map((f) => f.company.cik)).size;
 
     return {
       newFilingsThisWeek: thisWeek.length,
-      amendmentsDetected: amendments.length,
-      totalCompanies: dbStats.companies,
-      totalFilings: dbStats.filings,
+      amendmentsThisWeek: amendmentsWeek.length,
+      filings30Days: last30.length,
+      activeIssuers30Days: activeIssuers30,
     };
-  }, [filingsQuery.data, dbStats]);
+  }, [filingsQuery.data]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-28 pb-20 overflow-hidden grain-overlay">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.75_0.15_180/0.08),transparent_60%)]" />
-        <div className="container relative">
+      {/* Hero Section — Velocia look: hyper-realistic photo, serif display, DM Mono eyebrow */}
+      <section className="relative min-h-[88vh] flex flex-col justify-end pt-28 pb-24 overflow-hidden grain-overlay">
+        {/* Hyper-realistic photo background */}
+        <div className="vv-hero-bg" aria-hidden="true" />
+        {/* Teal grid overlay */}
+        <div className="vv-hero-grid" aria-hidden="true" />
+
+        <div className="container relative z-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
-              <Radar className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary tracking-wide uppercase">
-                SEC Filing Intelligence
-              </span>
+            <div className="vv-eyebrow mb-7">
+              <Radar className="w-3 h-3 -mr-2 opacity-80" />
+              SEC Filing Intelligence
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-foreground">
-              See the IPO{" "}
-              <span className="text-primary">before</span>{" "}
-              the market does.
+            <h1 className="vv-display text-[clamp(48px,7.5vw,104px)] text-foreground max-w-[900px] mb-8">
+              See the IPO <em>before</em> the market does.
             </h1>
-            <p className="mt-5 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl">
+            <p className="text-[17px] sm:text-lg text-foreground/65 max-w-xl leading-[1.85] font-light mb-11">
               IPO Radar AI turns SEC filings into institutional-grade initiation
               reports — instantly. Monitor S-1 and F-1 filings, track amendments,
               and get AI-generated first-look research.
             </p>
-            <div className="flex flex-wrap gap-3 mt-8">
-              <Button
-                size="lg"
+            <div className="flex flex-wrap items-center gap-5">
+              <button
                 onClick={() => setLocation("/login")}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-base px-6"
+                className="vv-btn-primary"
               >
                 Get Started Free
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <button
                 onClick={() => setLocation("/sample-report")}
-                className="border-border/60 text-foreground hover:bg-secondary font-semibold text-base px-6"
+                className="vv-btn-outline"
               >
-                Request Sample Report
-              </Button>
+                See a Sample Report
+              </button>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground/70 font-medium tracking-wide">
-              Free plan included &middot; No credit card required &middot; Monitors S-1, S-1/A, F-1, F-1/A
+            <p className="mt-8 font-mono text-[11px] text-muted-foreground tracking-[0.14em] uppercase">
+              Free tier
+              <span className="mx-3 opacity-40">·</span>
+              Pro $49/mo
+              <span className="mx-3 opacity-40">·</span>
+              No credit card required
             </p>
-          </div>
-
-          {/* Conversational AI Demo — integrated into hero */}
-          <div className="mt-14">
-            <ConversationalDemo />
           </div>
         </div>
       </section>
 
-      {/* SEC Sync Control Bar */}
-      <section className="py-6 border-b border-border/50">
-        <div className="container">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-card border border-border/50">
-            <div className="flex items-center gap-3">
-              <Database className="w-5 h-5 text-primary" />
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  SEC EDGAR Data Pipeline
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {hasRealData
-                    ? `${dbStats.companies} companies · ${dbStats.filings} filings in database`
-                    : "No data synced yet — click Sync to fetch live SEC filings"}
-                </p>
+      {/* Trust/Proof Bar — concrete source proof in DM Mono */}
+      <section className="border-y border-border/40 bg-card/40">
+        <div className="container py-5">
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
+            {[
+              { label: "Source", value: "SEC EDGAR (official)" },
+              { label: "Coverage", value: "S-1 · S-1/A · F-1 · F-1/A" },
+              { label: "Latency", value: "Minutes after publication" },
+              { label: "Method", value: "Structured extraction, zero fabrication" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <span className="font-mono text-[9px] text-primary uppercase tracking-[0.22em] opacity-80">
+                  {item.label}
+                </span>
+                <span className="font-mono text-[11px] text-foreground/85 tracking-[0.06em]">
+                  {item.value}
+                </span>
               </div>
-            </div>
-            <Button
-              onClick={() => ingestMutation.mutate({ lookbackDays: 30 })}
-              disabled={ingestMutation.isPending}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
-            >
-              {ingestMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Syncing with SEC...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Sync with SEC
-                </>
-              )}
-            </Button>
+            ))}
           </div>
-
-          {/* Ingestion result banner */}
-          {ingestMutation.isSuccess && (
-            <div className="mt-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-300">
-                Last sync: {ingestMutation.data.filingsFound} filings found,{" "}
-                {ingestMutation.data.newFilingsStored} new,{" "}
-                {ingestMutation.data.companiesProcessed} companies processed.
-              </span>
-            </div>
-          )}
-          {ingestMutation.isError && (
-            <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-2">
-              <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <span className="text-xs text-red-300">
-                Sync error: {ingestMutation.error.message}
-              </span>
-            </div>
-          )}
         </div>
       </section>
 
       {/* Market Snapshot Strip */}
-      <section className="py-10">
+      <section className="py-20" style={{ background: "oklch(0.18 0.015 195)" }}>
         <div className="container">
-          <div className="flex items-center gap-2 mb-6">
-            <Zap className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-semibold text-primary tracking-wide uppercase">
-              What's Happening Now
-            </h2>
+          <div className="vv-eyebrow mb-4">
+            <Zap className="w-3 h-3 -mr-2 opacity-80" />
+            What's Happening Now
             {hasRealData && (
-              <span className="ml-2 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
-                Live
+              <span className="ml-1 px-2 py-0.5 rounded-sm bg-emerald-500/15 text-emerald-400 text-[9px] font-semibold tracking-[0.16em]">
+                LIVE
               </span>
             )}
           </div>
+          <h2 className="vv-section-title text-[clamp(32px,3.2vw,48px)] text-foreground mb-4 max-w-2xl">
+            A live window into <em>S-1 &amp; F-1</em> activity.
+          </h2>
+          <p className="text-[15px] text-muted-foreground mb-10 max-w-xl font-light leading-[1.75]">
+            {hasRealData
+              ? "The last 30 days of registration activity, pulled directly from SEC EDGAR and structured for institutional workflows."
+              : "Sample snapshot of a typical week across U.S. and foreign private IPO issuers. Connect to see live numbers."}
+          </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               {
-                label: "New Filings This Week",
+                label: "New Filings",
+                window: "This week",
                 value: liveStats
                   ? liveStats.newFilingsThisWeek
                   : mockStats.newFilingsThisWeek,
                 icon: FileText,
-                color: "text-blue-400",
               },
               {
-                label: "Amendments Detected",
+                label: "Amendments",
+                window: "This week",
                 value: liveStats
-                  ? liveStats.amendmentsDetected
+                  ? liveStats.amendmentsThisWeek
                   : mockStats.amendmentsDetected,
                 icon: GitCompare,
-                color: "text-amber-400",
               },
               {
-                label: hasRealData ? "Companies Tracked" : "Likely Near-Term Launches",
+                label: hasRealData ? "Active Issuers" : "Likely Launches",
+                window: hasRealData ? "Last 30 days" : "Near-term",
                 value: liveStats
-                  ? liveStats.totalCompanies
+                  ? liveStats.activeIssuers30Days
                   : mockStats.likelyNearTermLaunches,
                 icon: TrendingUp,
-                color: "text-emerald-400",
               },
               {
-                label: hasRealData ? "Total Filings" : "Material Changes",
+                label: hasRealData ? "Filings Indexed" : "Material Changes",
+                window: hasRealData ? "Last 30 days" : "Tracked",
                 value: liveStats
-                  ? liveStats.totalFilings
+                  ? liveStats.filings30Days
                   : mockStats.materialChanges,
                 icon: hasRealData ? Database : AlertTriangle,
-                color: hasRealData ? "text-primary" : "text-red-400",
               },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-colors"
+                className="relative p-7 border border-border/60 bg-popover/40 hover:border-primary/30 transition-colors"
+                style={{ borderRadius: "2px" }}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                  <span className="text-xs text-muted-foreground font-medium">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <stat.icon className="w-3.5 h-3.5 text-primary opacity-70" />
+                  <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-[0.18em]">
                     {stat.label}
                   </span>
                 </div>
-                <p className="font-mono text-2xl font-bold text-foreground">
+                <p className="font-serif text-5xl font-light text-foreground leading-none">
                   {stat.value}
+                </p>
+                <p className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-[0.2em] mt-4">
+                  {stat.window}
                 </p>
               </div>
             ))}
@@ -372,29 +329,27 @@ export default function Home() {
 
       {/* Upcoming IPOs — Companies with recent initial filings (S-1, F-1) */}
       {upcomingIPOs.length > 0 && (
-        <section className="py-12">
+        <section className="py-24">
           <div className="container">
-            <div className="flex items-end justify-between mb-8">
+            <div className="flex items-end justify-between mb-12">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-3">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-xs font-semibold text-emerald-400 tracking-wide uppercase">
-                    Coming Soon
-                  </span>
+                <div className="vv-eyebrow mb-5">
+                  <TrendingUp className="w-3 h-3 -mr-2 opacity-80" />
+                  Coming Soon
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-                  Upcoming IPOs
+                <h2 className="vv-section-title text-[clamp(32px,3.2vw,48px)] text-foreground mb-3">
+                  Upcoming <em>IPOs</em>
                 </h2>
-                <p className="text-muted-foreground mt-1.5">
+                <p className="text-[15px] text-muted-foreground max-w-xl font-light leading-[1.75]">
                   Companies that recently filed S-1 or F-1 — preparing to go public.
                 </p>
               </div>
               <Link
                 href="/ipos"
-                className="hidden sm:flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold transition-colors no-underline"
+                className="hidden sm:flex items-center gap-2 font-mono text-[10px] text-primary hover:text-primary/80 tracking-[0.16em] uppercase no-underline transition-colors"
               >
                 View all
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -421,29 +376,27 @@ export default function Home() {
 
       {/* Recent IPOs — Companies with amendments or later-stage filings */}
       {recentIPOs.length > 0 && (
-        <section className="py-12 border-t border-border/50 bg-secondary/10">
+        <section className="py-24 border-t border-border/40" style={{ background: "oklch(0.17 0.013 195)" }}>
           <div className="container">
-            <div className="flex items-end justify-between mb-8">
+            <div className="flex items-end justify-between mb-12">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-3">
-                  <FileText className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-xs font-semibold text-blue-400 tracking-wide uppercase">
-                    Recently Active
-                  </span>
+                <div className="vv-eyebrow mb-5">
+                  <FileText className="w-3 h-3 -mr-2 opacity-80" />
+                  Recently Active
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-                  Recent IPOs
+                <h2 className="vv-section-title text-[clamp(32px,3.2vw,48px)] text-foreground mb-3">
+                  Recent <em>IPOs</em>
                 </h2>
-                <p className="text-muted-foreground mt-1.5">
+                <p className="text-[15px] text-muted-foreground max-w-xl font-light leading-[1.75]">
                   Companies with recent amendments or advancing through the IPO process.
                 </p>
               </div>
               <Link
                 href="/ipos"
-                className="hidden sm:flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold transition-colors no-underline"
+                className="hidden sm:flex items-center gap-2 font-mono text-[10px] text-primary hover:text-primary/80 tracking-[0.16em] uppercase no-underline transition-colors"
               >
                 Browse all
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -470,22 +423,25 @@ export default function Home() {
 
       {/* Mock data fallback (shown when no real data) */}
       {!hasRealData && !filingsQuery.isLoading && (
-        <section className="py-12">
+        <section className="py-24">
           <div className="container">
-            <div className="flex items-end justify-between mb-8">
+            <div className="flex items-end justify-between mb-10">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-                  Upcoming IPOs
+                <div className="vv-eyebrow mb-5">
+                  <TrendingUp className="w-3 h-3 -mr-2 opacity-80" />
+                  Sample Set
+                </div>
+                <h2 className="vv-section-title text-[clamp(32px,3.2vw,48px)] text-foreground mb-3">
+                  Upcoming <em>IPOs</em>
                 </h2>
-                <p className="text-muted-foreground mt-1.5">
-                  Explore the latest SEC filings and discover companies preparing to go public.
+                <p className="text-[15px] text-muted-foreground max-w-xl font-light leading-[1.75]">
+                  Explore sample issuers preparing to go public. Real SEC data loads as it becomes available.
                 </p>
               </div>
             </div>
-            <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-              <p className="text-xs text-amber-300">
-                Showing sample data. Click <strong>"Sync with SEC"</strong>{" "}
-                above to load real IPO filings from SEC EDGAR.
+            <div className="mb-6 p-4 border border-primary/20 bg-primary/[0.04]" style={{ borderRadius: "2px" }}>
+              <p className="font-mono text-[10px] text-primary/90 uppercase tracking-[0.14em]">
+                ⓘ &nbsp;Showing sample data while live SEC ingestion is running.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -498,18 +454,21 @@ export default function Home() {
       )}
 
       {/* How It Works */}
-      <section className="py-16 border-t border-border/50">
+      <section className="py-24 border-t border-border/40">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              How IPO Radar AI Works
+          <div className="text-center mb-14">
+            <div className="vv-eyebrow mb-5 justify-center">
+              The Pipeline
+            </div>
+            <h2 className="vv-section-title text-[clamp(32px,3.5vw,52px)] text-foreground mb-4">
+              From SEC filing to <em>institutional research</em>.
             </h2>
-            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
-              From SEC filing to institutional-grade research in four automated steps.
+            <p className="text-[15px] text-muted-foreground max-w-xl mx-auto font-light leading-[1.75]">
+              Four automated steps, zero manual handoffs.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               {
                 step: "01",
@@ -542,18 +501,19 @@ export default function Home() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="relative p-6 rounded-xl bg-card border border-border/50 group hover:border-primary/30 transition-all"
+                className="relative p-7 bg-card border border-border/60 group hover:border-primary/40 transition-all"
+                style={{ borderRadius: "2px" }}
               >
-                <span className="font-mono text-xs text-primary/50 font-semibold">
-                  {item.step}
+                <span className="font-mono text-[10px] text-primary/60 tracking-[0.2em]">
+                  {item.step} —
                 </span>
-                <div className="mt-3 mb-3">
-                  <item.icon className="w-6 h-6 text-primary" />
+                <div className="mt-5 mb-4">
+                  <item.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">
+                <h3 className="font-serif text-2xl font-medium text-foreground mb-3 leading-tight">
                   {item.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-[13.5px] text-muted-foreground leading-relaxed font-light">
                   {item.description}
                 </p>
               </div>
@@ -563,18 +523,21 @@ export default function Home() {
       </section>
 
       {/* Product Features */}
-      <section className="py-16 border-t border-border/50 bg-secondary/20">
+      <section className="py-24 border-t border-border/40" style={{ background: "oklch(0.17 0.013 195)" }}>
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              Built for IPO Intelligence
+          <div className="text-center mb-14">
+            <div className="vv-eyebrow mb-5 justify-center">
+              Capabilities
+            </div>
+            <h2 className="vv-section-title text-[clamp(32px,3.5vw,52px)] text-foreground mb-4">
+              Built for <em>IPO intelligence</em>.
             </h2>
-            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+            <p className="text-[15px] text-muted-foreground max-w-xl mx-auto font-light leading-[1.75]">
               Every feature designed to give you an edge in tracking and analyzing IPO filings.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
                 title: "SEC Filing Monitor",
@@ -615,15 +578,16 @@ export default function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="p-6 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all group"
+                className="p-7 bg-card/80 border border-border/60 hover:border-primary/30 transition-all group"
+                style={{ borderRadius: "2px" }}
               >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-                  <feature.icon className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 flex items-center justify-center mb-5 border border-primary/25 bg-primary/5 group-hover:bg-primary/10 transition-colors" style={{ borderRadius: "2px" }}>
+                  <feature.icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-base font-bold text-foreground mb-2">
+                <h3 className="font-serif text-xl font-medium text-foreground mb-3 leading-tight">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-[13.5px] text-muted-foreground leading-relaxed font-light">
                   {feature.description}
                 </p>
               </div>
@@ -633,29 +597,32 @@ export default function Home() {
       </section>
 
       {/* Why We're Different */}
-      <section className="py-16 border-t border-border/50">
+      <section className="py-24 border-t border-border/40">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              Why We're Different
+            <div className="vv-eyebrow mb-5 justify-center">
+              The Difference
+            </div>
+            <h2 className="vv-section-title text-[clamp(32px,3.5vw,52px)] text-foreground mb-5">
+              Why we&rsquo;re <em>different</em>.
             </h2>
-            <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+            <p className="text-[16px] text-muted-foreground leading-[1.85] font-light">
               Traditional IPO sites give you calendars, listings, and news. IPO Radar AI
               gives you{" "}
-              <span className="text-primary font-semibold">
+              <span className="text-primary font-normal italic font-serif text-[17px]">
                 filing ingestion, structured extraction, amendment analysis,
                 AI-generated reports, and workflow alerts
               </span>
-              — all from the primary source.
+              {" "}— all from the primary source.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-4xl mx-auto">
-            <div className="p-6 rounded-xl border border-border/50 bg-card">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-14 max-w-4xl mx-auto">
+            <div className="p-7 border border-border/60 bg-card" style={{ borderRadius: "2px" }}>
+              <h3 className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.22em] mb-5">
                 Traditional IPO Sites
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3.5">
                 {[
                   "Calendar-based listings",
                   "News aggregation",
@@ -665,19 +632,19 @@ export default function Home() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    className="flex items-center gap-3 text-[14px] text-muted-foreground font-light"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="p-6 rounded-xl border border-primary/30 bg-primary/5">
-              <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-4">
+            <div className="p-7 border border-primary/30 bg-primary/5" style={{ borderRadius: "2px" }}>
+              <h3 className="font-mono text-[10px] text-primary uppercase tracking-[0.22em] mb-5">
                 IPO Radar AI
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3.5">
                 {[
                   "Direct SEC filing ingestion",
                   "Structured data extraction",
@@ -687,9 +654,9 @@ export default function Home() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-2 text-sm text-foreground"
+                    className="flex items-center gap-3 text-[14px] text-foreground font-light"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    <span className="w-1 h-1 rounded-full bg-primary" />
                     {item}
                   </li>
                 ))}
@@ -700,14 +667,17 @@ export default function Home() {
       </section>
 
       {/* Target Users */}
-      <section className="py-16 border-t border-border/50 bg-secondary/20">
+      <section className="py-24 border-t border-border/40" style={{ background: "oklch(0.17 0.013 195)" }}>
         <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              Built for Institutional Professionals
+          <div className="text-center mb-12">
+            <div className="vv-eyebrow mb-5 justify-center">
+              Who It&rsquo;s For
+            </div>
+            <h2 className="vv-section-title text-[clamp(32px,3.5vw,52px)] text-foreground">
+              Built for <em>institutional</em> professionals.
             </h2>
           </div>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
             {[
               "Hedge Funds & Long-Only Investors",
               "Family Offices",
@@ -717,7 +687,8 @@ export default function Home() {
             ].map((user) => (
               <div
                 key={user}
-                className="px-5 py-3 rounded-xl bg-card border border-border/50 text-sm font-medium text-foreground"
+                className="px-5 py-3 bg-card border border-border/60 font-mono text-[11px] text-foreground tracking-[0.08em]"
+                style={{ borderRadius: "2px" }}
               >
                 {user}
               </div>
@@ -727,11 +698,14 @@ export default function Home() {
       </section>
 
       {/* Common Questions */}
-      <section className="py-20 border-t border-border/50">
+      <section className="py-24 border-t border-border/40">
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight text-center mb-12">
-              Common questions
+            <div className="vv-eyebrow mb-5 justify-center">
+              FAQ
+            </div>
+            <h2 className="vv-section-title text-[clamp(32px,3.5vw,52px)] text-foreground text-center mb-14">
+              Common <em>questions</em>.
             </h2>
             <div className="space-y-0">
               {[
@@ -778,53 +752,68 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 border-t border-border/50">
-        <div className="container">
+      <section
+        className="py-28 border-t border-border/40 relative overflow-hidden"
+        style={{ background: "oklch(0.17 0.02 195)" }}
+      >
+        {/* Giant serif watermark — Velocia signature */}
+        <div
+          aria-hidden="true"
+          className="absolute pointer-events-none select-none font-serif"
+          style={{
+            top: "-40px",
+            right: "-30px",
+            fontSize: "320px",
+            fontWeight: 300,
+            color: "var(--primary)",
+            opacity: 0.028,
+            lineHeight: 1,
+            letterSpacing: "-0.05em",
+          }}
+        >
+          IR
+        </div>
+        <div className="container relative">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              Get ahead of the IPO market.
+            <div className="vv-eyebrow mb-6 justify-center">
+              Get Started
+            </div>
+            <h2 className="vv-section-title text-[clamp(36px,4.5vw,68px)] text-foreground mb-5">
+              Get ahead of the <em>IPO market</em>.
             </h2>
-            <p className="text-muted-foreground mt-3 text-lg">
+            <p className="text-[16px] text-muted-foreground font-light leading-[1.85] mb-10 max-w-lg mx-auto">
               Join the professionals who see filings first.
             </p>
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
-              <Button
-                size="lg"
-                onClick={() => setLocation("/login")}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-base px-8"
-              >
+            <div className="flex flex-wrap justify-center gap-5">
+              <button onClick={() => setLocation("/login")} className="vv-btn-primary">
                 Get Started Free
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setLocation("/login")}
-                className="border-border/60 text-foreground hover:bg-secondary font-semibold text-base px-8"
-              >
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => setLocation("/login")} className="vv-btn-outline">
                 Create Account
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 py-10 bg-secondary/20">
+      <footer className="border-t border-border/40 py-14" style={{ background: "oklch(0.14 0.012 195)" }}>
         <div className="container">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Radar className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground">
-                IPO Radar AI
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <Radar className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
+              <span className="font-serif text-[17px] font-medium text-foreground tracking-wide">
+                IPO Radar <span className="text-primary italic font-light">AI</span>
               </span>
             </div>
-            <div className="flex flex-wrap gap-6 text-xs text-muted-foreground">
+            <div className="flex flex-wrap gap-7">
               {["Product", "Coverage", "Reports", "Pricing", "Contact", "Terms", "Privacy"].map(
                 (item) => (
                   <button
                     key={item}
                     onClick={() => handlePlaceholder(item)}
-                    className="hover:text-foreground transition-colors"
+                    className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.16em] hover:text-primary transition-colors"
                   >
                     {item}
                   </button>
@@ -832,7 +821,7 @@ export default function Home() {
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground/60 mt-6 text-center">
+          <p className="font-mono text-[10px] text-muted-foreground/50 mt-10 text-center tracking-[0.06em] leading-relaxed max-w-2xl mx-auto">
             SEC filings are monitored from official public sources. IPO Radar AI
             does not provide investment advice. All AI-generated content is for
             informational purposes only.
