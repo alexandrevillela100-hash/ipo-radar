@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Velocia typography — Cormorant Garamond serif display, Barlow sans body, DM Mono labels */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600&display=swap');
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -40,49 +43,66 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --color-teal: oklch(0.75 0.15 180);
-  --color-teal-dim: oklch(0.55 0.12 180);
+
+  /* Velocia font stack */
+  --font-sans: 'Barlow', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  /* Velocia accent colors — warmer teal family to match Velocia's #03C8B5 */
+  --color-teal: oklch(0.78 0.14 195);
+  --color-teal-dim: oklch(0.58 0.11 195);
   --color-gold: oklch(0.75 0.1 75);
   --color-market-green: oklch(0.65 0.2 145);
   --color-market-red: oklch(0.6 0.2 25);
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.13 0.015 260);
-  --foreground: oklch(0.93 0.005 90);
-  --card: oklch(0.17 0.015 255);
-  --card-foreground: oklch(0.93 0.005 90);
-  --popover: oklch(0.17 0.015 255);
-  --popover-foreground: oklch(0.93 0.005 90);
-  --primary: oklch(0.75 0.15 180);
-  --primary-foreground: oklch(0.13 0.015 260);
-  --secondary: oklch(0.22 0.015 255);
-  --secondary-foreground: oklch(0.85 0.005 90);
-  --muted: oklch(0.22 0.012 260);
-  --muted-foreground: oklch(0.6 0.015 260);
-  --accent: oklch(0.22 0.015 255);
-  --accent-foreground: oklch(0.93 0.005 90);
-  --destructive: oklch(0.6 0.2 25);
+  --radius: 0.25rem;                          /* Velocia uses sharp 2-4px radii, not pill-like */
+
+  /* Velocia ink-green palette, translated to oklch for harmony with shadcn components */
+  --background:            oklch(0.14 0.012 195);   /* #080e10 — deepest ink */
+  --foreground:            oklch(0.93 0.008 170);   /* #e2edeb — off-white with green tint */
+
+  --card:                  oklch(0.18 0.015 195);   /* #0d1a1c-ish — bg-b */
+  --card-foreground:       oklch(0.93 0.008 170);
+
+  --popover:               oklch(0.20 0.015 195);   /* #111f22 — bg-c */
+  --popover-foreground:    oklch(0.93 0.008 170);
+
+  --primary:               oklch(0.78 0.14 195);    /* #03C8B5 — Velocia teal */
+  --primary-foreground:    oklch(0.14 0.012 195);   /* dark ink on teal */
+
+  --secondary:             oklch(0.22 0.015 195);   /* #132022 — surface2 */
+  --secondary-foreground:  oklch(0.85 0.01 170);
+
+  --muted:                 oklch(0.22 0.012 195);
+  --muted-foreground:      oklch(0.65 0.03 175);    /* #78a49f — muted teal-gray */
+
+  --accent:                oklch(0.24 0.018 195);   /* #1a2c30 — surface3 */
+  --accent-foreground:     oklch(0.93 0.008 170);
+
+  --destructive:           oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0.015 260);
-  --input: oklch(0.25 0.015 260);
-  --ring: oklch(0.75 0.15 180);
-  --chart-1: oklch(0.75 0.15 180);
-  --chart-2: oklch(0.65 0.12 180);
-  --chart-3: oklch(0.55 0.1 180);
-  --chart-4: oklch(0.75 0.1 75);
+
+  --border:                oklch(0.28 0.03 195 / 0.35); /* subtle teal-tinted border */
+  --input:                 oklch(0.28 0.03 195 / 0.35);
+  --ring:                  oklch(0.78 0.14 195);
+
+  --chart-1: oklch(0.78 0.14 195);
+  --chart-2: oklch(0.68 0.12 195);
+  --chart-3: oklch(0.58 0.10 195);
+  --chart-4: oklch(0.75 0.10 75);
   --chart-5: oklch(0.65 0.08 75);
-  --sidebar: oklch(0.15 0.015 260);
-  --sidebar-foreground: oklch(0.93 0.005 90);
-  --sidebar-primary: oklch(0.75 0.15 180);
-  --sidebar-primary-foreground: oklch(0.13 0.015 260);
-  --sidebar-accent: oklch(0.22 0.015 255);
-  --sidebar-accent-foreground: oklch(0.93 0.005 90);
-  --sidebar-border: oklch(0.25 0.015 260);
-  --sidebar-ring: oklch(0.75 0.15 180);
+
+  --sidebar:                       oklch(0.16 0.012 195);
+  --sidebar-foreground:            oklch(0.93 0.008 170);
+  --sidebar-primary:               oklch(0.78 0.14 195);
+  --sidebar-primary-foreground:    oklch(0.14 0.012 195);
+  --sidebar-accent:                oklch(0.22 0.015 195);
+  --sidebar-accent-foreground:     oklch(0.93 0.008 170);
+  --sidebar-border:                oklch(0.28 0.03 195 / 0.35);
+  --sidebar-ring:                  oklch(0.78 0.14 195);
 }
 
 @layer base {
@@ -91,7 +111,14 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Barlow', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    letter-spacing: -0.01em;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -135,10 +162,113 @@
     }
   }
 
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+  /* ─── Velocia utility classes ──────────────────────────────────────── */
+
+  .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
   }
 
+  .font-mono {
+    font-family: 'DM Mono', ui-monospace, monospace;
+  }
+
+  /* Eyebrow: "— LABEL" in DM Mono teal with a short rule */
+  .vv-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .vv-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--primary);
+    opacity: 0.6;
+  }
+
+  /* Smaller eyebrow for in-card tags */
+  .vv-section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .vv-section-tag::before {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: var(--primary);
+    opacity: 0.5;
+  }
+
+  /* Display title: Cormorant Garamond, light, italic-teal accent on <em> */
+  .vv-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  .vv-display em {
+    font-style: italic;
+    color: var(--primary);
+  }
+
+  /* Section title — smaller than hero */
+  .vv-section-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .vv-section-title em {
+    font-style: italic;
+    color: var(--primary);
+  }
+
+  /* Hero background — hyper-realistic photo + brightness filter + dark gradient + teal grid */
+  .vv-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1800&q=80');
+    background-size: cover;
+    background-position: center 40%;
+    filter: brightness(0.26) saturate(1.05);
+    z-index: 0;
+  }
+  .vv-hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8, 14, 16, 0.25) 0%,
+      rgba(8, 14, 16, 0.55) 55%,
+      oklch(0.14 0.012 195) 100%
+    );
+  }
+
+  /* Faint teal grid overlay, sits on top of the hero bg */
+  .vv-hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(3, 200, 181, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(3, 200, 181, 0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Grain overlay — unchanged, still useful */
   .grain-overlay {
     position: relative;
   }
@@ -149,5 +279,53 @@
     opacity: 0.03;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Velocia-style primary button override — sharp corners, mono label */
+  .vv-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .vv-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px oklch(0.78 0.14 195 / 0.28);
+    filter: brightness(1.08);
+  }
+
+  .vv-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted-foreground);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 14px 32px;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.2s;
+    background: transparent;
+    cursor: pointer;
+  }
+  .vv-btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: oklch(0.78 0.14 195 / 0.07);
   }
 }
