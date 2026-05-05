@@ -1,0 +1,19 @@
+{
+  "name": "ipo-radar-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "IPO Radar initiation-report pipeline: EDGAR S-1 → Claude → branded HTML + PDF. Designed to run inside Manus, a Lambda, a cron, or a laptop.",
+  "main": "run-pipeline.js",
+  "scripts": {
+    "generate": "node report-generator/generate-report.js",
+    "pipeline": "node run-pipeline.js",
+    "test": "node test-local.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "puppeteer": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
