@@ -1,0 +1,598 @@
+<!--
+  IPO Radar fact-sheet template (v1.1).
+  Filled by generate-factsheet.js from a filing.json.
+  See ipo-summary-mockup.html in the YouTube Channel folder for the
+  hand-crafted reference design this template tracks.
+
+  Placeholders use the homegrown engine:
+    {{path.to.value}}            scalar
+    {{#each path}}…{{/each}}     iterate
+    {{#if path}}…{{else}}…{{/if}}  conditional
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{company.name}} ({{meta.ticker}}) — IPO Radar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:          #080e10;
+      --bg-b:        #0d1a1c;
+      --bg-c:        #111f22;
+      --bg-surface:  #132022;
+      --bg-surface2: #1a2c30;
+      --ink:         #e2edeb;
+      --ink-dim:     #a9c3bf;
+      --ink-muted:   #78a49f;
+      --teal:        #03C8B5;
+      --teal-dim:    #038a7c;
+      --gold:        #c8a45c;
+      --red:         #d65a5a;
+      --green:       #59c280;
+      --border:      rgba(120, 164, 159, 0.22);
+      --border-soft: rgba(120, 164, 159, 0.10);
+      --font-serif:  'Cormorant Garamond', Georgia, serif;
+      --font-sans:   'Barlow', system-ui, sans-serif;
+      --font-mono:   'DM Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+      font-family: var(--font-sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { color: #5fe3d2; }
+    h1,h2,h3,h4 { font-family: var(--font-serif); font-weight: 300; letter-spacing: -0.01em; margin: 0; }
+    .mono { font-family: var(--font-mono); }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    .nav { position: sticky; top: 0; z-index: 50; background: rgba(8,14,16,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-soft); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-size: 22px; }
+    .brand-dot { width: 8px; height: 8px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 10px rgba(3,200,181,0.6); }
+    .nav-links { display: flex; gap: 28px; font-size: 13px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); }
+    .nav-links a { color: inherit; }
+    .nav-cta { font-family: var(--font-mono); font-size: 12px; padding: 8px 16px; border: 1px solid var(--teal); color: var(--teal); text-transform: uppercase; letter-spacing: 0.12em; border-radius: 2px; }
+    .nav-cta:hover { background: var(--teal); color: var(--bg); }
+
+    /* ── Crumb ───────────────────────────────────────────── */
+    .crumb { max-width: 1280px; margin: 0 auto; padding: 18px 32px 0; font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.14em; }
+    .crumb span { color: var(--ink-dim); }
+
+    /* ── Hero ────────────────────────────────────────────── */
+    .hero { position: relative; max-width: 1280px; margin: 18px auto 0; padding: 0 32px; }
+    .hero-card { position: relative; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; min-height: 460px; display: flex; align-items: flex-end; background: #0a1a1e; }
+    .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: saturate(1.05) contrast(1.05) brightness(0.85); z-index: 0; }
+    .hero-scrim { position: absolute; inset: 0; z-index: 1; background:
+      radial-gradient(circle at 20% 25%, rgba(3,200,181,0.22) 0%, transparent 45%),
+      radial-gradient(circle at 85% 75%, rgba(200,164,92,0.16) 0%, transparent 50%),
+      linear-gradient(to top, rgba(8,14,16,0.96) 0%, rgba(8,14,16,0.60) 45%, rgba(8,14,16,0.18) 100%); }
+    .hero-content { z-index: 2; position: relative; padding: 48px 48px 36px; width: 100%;
+      display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tag { font-family: var(--font-mono); font-size: 11px; padding: 5px 10px; text-transform: uppercase; letter-spacing: 0.12em; border-radius: 2px; }
+    .tag-industry { background: rgba(3,200,181,0.12); color: var(--teal); border: 1px solid rgba(3,200,181,0.32); }
+    .tag-stage    { background: rgba(200,164,92,0.10); color: var(--gold);  border: 1px solid rgba(200,164,92,0.28); }
+    .tag-fresh    { background: rgba(89,194,128,0.10); color: var(--green); border: 1px solid rgba(89,194,128,0.28); }
+    .hero h1 { font-size: 68px; line-height: 1.02; margin-bottom: 8px; }
+    .hero h1 em { font-style: italic; color: var(--teal-dim); }
+    .hero-sub { display: flex; gap: 24px; align-items: baseline; flex-wrap: wrap; color: var(--ink-dim); font-size: 14px; margin-top: 6px; }
+    .hero-sub .ticker { font-family: var(--font-mono); font-size: 20px; color: var(--teal); letter-spacing: 0.08em; }
+    .hero-sub .sep { opacity: 0.3; }
+    .hero-sub .exch { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em; }
+    .hero-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 240px; }
+    .hero-status { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.14em; text-align: right; }
+    .hero-status strong { color: var(--teal); font-weight: 500; }
+    .export-row { display: flex; gap: 8px; }
+    .btn-export { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; border-radius: 2px; color: var(--teal); border: 1px solid rgba(3,200,181,0.45); background: rgba(3,200,181,0.06); cursor: pointer; }
+    .btn-export:hover { border-color: var(--teal); background: rgba(3,200,181,0.14); }
+    .btn-export svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    /* ── Main grid ───────────────────────────────────────── */
+    .main { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; display: grid; grid-template-columns: 1fr 360px; gap: 48px; }
+    .section + .section { margin-top: 56px; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-soft); }
+    .section-head h2 { font-size: 30px; }
+    .section-head .eyebrow { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.16em; }
+    .lede { font-family: var(--font-serif); font-style: italic; font-size: 22px; line-height: 1.5; color: var(--ink-dim); max-width: 66ch; }
+    .body-p { font-size: 15.5px; color: var(--ink-dim); margin: 12px 0; }
+    .body-p strong { color: var(--ink); font-weight: 500; }
+
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 12px; }
+    .summary-card { background: var(--bg-b); border: 1px solid var(--border-soft); padding: 20px; border-radius: 3px; }
+    .summary-card h4 { font-size: 13px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); margin-bottom: 10px; }
+    .summary-card ul { margin: 0; padding-left: 18px; }
+    .summary-card li { font-size: 14px; color: var(--ink-dim); margin-bottom: 6px; }
+
+    /* ── Chart ───────────────────────────────────────────── */
+    .chart-wrap { background: var(--bg-b); border: 1px solid var(--border-soft); border-radius: 3px; padding: 28px 32px 20px; }
+    .chart-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    .chart-title { font-family: var(--font-serif); font-size: 22px; }
+    .chart-legend { display: flex; gap: 18px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .chart-legend .dot { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: middle; border-radius: 2px; }
+    .chart-legend .dot.revenue-hist { background: var(--teal); }
+    .chart-legend .dot.revenue-tgt  { background: var(--teal); opacity: 0.45; border: 1px dashed var(--teal); }
+    .chart-legend .dot.gm-line      { background: var(--gold); }
+    .chart-legend .dot.ebitda-line  { background: var(--red); }
+    .chart-svg { width: 100%; height: 340px; display: block; }
+    .chart-note { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 12px; border-top: 1px solid var(--border-soft); padding-top: 10px; }
+
+    /* ── Peer table ──────────────────────────────────────── */
+    table.peers { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-b); border: 1px solid var(--border-soft); border-radius: 3px; overflow: hidden; }
+    table.peers thead th { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); text-align: left; padding: 12px 16px; background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+    table.peers tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-soft); }
+    table.peers tbody tr:last-child td { border-bottom: none; }
+    table.peers tbody tr.target td { background: rgba(3,200,181,0.06); color: var(--ink); }
+    table.peers tbody tr.target td:first-child { border-left: 2px solid var(--teal); padding-left: 14px; }
+    table.peers .num { font-family: var(--font-mono); text-align: right; color: var(--ink-dim); }
+    table.peers .ticker-cell { font-family: var(--font-mono); color: var(--teal); }
+
+    /* ── Risks ───────────────────────────────────────────── */
+    .risk-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .risk { display: grid; grid-template-columns: 32px 1fr; gap: 16px; align-items: start; padding: 16px 20px; background: var(--bg-b); border-left: 2px solid var(--gold); border-radius: 2px; }
+    .risk-num { font-family: var(--font-mono); font-size: 20px; color: var(--gold); line-height: 1; }
+    .risk h4 { font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+    .risk p { margin: 0; font-size: 13.5px; color: var(--ink-dim); }
+
+    /* ── Timeline ────────────────────────────────────────── */
+    .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 8px; }
+    .t-step { position: relative; padding: 0 12px 0 0; }
+    .t-step::before { content: ""; position: absolute; top: 8px; left: 0; right: 0; height: 1px; background: var(--border); }
+    .t-step .dot { position: relative; z-index: 2; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2px solid var(--ink-muted); }
+    .t-step.done .dot    { border-color: var(--teal); background: var(--teal); }
+    .t-step.current .dot { border-color: var(--teal); background: var(--bg); box-shadow: 0 0 0 3px rgba(3,200,181,0.28); }
+    .t-step h4 { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 400; color: var(--ink-dim); margin-top: 12px; margin-bottom: 2px; }
+    .t-step .date { font-family: var(--font-serif); font-size: 15px; color: var(--ink); }
+    .t-step.done h4, .t-step.done .date { color: var(--ink-muted); }
+    .t-step.future h4, .t-step.future .date { color: var(--ink-muted); }
+    .t-step.current h4 { color: var(--teal); }
+    .t-step.current .date { color: var(--ink); }
+
+    /* ── Right rail ──────────────────────────────────────── */
+    .rail > .panel + .panel { margin-top: 20px; }
+    .panel { background: var(--bg-b); border: 1px solid var(--border-soft); border-radius: 3px; padding: 22px 22px 20px; }
+    .panel h3 { font-family: var(--font-mono); font-size: 11px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft); }
+    dl.kv { margin: 0; display: grid; grid-template-columns: 1fr auto; row-gap: 12px; column-gap: 12px; }
+    dl.kv dt { font-size: 13px; color: var(--ink-muted); }
+    dl.kv dd { margin: 0; font-family: var(--font-mono); font-size: 13px; color: var(--ink); text-align: right; }
+    dl.kv dd .hl { color: var(--teal); }
+    .panel-cta { display: flex; flex-direction: column; gap: 10px; text-align: center; background: linear-gradient(180deg, rgba(3,200,181,0.10), rgba(3,200,181,0.02)); border: 1px solid rgba(3,200,181,0.35); }
+    .panel-cta h3 { color: var(--teal); }
+    .panel-cta p { font-size: 13px; color: var(--ink-dim); margin: 0 0 6px; }
+    .btn { display: inline-block; padding: 12px 18px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; border-radius: 2px; text-align: center; cursor: pointer; }
+    .btn-primary { background: var(--teal); color: var(--bg); border: 1px solid var(--teal); }
+    .btn-primary:hover { background: #5fe3d2; }
+    .btn-ghost { background: transparent; color: var(--teal); border: 1px solid rgba(3,200,181,0.35); }
+    .btn-ghost:hover { border-color: var(--teal); }
+    .filing-link { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border-soft); border-radius: 2px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-dim); }
+    .filing-link:hover { border-color: var(--teal); color: var(--teal); }
+    .filing-link .arrow { color: var(--ink-muted); }
+    .uw-list { margin: 0; padding: 0; list-style: none; font-size: 13.5px; }
+    .uw-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted var(--border-soft); color: var(--ink-dim); }
+    .uw-list li:last-child { border-bottom: none; }
+    .uw-list .role { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer.site { border-top: 1px solid var(--border-soft); background: var(--bg-b); padding: 32px; margin-top: 48px; }
+    footer.site .foot-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; gap: 32px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; }
+    footer.site .disc { max-width: 640px; font-family: var(--font-sans); font-size: 11px; color: var(--ink-muted); text-transform: none; letter-spacing: 0; line-height: 1.6; }
+
+    /* ── Print / PDF (white background, dark text) ───────── */
+    @media print {
+      @page { size: Letter; margin: 12mm 14mm; }
+      html, body { background: #ffffff !important; color: #0a1a1e !important; font-size: 10.5pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .nav, .crumb, .panel-cta, .btn-export, .export-row, footer.site { display: none !important; }
+      a { color: #0a7268; text-decoration: none; }
+      .hero { margin: 0; padding: 0; }
+      .hero-card { min-height: auto !important; background: #ffffff !important; border: none !important; border-bottom: 2px solid #0a7268 !important; border-radius: 0 !important; padding-bottom: 14px; margin-bottom: 18px; page-break-after: avoid; }
+      .hero-bg, .hero-scrim { display: none !important; }
+      .hero-content { padding: 0 !important; grid-template-columns: 1fr auto !important; gap: 16px; }
+      .hero h1 { font-size: 34pt; color: #0a1a1e !important; line-height: 1; }
+      .hero h1 em { color: #0a7268 !important; }
+      .hero-sub { color: #3c5856 !important; font-size: 10pt; }
+      .hero-sub .ticker { color: #0a7268 !important; font-size: 13pt; }
+      .hero-tags { margin-bottom: 8px; }
+      .tag { background: #f0faf8 !important; color: #0a7268 !important; border: 1px solid #0a7268 !important; font-size: 8pt; }
+      .hero-status { color: #3c5856 !important; }
+      .hero-status strong { color: #0a7268 !important; }
+      .main { display: block !important; padding: 0 !important; max-width: 100% !important; }
+      .rail { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; margin-top: 20px; page-break-inside: avoid; }
+      .rail > .panel { margin-top: 0 !important; }
+      .section + .section { margin-top: 20px; }
+      .section-head { border-bottom: 1px solid #0a1a1e !important; padding-bottom: 6px; margin-bottom: 12px; }
+      .section-head h2 { font-size: 18pt; color: #0a1a1e !important; }
+      .section-head .eyebrow { color: #3c5856 !important; font-size: 8pt; }
+      .lede, .body-p { color: #2a3f3d !important; }
+      .body-p strong { color: #0a1a1e !important; }
+      .summary-card, .chart-wrap, .panel, .risk, table.peers, table.peers thead th, table.peers tbody tr.target td { background: #ffffff !important; border: 1px solid #cfd8d6 !important; color: #0a1a1e !important; }
+      .summary-card h4 { color: #0a7268 !important; }
+      .summary-card li { color: #2a3f3d !important; }
+      .chart-wrap { padding: 16px 18px 12px; page-break-inside: avoid; }
+      .chart-title { color: #0a1a1e !important; font-size: 13pt; }
+      .chart-legend { color: #3c5856 !important; font-size: 8pt; }
+      .chart-note { color: #3c5856 !important; font-size: 8pt; border-color: #cfd8d6 !important; }
+      .chart-svg text[fill="#78a49f"] { fill: #5a7270 !important; }
+      .chart-svg text[fill="#a9c3bf"] { fill: #3c5856 !important; }
+      .chart-svg text[fill="#e2edeb"] { fill: #0a1a1e !important; }
+      table.peers thead th { background: #f3f6f5 !important; color: #3c5856 !important; }
+      table.peers tbody td { border-color: #cfd8d6 !important; }
+      table.peers .num { color: #2a3f3d !important; }
+      table.peers .ticker-cell { color: #0a7268 !important; }
+      table.peers tbody tr.target td { background: #f0faf8 !important; }
+      table.peers tbody tr.target td:first-child { border-left: 2px solid #0a7268 !important; }
+      .risk { border-left: 2px solid #b88b3d !important; page-break-inside: avoid; }
+      .risk-num { color: #b88b3d !important; }
+      .risk h4 { color: #0a1a1e !important; }
+      .risk p { color: #2a3f3d !important; }
+      .t-step::before { background: #cfd8d6 !important; }
+      .t-step .dot { background: #ffffff !important; border-color: #5a7270 !important; }
+      .t-step.done .dot { background: #0a7268 !important; border-color: #0a7268 !important; }
+      .t-step.current .dot { border-color: #0a7268 !important; box-shadow: 0 0 0 3px rgba(10,114,104,0.22) !important; }
+      .t-step h4 { color: #3c5856 !important; }
+      .t-step .date { color: #0a1a1e !important; }
+      .t-step.current h4 { color: #0a7268 !important; }
+      .panel { padding: 14px 16px; page-break-inside: avoid; }
+      .panel h3 { color: #0a7268 !important; border-color: #cfd8d6 !important; font-size: 9pt; }
+      dl.kv dt { color: #3c5856 !important; }
+      dl.kv dd { color: #0a1a1e !important; }
+      dl.kv dd .hl { color: #0a7268 !important; }
+      .uw-list li { border-color: #cfd8d6 !important; color: #2a3f3d !important; }
+      .uw-list .role { color: #5a7270 !important; }
+      .filing-link { border-color: #cfd8d6 !important; color: #2a3f3d !important; }
+      h1, h2, h3, h4 { page-break-after: avoid; }
+      .chart-wrap, .section, .risk, .panel { page-break-inside: avoid; }
+      .section:last-of-type::after { content: "IPO Radar · Velocia Ventures · Data sourced from SEC filings · Not investment advice"; display: block; margin-top: 28px; padding-top: 10px; border-top: 1px solid #cfd8d6; font-family: 'DM Mono', monospace; font-size: 7.5pt; color: #5a7270; text-align: center; letter-spacing: 0.1em; text-transform: uppercase; }
+    }
+
+    @media (max-width: 1080px) {
+      .main { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .t-step::before { display: none; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 44px; }
+      .hero-content { grid-template-columns: 1fr; }
+      .hero-actions { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ─── -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="brand"><span class="brand-dot"></span><span>IPO Radar</span></a>
+      <div class="nav-links">
+        <a href="#">Calendar</a>
+        <a href="#">Research</a>
+        <a href="#">Screener</a>
+        <a href="#">Alerts</a>
+      </div>
+      <a href="#" class="nav-cta">Sign in</a>
+    </div>
+  </nav>
+
+  <div class="crumb">
+    <a href="#">Calendar</a> / <a href="#">{{meta.reportDate}}</a> / <span>{{company.name}}</span>
+  </div>
+
+  <!-- ── Hero ─── -->
+  <section class="hero">
+    <div class="hero-card">
+      <img class="hero-bg" src="{{meta.heroImage}}" alt="Thematic background — {{meta.industry}}" onerror="this.style.display='none'" />
+      <div class="hero-scrim"></div>
+      <div class="hero-content">
+        <div>
+          <div class="hero-tags">
+            <span class="tag tag-industry">{{meta.industry}}</span>
+            <span class="tag {{meta.statusTagClass}}">{{meta.filingType}} · {{meta.statusLabel}}</span>
+            {{#if meta.filedDaysAgoLabel}}<span class="tag tag-fresh">{{meta.filedDaysAgoLabel}}</span>{{/if}}
+          </div>
+          <h1>{{company.name}}</h1>
+          <div class="hero-sub">
+            <span class="ticker">{{meta.ticker}}</span>
+            <span class="sep">|</span>
+            <span class="exch">{{meta.exchange}} ({{meta.tickerStatus}})</span>
+            <span class="sep">|</span>
+            <span>Filed {{meta.filingDate}}</span>
+            {{#if meta.expectedPricingWindow}}
+              <span class="sep">|</span>
+              <span>Expected pricing: {{meta.expectedPricingWindow}}</span>
+            {{/if}}
+          </div>
+        </div>
+        <div class="hero-actions">
+          <div class="hero-status">
+            Status: <strong>{{meta.statusLabel}}</strong><br />
+            Last update {{meta.reportDate}}
+          </div>
+          <div class="export-row">
+            <button class="btn-export" onclick="window.print()">
+              <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+              Export PDF
+            </button>
+            <a class="btn-export" href="#" onclick="navigator.share && navigator.share({url: location.href, title: document.title}); return false;">
+              <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              Share
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Main grid ─── -->
+  <main class="main">
+
+    <div class="content">
+
+      <!-- Executive brief (lede + bull/bear) -->
+      <section class="section">
+        <div class="section-head">
+          <h2>What this is</h2>
+          <span class="eyebrow">Executive brief</span>
+        </div>
+
+        <p class="lede">{{discoveryCard.tagline}}</p>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h4>What the bull sees</h4>
+            <ul>
+              {{#each summary.bull}}<li>{{this}}</li>{{/each}}
+            </ul>
+          </div>
+          <div class="summary-card">
+            <h4>What the bear sees</h4>
+            <ul>
+              {{#each summary.bear}}<li>{{this}}</li>{{/each}}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chart -->
+      {{#if chartData}}
+      <section class="section">
+        <div class="section-head">
+          <h2>Financials at a glance</h2>
+          <span class="eyebrow">From S-1 · disclosed targets flagged</span>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="chart-title-row">
+            <div class="chart-title">Revenue ($M) · Margin %</div>
+            <div class="chart-legend">
+              <span><span class="dot revenue-hist"></span>Revenue (actual)</span>
+              {{#if chartData.hasTargets}}<span><span class="dot revenue-tgt"></span>Target (mgmt)</span>{{/if}}
+              <span><span class="dot gm-line"></span>Gross margin</span>
+              <span><span class="dot ebitda-line"></span>EBITDA margin</span>
+            </div>
+          </div>
+
+          <svg class="chart-svg" viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="barGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#03C8B5" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#03C8B5" stop-opacity="0.55"/>
+              </linearGradient>
+              <linearGradient id="barGradDim" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#03C8B5" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#03C8B5" stop-opacity="0.18"/>
+              </linearGradient>
+            </defs>
+
+            <!-- grid lines -->
+            <g stroke="rgba(120,164,159,0.14)" stroke-width="1">
+              {{#each chartData.yAxisRevTicks}}<line x1="60" x2="840" y1="{{y}}" y2="{{y}}" />{{/each}}
+            </g>
+
+            <!-- left axis labels ($M) -->
+            <g fill="#78a49f" font-family="DM Mono" font-size="10" letter-spacing="0.8">
+              {{#each chartData.yAxisRevTicks}}<text x="50" y="{{y}}" text-anchor="end" dominant-baseline="middle">{{label}}</text>{{/each}}
+              <text x="50" y="24" text-anchor="end" fill="#a9c3bf">$M</text>
+            </g>
+
+            <!-- right axis labels (%) -->
+            <g fill="#78a49f" font-family="DM Mono" font-size="10" letter-spacing="0.8">
+              {{#each chartData.yAxisMarginTicks}}<text x="850" y="{{y}}" text-anchor="start" dominant-baseline="middle">{{label}}</text>{{/each}}
+              <text x="850" y="24" text-anchor="start" fill="#a9c3bf">%</text>
+            </g>
+
+            <!-- revenue bars + labels -->
+            {{#each chartData.points}}
+              {{#if isTarget}}
+                <rect x="{{barX}}" y="{{barY}}" width="{{barW}}" height="{{barH}}" fill="url(#barGradDim)" stroke="#03C8B5" stroke-dasharray="4 3" />
+              {{else}}
+                <rect x="{{barX}}" y="{{barY}}" width="{{barW}}" height="{{barH}}" fill="url(#barGrad)" />
+              {{/if}}
+              <text x="{{cx}}" y="{{barLabelY}}" fill="{{#if isTarget}}#a9c3bf{{else}}#e2edeb{{/if}}" font-family="DM Mono" font-size="11" text-anchor="middle">{{barRevenueLabel}}</text>
+            {{/each}}
+
+            <!-- gross margin polyline + dots + labels -->
+            <polyline fill="none" stroke="#c8a45c" stroke-width="2" points="{{chartData.gmPolyline}}" />
+            {{#each chartData.points}}
+              <circle cx="{{cx}}" cy="{{gmCY}}" r="3.5" fill="#c8a45c" {{#if isTarget}}stroke="#0d1a1c" stroke-width="2"{{/if}} />
+              <text x="{{cx}}" y="{{gmLabelY}}" fill="#c8a45c" font-family="DM Mono" font-size="10" text-anchor="middle">{{gmLabel}}</text>
+            {{/each}}
+
+            <!-- ebitda margin polyline + dots + labels -->
+            <polyline fill="none" stroke="#d65a5a" stroke-width="2" points="{{chartData.ebPolyline}}" />
+            {{#each chartData.points}}
+              <circle cx="{{cx}}" cy="{{ebCY}}" r="3" fill="#d65a5a" {{#if isTarget}}stroke="#0d1a1c" stroke-width="2"{{/if}} />
+              <text x="{{cx}}" y="{{ebLabelY}}" fill="{{#if ebClamped}}#a9c3bf{{else}}#d65a5a{{/if}}" font-family="DM Mono" font-size="10" text-anchor="middle">{{ebLabel}}</text>
+            {{/each}}
+
+            <!-- year labels -->
+            <g font-family="DM Mono" font-size="11" text-anchor="middle" letter-spacing="1">
+              {{#each chartData.points}}<text x="{{cx}}" y="322" fill="{{#if isTarget}}#78a49f{{else}}#a9c3bf{{/if}}">{{year}}</text>{{/each}}
+            </g>
+
+            <!-- projection divider (only if there are targets) -->
+            {{#if chartData.dividerX}}
+              <line x1="{{chartData.dividerX}}" x2="{{chartData.dividerX}}" y1="40" y2="300" stroke="#78a49f" stroke-dasharray="3 5" stroke-width="1" opacity="0.5" />
+              <text x="{{chartData.dividerX}}" y="32" fill="#78a49f" font-family="DM Mono" font-size="10" letter-spacing="1" text-anchor="middle">MGMT TARGET →</text>
+            {{/if}}
+          </svg>
+
+          <div class="chart-note">{{chartData.sourceNote}}</div>
+        </div>
+      </section>
+      {{/if}}
+
+      <!-- Business overview -->
+      <section class="section">
+        <div class="section-head">
+          <h2>Business</h2>
+          <span class="eyebrow">From the S-1 prospectus</span>
+        </div>
+        {{#each businessOverview.paragraphs}}<p class="body-p">{{this}}</p>{{/each}}
+      </section>
+
+      <!-- Peer comparables -->
+      {{#if valuation.comps.rows}}
+      <section class="section">
+        <div class="section-head">
+          <h2>Peer comparables</h2>
+          <span class="eyebrow">EV / NTM revenue</span>
+        </div>
+        <table class="peers">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Market cap</th>
+              <th style="text-align:right">Revenue growth</th>
+              <th style="text-align:right">EV / NTM rev</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each valuation.comps.rows}}
+            <tr>
+              <td>{{peer}}</td>
+              <td class="num">{{mktCap}}</td>
+              <td class="num">{{growth}}</td>
+              <td class="num">{{evRev}}</td>
+            </tr>
+            {{/each}}
+            <tr class="target">
+              <td><strong>{{valuation.comps.subject.peer}}</strong></td>
+              <td class="num">{{valuation.comps.subject.mktCap}}</td>
+              <td class="num">{{valuation.comps.subject.growth}}</td>
+              <td class="num"><strong>{{valuation.comps.subject.evRev}}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="body-p" style="margin-top:14px; font-size:13px; color:var(--ink-muted);">{{valuation.comps.sourceNote}}</p>
+      </section>
+      {{/if}}
+
+      <!-- Risks -->
+      {{#if risks.items}}
+      <section class="section">
+        <div class="section-head">
+          <h2>Top risks</h2>
+          <span class="eyebrow">Monday-meeting priority order</span>
+        </div>
+        <div class="risk-grid">
+          {{#each risks.items}}
+          <div class="risk">
+            <span class="risk-num">{{@i}}</span>
+            <div>
+              <h4>{{title}}</h4>
+              <p>{{body}}</p>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
+      <!-- Timeline -->
+      {{#if timeline.events}}
+      <section class="section">
+        <div class="section-head">
+          <h2>Key dates</h2>
+          <span class="eyebrow">Filing → expected pricing</span>
+        </div>
+        <div class="timeline">
+          {{#each timeline.events}}
+          <div class="t-step {{statusClass}}">
+            <div class="dot"></div>
+            <h4>{{label}}</h4>
+            <div class="date">{{date}}</div>
+          </div>
+          {{/each}}
+        </div>
+      </section>
+      {{/if}}
+
+    </div>
+
+    <!-- ── Right rail ─── -->
+    <aside class="rail">
+
+      <div class="panel panel-cta">
+        <h3>IPO Radar initiation report</h3>
+        <p>Full grounded brief — the analysis behind this fact sheet.</p>
+        <a class="btn btn-primary" href="./{{meta.ticker}}-initiation-report.pdf" download>Download PDF</a>
+        <a class="btn btn-ghost" href="./{{meta.ticker}}-initiation-report.html">Open in browser</a>
+        <p style="font-size:11px; color:var(--ink-muted); margin-top:8px;">
+          Last updated {{meta.reportDate}} · reviewed by {{meta.editorName}}
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>Offering details</h3>
+        <dl class="kv">
+          <dt>Ticker</dt>          <dd>{{meta.ticker}}</dd>
+          <dt>Exchange</dt>        <dd>{{meta.exchange}}</dd>
+          <dt>Industry</dt>        <dd>{{meta.industry}}</dd>
+          <dt>Filing type</dt>     <dd>{{meta.filingType}}</dd>
+          <dt>Filing date</dt>     <dd>{{meta.filingDate}}</dd>
+          <dt>Fiscal year-end</dt> <dd>{{meta.fiscalYearEnd}}</dd>
+          <dt>Deal size</dt>       <dd>{{discoveryCard.dealSize}}</dd>
+          <dt>Price range</dt>     <dd>{{discoveryCard.priceRange}}</dd>
+        </dl>
+      </div>
+
+      <div class="panel">
+        <h3>Underwriters</h3>
+        <p style="font-size: 13.5px; color: var(--ink-dim); margin: 0;">{{offering.underwriters}}</p>
+      </div>
+
+      <div class="panel">
+        <h3>Filings</h3>
+        <a class="filing-link" href="{{meta.filingUrl}}" target="_blank" rel="noopener">
+          <span>{{meta.filingType}} · EDGAR</span><span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="panel panel-cta">
+        <h3>Track this IPO</h3>
+        <p>Alerts when {{company.name}} files an amendment, sets a price, or starts trading.</p>
+        <a class="btn btn-primary" href="#">Alert me</a>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ── Footer ─── -->
+  <footer class="site">
+    <div class="foot-inner">
+      <div>© {{meta.year}} Velocia Ventures · IPO Radar</div>
+      <div class="disc">
+        Research provided for informational purposes only. Not a solicitation
+        or recommendation to buy or sell securities. All data sourced from
+        public SEC filings; forward-looking figures are disclosed management
+        targets from the registration statement. Reviewed and approved by
+        {{meta.editorName}} prior to distribution.
+      </div>
+      <div>v{{meta.reportVersion}} · fact-sheet</div>
+    </div>
+  </footer>
+
+</body>
+</html>

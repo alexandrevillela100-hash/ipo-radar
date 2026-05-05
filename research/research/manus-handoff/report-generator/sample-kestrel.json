@@ -1,0 +1,289 @@
+{
+  "meta": {
+    "reportVersion": "1.1",
+    "reportDate": "Apr 21, 2026",
+    "filingType": "S-1",
+    "filingTypeLabel": "Registration statement",
+    "exchange": "NYSE",
+    "ticker": "KSTR",
+    "tickerStatus": "proposed",
+    "industry": "Enterprise AI",
+    "filingUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001900000&type=S-1",
+    "filingDate": "Apr 8, 2026",
+    "editorName": "Alexandre Villela",
+    "approvalDate": "Apr 21, 2026",
+    "fiscalYearEnd": "January 31",
+
+    "status": "pre-pricing",
+    "expectedPricingWindow": "Week of May 18, 2026",
+    "heroImage": "./hero.png",
+    "heroPrompt": "A polished obsidian-glass falcon perched on a circuit-etched plinth, holographic data ribbons swirling around its outstretched wings, faint enterprise-software UI panels floating in the dark background, cinematic depth of field."
+  },
+
+  "company": {
+    "name": "Kestrel Intelligence",
+    "tagline": "An initial view on the enterprise-AI platform's <em>$400 million IPO</em> — strong growth, strong product, priced for perfection."
+  },
+
+  "offering": {
+    "size": "Up to $400M",
+    "underwriters": "Goldman · Morgan Stanley · JPM"
+  },
+
+  "verdict": {
+    "label": "Neutral",
+    "confidence": "4 / 5 — Solid",
+    "favorableBelow": "$15 / share",
+    "neutralBetween": "$15 — $22 / share",
+    "cautiousAbove": "$22 / share"
+  },
+
+  "fairValue": {
+    "low":  { "price": "$14", "cap": "~$1.8B cap" },
+    "mid":  { "price": "$19", "cap": "~$2.4B cap" },
+    "high": { "price": "$24", "cap": "~$3.0B cap" },
+    "unit": "per share, post-money"
+  },
+
+  "executiveSummary": {
+    "title": "Our <em>take</em>",
+    "lead": [
+      "Kestrel Intelligence is a high-growth, high-burn enterprise AI platform going public into a market that has already rewarded the category generously. Demand signal is real; so is hyperscaler competition. At the indicated midpoint, the price reflects most of the growth.",
+      "Founded in 2021 by Dr. Amara Lin (ex-Stripe) and Dr. Raj Patel (ex-OpenAI), Kestrel sells agentic workflow automation to enterprise operations teams — compliance review, vendor onboarding, incident triage. The S-1 discloses $180 million in annual recurring revenue growing 94% year-over-year, 78% gross margin, 134% net revenue retention, and an operating cash flow deficit of $28 million on the most recent fiscal year.",
+      "Our read is that the fundamentals justify a premium valuation but not an unconstrained one. Near-term execution looks credible. The harder questions — hyperscaler encroachment, capital needs over the next 18 months, and the durability of enterprise agentic AI as a standalone category — are not close to resolved."
+    ],
+    "keyPoints": [
+      {
+        "heading": "Product-market fit is visible in the numbers",
+        "body": "NRR of 134%, 340 enterprise customers, and two years of near-doubling revenue suggest real expansion inside existing accounts — not a churn-dependent acquisition machine."
+      },
+      {
+        "heading": "Hyperscaler competition is the single biggest overhang",
+        "body": "AWS Bedrock Agents, Microsoft Copilot Studio, and Salesforce Einstein are all converging on agentic enterprise workflows. Kestrel's moat is unsettled."
+      },
+      {
+        "heading": "Financial profile is typical AI scale-up — with real capital needs",
+        "body": "At current burn, the IPO proceeds give roughly 18 to 24 months of runway before the next capital decision. Path to cash-flow breakeven is credible but not committed."
+      },
+      {
+        "heading": "Valuation leaves limited upside at the top of the range",
+        "body": "Our DCF-and-comps fair-value range implies $14 — $19 — $24 per share. At the indicated top end, the offering prices in more than we're willing to underwrite."
+      },
+      {
+        "heading": "Our verdict is <em>Neutral</em> at the mid, <em>Favorable</em> below $15",
+        "body": "See §7 for the full conditions. Bottom line: a quality business at a fair-to-full price — not a bargain, not obviously overpriced."
+      }
+    ]
+  },
+
+  "businessOverview": {
+    "title": "What Kestrel <em>actually does</em>",
+    "paragraphs": [
+      "Kestrel sells software that automates workflows an enterprise operations team would otherwise run manually. A typical deployment: a mid-market bank uses Kestrel to process vendor onboarding packets — KYC checks, contract review, insurance verification, approvals routing — at roughly 40x the throughput of the analyst team it replaces. The product is agentic: it reads documents, reasons about policy, asks clarifying questions, and escalates when confidence drops below threshold.",
+      "Revenue is subscription-based with usage-linked expansion. Base contracts are annual, priced on seats and workflow volume; expansion happens when customers add new workflows or increase volume tiers. This is the mechanism behind the 134% net revenue retention — existing customers reliably spend more each year.",
+      "Kestrel was founded in 2021 in San Francisco by CEO Dr. Amara Lin (previously led enterprise platform at Stripe) and CTO Dr. Raj Patel (previously research engineer at OpenAI). The company has raised $285 million across four priced rounds from Sequoia, Index Ventures, General Catalyst, and GV. Headquarters in San Francisco with engineering offices in London and Bangalore; approximately 520 employees as of the filing.",
+      "The customer base is concentrated in regulated verticals — financial services (38% of revenue), healthcare (22%), and manufacturing (18%) — reflecting the product's strength in compliance-adjacent workflows where accuracy and auditability matter more than raw speed. Top ten customers account for 38% of total revenue, which is high-concentrated relative to mature SaaS but normal for a four-year-old enterprise platform.",
+      "Differentiation lives in two places. First, an evaluation framework the company calls \"Accuracy Floor\" that lets customers set confidence thresholds per workflow and audit every agent decision — a meaningful competitive advantage for regulated industries that most generalist LLM platforms don't match. Second, a partner network: Kestrel has deep integrations with ServiceNow, Workday, and a dozen vertical systems that smaller competitors haven't built."
+    ]
+  },
+
+  "financialAnalysis": {
+    "title": "What the <em>numbers show</em>",
+    "lead": "Revenue nearly doubled for two consecutive years, gross margins expanded, and cash burn stayed roughly flat in absolute dollars — a better combination than most pre-IPO AI companies have shown.",
+    "tableSourceNote": "Source: Kestrel S-1, filed Apr 21, 2026. Fiscal year ends January 31.",
+    "tableColumns": ["FY23", "FY24", "FY25"],
+    "tableRows": [
+      { "label": "Revenue",                "values": ["45.2", "92.1", "180.4"], "highlightLast": true },
+      { "label": "Growth %",               "values": ["—",    "+104%","+96%"],  "mutedRow": true, "smallLabel": true },
+      { "label": "Gross margin",           "values": ["71.5%","75.3%","78.1%"], "highlightLast": true },
+      { "label": "Operating income",       "values": ["(48.2)","(58.4)","(71.9)"] },
+      { "label": "Net loss",               "values": ["(42.1)","(54.8)","(62.3)"] },
+      { "label": "Operating cash flow",    "values": ["(35.1)","(40.7)","(28.2)"], "highlightLast": true },
+      { "label": "Cash & ST investments",  "values": ["45.4", "182.0","220.6"] },
+      { "label": "Net revenue retention",  "values": ["118%", "128%", "134%"],  "highlightLast": true }
+    ],
+    "narrative": [
+      { "heading": "Revenue.",          "body": "Two years of near-doubling growth — 104% in FY24, 96% in FY25 — on an expanding base. Growth did decelerate in absolute percentage terms, which is expected, but the <em>dollar growth</em> is still accelerating: $47 million added in FY24, $88 million added in FY25." },
+      { "heading": "Profitability.",    "body": "Gross margin expanded from 72% to 78% in two years, reflecting LLM inference cost improvements and a shift toward higher-margin, longer-tenured customers. Operating loss widened in absolute terms ($48M to $72M) but narrowed as a percentage of revenue (from -107% to -40%). The loss trajectory is the standard AI scale-up profile: operating leverage kicking in but not yet sufficient for breakeven." },
+      { "heading": "Cash flow.",        "body": "Operating cash burn actually <em>improved</em> in FY25 ($28M vs $41M prior year) despite the operating loss widening — driven by working-capital efficiencies and deferred revenue growth. This is the most encouraging single data point in the filing." },
+      { "heading": "Runway.",           "body": "Pre-IPO cash of $220M. IPO is expected to add roughly $360M net of fees. Against a current burn of $28M/year (improving), that is 18+ years of runway on paper — but assumes burn doesn't re-accelerate as the company pushes international expansion and new product bets. Realistic working assumption: 4-6 years of comfortable runway before the next capital decision." },
+      { "heading": "Operating metrics.","body": "Net revenue retention of 134% is the single best indicator of product quality in the filing. It says existing customers pay Kestrel more each year — the opposite of companies that have to acquire aggressively to offset churn. The 340-customer base at an average contract value of $530K is consistent with mid-market and enterprise buyers." },
+      { "heading": "Plain-language read.","body": "This is a company with real product-market fit, improving unit economics, and no imminent capital crisis. It is not yet profitable and will not be for at least two more years at the current trajectory. That is normal for AI scale-ups at this stage; it is also a reason the valuation has to work on future cash flows, not trailing metrics." }
+    ]
+  },
+
+  "paywall": {
+    "headline": "The next four sections contain our <em>market sizing, risk assessment, valuation model, and final verdict</em>",
+    "blurb": "Unlock the complete analysis — including the DCF, the named-peer comparables, the ranked risk matrix, and our view on the price conditions that would change our verdict.",
+    "tiles": [
+      { "tag": "§4 · Market opportunity" },
+      { "tag": "§5 · Risk assessment" },
+      { "tag": "§6 · IPO valuation" },
+      { "tag": "§7 · Investment verdict" }
+    ],
+    "pricing": "IPO Radar Pro  ·  $49 / month  ·  cancel anytime"
+  },
+
+  "marketOpportunity": {
+    "title": "How <em>big</em> is the market, really?",
+    "tam": { "value": "$420B",  "label": "Global enterprise automation · 2030E" },
+    "sam": { "value": "$68B",   "label": "Regulated-vertical agentic · 2030E" },
+    "som": { "value": "$3-5B",  "label": "Our realistic capture · 2030E" },
+    "narrative": [
+      { "heading": "TAM.", "body": "Kestrel's S-1 cites a $520 billion TAM for enterprise workflow automation. That figure aggregates RPA, BPM, intelligent document processing, and general-purpose agentic AI — some of which Kestrel does not directly compete in. Our cleaner read, using Gartner's Enterprise Automation Platforms segment, plus the agentic AI slice of the broader intelligent automation market, is $420 billion by 2030 growing 16% annually. The S-1 number is not wrong, but it's generous." },
+      { "heading": "SAM.", "body": "Kestrel's realistic addressable slice is the portion of enterprise automation where (a) regulatory/audit requirements reward Kestrel's Accuracy Floor differentiation and (b) ServiceNow, Workday, and ERP integrations matter. That narrows to $68 billion — still large, still growing, and the slice where Kestrel is not directly running into the hyperscaler buzzsaw." },
+      { "heading": "SOM.", "body": "Realistic 5-year capture lands at $3-5 billion in annualized revenue by 2030, assuming continued 40-55% revenue CAGR, stable NRR in the 120-135% range, and no more than one major competitor closing the Accuracy Floor gap. Bear case: $1.5B. Bull case: $8B if hyperscalers stay focused on horizontal AI and Kestrel becomes the default vertical agentic platform." },
+      { "heading": "Competitive landscape.", "body": "Direct named competitors: UiPath (RPA-pivot into agentic, stronger enterprise install base, weaker AI foundation); Moveworks (employee-facing, narrower); Glean (knowledge-first, adjacent not overlapping). Hyperscaler platforms — AWS Bedrock Agents, Microsoft Copilot Studio, Salesforce Einstein, Google Agentspace — are the larger long-term threat. Barriers to entry: regulated-vertical integrations, Accuracy Floor IP, customer switching costs from embedded workflows." }
+    ]
+  },
+
+  "risks": {
+    "title": "What could go <em>wrong</em>",
+    "intro": "Ranked by severity, not by order in the S-1. The first two are the ones most likely to meaningfully change the verdict if they materialize.",
+    "items": [
+      {
+        "title": "Hyperscaler competition",
+        "severity": "High",
+        "body": "AWS, Microsoft, Salesforce, and Google are all converging on agentic enterprise platforms. Any of them could bundle Kestrel-like capabilities into existing enterprise agreements and materially compress Kestrel's pricing power. Microsoft and Salesforce are the most immediate threats given their installed base overlap with Kestrel's ICP.",
+        "mitigation": "Accuracy Floor IP and regulated-vertical integrations create real switching costs. Hyperscaler products are early and not yet optimized for compliance workflows. Window of defensibility: 18-30 months before material pricing pressure."
+      },
+      {
+        "title": "Customer concentration",
+        "severity": "High",
+        "body": "Top ten customers account for 38% of revenue; the largest single customer is disclosed at 9%. Loss of any of the top three would be materially visible in subsequent quarterly disclosures. Contracts are annual; renewals concentrated in Q1 and Q4.",
+        "mitigation": "NRR of 134% across this base suggests strong embedding. Expansion motion is reducing concentration over time. Management has targeted sub-30% top-ten concentration within 24 months."
+      },
+      {
+        "title": "Capital runway and margin trajectory",
+        "severity": "Medium",
+        "body": "Pre-profit with $28M annual cash burn. If burn re-accelerates from planned international expansion, additional capital may be needed within 24-36 months — possibly at a lower valuation if market conditions shift.",
+        "mitigation": "IPO proceeds plus current cash give multi-year runway at current burn. Path to breakeven is credible in FY27-28."
+      },
+      {
+        "title": "AI regulatory exposure",
+        "severity": "Medium",
+        "body": "EU AI Act high-risk classification for many Kestrel workflows; prospective U.S. federal AI disclosure rules; sector-specific regulators (OCC, FDA, FINRA) increasing scrutiny of automated decisioning. Compliance cost could rise materially.",
+        "mitigation": "Accuracy Floor and audit infrastructure were designed for regulated use cases; positions Kestrel ahead of most competitors on compliance readiness."
+      },
+      {
+        "title": "Dual-class share structure",
+        "severity": "Medium",
+        "body": "Class B shares held by the two founders carry 10x voting rights; no sunset provision disclosed. Founders will retain approximately 62% of voting power post-IPO despite holding ~15% of economic shares. Limits public shareholders' governance leverage indefinitely.",
+        "mitigation": "Common for founder-led tech IPOs; ISS and Glass Lewis are likely to flag but not recommend against. Not a near-term operational issue."
+      },
+      {
+        "title": "International execution",
+        "severity": "Low",
+        "body": "70% of revenue from the United States. International expansion plans are ambitious (£ and € regions before Asia-Pacific), requires localized compliance features and sales capacity. Execution risk is real but relatively contained — failed expansion wouldn't threaten the core business."
+      }
+    ],
+    "keyRisk": "If we had to pick the one risk that most cleanly changes the verdict: <em>hyperscaler encroachment</em>. If Microsoft or Salesforce bundle comparable agentic capabilities into existing enterprise agreements within the next 18 months, Kestrel's growth and pricing power both come under meaningful pressure."
+  },
+
+  "valuation": {
+    "title": "What the <em>offering should be worth</em>",
+    "dcf": {
+      "intro": "Ten-year DCF. Revenue grows from $180M in FY25 to $1.42B in FY35 at a blended 23% CAGR (78% in FY26, stepping down to 12% by FY35). Operating margin expands from -40% to +18% over the forecast horizon as the business leverages fixed R&D and sales investments. WACC of 10.5%, built from a 0.95 equity beta, 4.2% risk-free rate, and 6.5% equity risk premium. Terminal growth of 3.0%.",
+      "rows": [
+        { "label": "Revenue CAGR FY26-35",              "value": "23%" },
+        { "label": "FY35 operating margin",             "value": "18%" },
+        { "label": "Weighted average cost of capital",  "value": "10.5%" },
+        { "label": "Terminal growth rate",              "value": "3.0%" },
+        { "label": "PV of explicit forecast",           "value": "$780M" },
+        { "label": "PV of terminal value",              "value": "$1,540M" },
+        { "label": "Implied equity value (mid)",        "value": "$2,320M · $19/sh" }
+      ]
+    },
+    "comps": {
+      "rows": [
+        { "peer": "Palantir (PLTR)",   "mktCap": "$86B",  "growth": "28%", "evRev": "17.8x" },
+        { "peer": "Snowflake (SNOW)",  "mktCap": "$64B",  "growth": "26%", "evRev": "11.2x" },
+        { "peer": "Datadog (DDOG)",    "mktCap": "$42B",  "growth": "23%", "evRev": "12.8x" },
+        { "peer": "ServiceNow (NOW)",  "mktCap": "$205B", "growth": "22%", "evRev": "14.1x" },
+        { "peer": "HubSpot (HUBS)",    "mktCap": "$31B",  "growth": "21%", "evRev": "9.8x" },
+        { "peer": "C3.ai (AI)",        "mktCap": "$3B",   "growth": "18%", "evRev": "6.5x" }
+      ],
+      "median":  { "peer": "Peer median",     "mktCap": "—",     "growth": "23%", "evRev": "11.9x" },
+      "subject": { "peer": "Kestrel (at mid)", "mktCap": "$2.4B", "growth": "78%", "evRev": "7.3x" },
+      "sourceNote": "Source: company filings, FactSet. Prices as of Apr 20, 2026.",
+      "narrative": [
+        "Kestrel at the midpoint trades at 7.3x forward revenue against a peer median of 11.9x — <em>below</em> the comp set despite growing more than three times faster. Two explanations: (a) the market is pricing in hyperscaler displacement risk and the absence of proven profitability at scale; (b) the comps are mostly mature AI/data-infrastructure businesses and Kestrel is earlier-stage, so the growth premium has not yet crystallized.",
+        "<strong class=\"font-medium text-foreground\">Price range disclosure.</strong> The initial S-1 does not disclose a price range; that will come in a subsequent 424B filing, typically two to three weeks before the roadshow. When it lands, we will refresh this section and reassess the verdict."
+      ]
+    }
+  },
+
+  "investmentVerdict": {
+    "title": "Our <em>bottom line</em>",
+    "points": [
+      { "heading": "Fundamentals are genuinely strong.",                   "body": "Near-doubling revenue, expanding margins, 134% NRR, and an improving burn rate is a rare combination at this stage. This is not a speculative growth story; it is a real business." },
+      { "heading": "The hyperscaler overhang is the central uncertainty.", "body": "Kestrel has an 18-30 month window before bundled alternatives from Microsoft and Salesforce meaningfully test its pricing power. That window may be enough; it may not be." },
+      { "heading": "Valuation at the midpoint is reasonable, not compelling.", "body": "7.3x forward revenue is below comp median, but the comps are further along. The growth premium is not fully priced, but neither is the hyperscaler risk." },
+      { "heading": "Below $15 shifts us to Favorable.",                    "body": "A pricing outcome that implies a discount to our low fair-value anchor would hand patient investors a quality business at an attractive entry. Above $22, the price bakes in too much of what still has to be proven." },
+      { "heading": "Refresh trigger:",                                     "body": "we will update this verdict when the 424B with indicated pricing is filed, and again on each S-1/A amendment. Current view assumes financials as disclosed in the initial S-1 hold." }
+    ],
+    "closing": "A quality business at a fair-to-full price. Not a bargain. Not obviously overpriced. The kind of IPO where discipline on entry price matters <em>more than conviction on the story</em>."
+  },
+
+  "summary": {
+    "bull": [
+      "134% net revenue retention on a $180M ARR base — expansion is real, not churn replacement.",
+      "78% gross margin, expanding ~600 bps a year as inference unit cost drops.",
+      "340 enterprise customers; top 10 = 38% of revenue, no single customer above 8%.",
+      "Founder-team pedigree (ex-Stripe, ex-OpenAI) and Sequoia / GC / Index backing.",
+      "Healthy post-IPO cash position: roughly 18–24 months of runway before next decision."
+    ],
+    "bear": [
+      "Operating cash flow still negative $28M; FY26 breakeven is a target, not a forecast.",
+      "Hyperscaler overhang: AWS Bedrock Agents, Copilot Studio, Einstein converging fast.",
+      "12 of top-20 customers are on early-design-partner pricing with FY25–26 step-ups.",
+      "Founder super-voting class B shares at 10:1 — public float votes <40% of board.",
+      "GPU supply and inference-cost trajectory are exogenous; an H200 cycle compresses moat."
+    ]
+  },
+
+  "timeline": {
+    "events": [
+      { "label": "S-1 filed",         "date": "Apr 8, 2026",      "status": "done" },
+      { "label": "1st amendment",     "date": "Apr 19, 2026",     "status": "done" },
+      { "label": "Roadshow expected", "date": "Week of May 11",   "status": "current" },
+      { "label": "Pricing window",    "date": "May 18–22, 2026",  "status": "future" },
+      { "label": "Trading opens",     "date": "Day after pricing","status": "future" }
+    ]
+  },
+
+  "discoveryCard": {
+    "tagline": "Agentic enterprise workflow platform for regulated industries — auditable, accuracy-floored, partner-integrated.",
+    "sector": "Enterprise AI",
+    "dealSize": "Up to $400M",
+    "priceRange": "TBD (initial S-1)",
+    "image": "./hero.png",
+    "badge": "Filed"
+  },
+
+  "chartData": {
+    "yAxisRevMax": 200,
+    "yAxisRevTicks": [
+      { "value": 200, "label": "200" },
+      { "value": 150, "label": "150" },
+      { "value": 100, "label": "100" },
+      { "value": 50,  "label": "50"  },
+      { "value": 0,   "label": "0"   }
+    ],
+    "yAxisMarginTicks": [
+      { "value": 100, "label": "100%" },
+      { "value": 60,  "label": "60%"  },
+      { "value": 20,  "label": "20%"  },
+      { "value": -20, "label": "-20%" },
+      { "value": -60, "label": "-60%" }
+    ],
+    "points": [
+      { "year": "FY22",  "revenue": 14,  "grossMargin": 51, "ebitdaMargin": -180, "isTarget": false },
+      { "year": "FY23",  "revenue": 28,  "grossMargin": 58, "ebitdaMargin": -110, "isTarget": false },
+      { "year": "FY24",  "revenue": 62,  "grossMargin": 69, "ebitdaMargin": -62,  "isTarget": false },
+      { "year": "FY25e", "revenue": 108, "grossMargin": 73, "ebitdaMargin": -28,  "isTarget": true  },
+      { "year": "FY26e", "revenue": 165, "grossMargin": 75, "ebitdaMargin": 4,    "isTarget": true  }
+    ],
+    "sourceNote": "Historicals: S-1 Summary Consolidated Financial Data. Targets: management disclosures in MD&A — not IPO Radar estimates."
+  }
+}

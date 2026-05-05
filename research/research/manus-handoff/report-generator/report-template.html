@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{company.name}} · Initiation Report · IPO Radar</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --background: #0A1514;
+      --foreground: #E8EDE9;
+      --muted-foreground: #8EA39D;
+      --primary: #5BB9B3;
+      --primary-muted: rgba(91, 185, 179, 0.5);
+      --border: #253432;
+      --border-strong: #2F403D;
+      --card: #0F1C1B;
+    }
+    html, body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      font-feature-settings: "ss01" on, "ss02" on;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .font-serif { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+    .font-mono { font-family: 'DM Mono', Menlo, Consolas, 'Courier New', monospace; }
+    .bg-background { background-color: var(--background); }
+    .bg-card { background-color: var(--card); }
+    .text-foreground { color: var(--foreground); }
+    .text-muted-foreground { color: var(--muted-foreground); }
+    .text-primary { color: var(--primary); }
+    .border-border { border-color: var(--border); }
+    .border-border-strong { border-color: var(--border-strong); }
+    .border-primary { border-color: var(--primary); }
+    .bg-primary { background-color: var(--primary); }
+
+    .vv-eyebrow {
+      font-family: 'DM Mono', Menlo, Consolas, 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .vv-section-tag {
+      font-family: 'DM Mono', Menlo, Consolas, 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .vv-section-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 300;
+      letter-spacing: -0.012em;
+      line-height: 1.15;
+    }
+    .vv-display {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+    em {
+      font-style: italic;
+      color: var(--primary);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .prose-report p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #CDD6D1;
+      margin-bottom: 1.25rem;
+      font-weight: 400;
+    }
+    .prose-report p.lead {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 21px;
+      line-height: 1.55;
+      font-style: italic;
+      color: #A8B8B2;
+      font-weight: 400;
+    }
+
+    .severity-high   { color: #E0704D; border-color: rgba(224, 112, 77, 0.4); background-color: rgba(224, 112, 77, 0.08); }
+    .severity-medium { color: #E0B24D; border-color: rgba(224, 178, 77, 0.4); background-color: rgba(224, 178, 77, 0.08); }
+    .severity-low    { color: var(--primary); border-color: var(--primary-muted); background-color: rgba(91, 185, 179, 0.08); }
+
+    @page { size: A4; margin: 18mm 16mm; }
+    @media print {
+      html, body { background: white !important; color: #1a1a1a !important; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .bg-background { background: white !important; }
+      .bg-card { background: #f5f7f6 !important; }
+      .text-foreground { color: #0A1514 !important; }
+      .text-muted-foreground { color: #556058 !important; }
+      .border-border { border-color: #d6dcd8 !important; }
+      .text-primary { color: #1c7a74 !important; }
+      .border-primary\/35, .border-primary\/40 { border-color: #1c7a74 !important; }
+      section, article > header, table { page-break-inside: avoid; break-inside: avoid; }
+      h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+      a { color: #1c7a74 !important; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body class="bg-background text-foreground">
+
+  <article class="max-w-[820px] mx-auto px-6 md:px-12 py-16 md:py-20">
+
+    <!-- ══════════════════════════ MASTHEAD ══════════════════════════ -->
+    <header class="pb-10 border-b border-border">
+      <div class="flex items-center justify-between mb-10">
+        <div class="vv-eyebrow">Velocia Ventures  ·  IPO Radar</div>
+        <div class="vv-section-tag text-muted-foreground">Report v{{meta.reportVersion}}  ·  {{meta.reportDate}}</div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 mb-8">
+        <span class="vv-section-tag px-2.5 py-1 border border-primary/35 rounded-[2px]">
+          {{meta.filingType}} · {{meta.filingTypeLabel}}
+        </span>
+        <span class="vv-section-tag text-muted-foreground">{{meta.exchange}}</span>
+        <span class="vv-section-tag text-muted-foreground">{{meta.ticker}} ({{meta.tickerStatus}})</span>
+        <span class="vv-section-tag text-muted-foreground">{{meta.industry}}</span>
+      </div>
+
+      <h1 class="vv-display text-[56px] md:text-[68px] text-foreground mb-6">
+        {{company.name}}
+      </h1>
+      <p class="font-serif italic text-[22px] leading-[1.5] text-muted-foreground max-w-[640px] mb-10">
+        {{company.tagline}}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-border">
+        <div>
+          <div class="vv-section-tag text-muted-foreground mb-3">Verdict</div>
+          <div class="flex items-baseline gap-3">
+            <span class="vv-display text-[44px] text-primary">{{verdict.label}}</span>
+          </div>
+          <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground mt-2">
+            Confidence {{verdict.confidence}}
+          </div>
+        </div>
+        <div>
+          <div class="vv-section-tag text-muted-foreground mb-3">Fair value range</div>
+          <div class="font-mono text-[15px] tracking-[0.04em] text-foreground">
+            {{fairValue.low.price}} &nbsp;·&nbsp; <span class="text-primary">{{fairValue.mid.price}}</span> &nbsp;·&nbsp; {{fairValue.high.price}}
+          </div>
+          <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground mt-2">
+            {{fairValue.unit}}
+          </div>
+        </div>
+        <div>
+          <div class="vv-section-tag text-muted-foreground mb-3">Offering size</div>
+          <div class="font-mono text-[15px] tracking-[0.04em] text-foreground">
+            {{offering.size}}
+          </div>
+          <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground mt-2">
+            {{offering.underwriters}}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 pt-6 border-t border-border flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
+        <span>By {{meta.editorName}}, IPO Radar</span>
+        <span class="text-primary/60">·</span>
+        <span>Supported by AI research tools</span>
+        <span class="text-primary/60">·</span>
+        <span>Reviewed &amp; approved {{meta.approvalDate}}</span>
+        <span class="text-primary/60">·</span>
+        <a href="{{meta.filingUrl}}" class="text-primary hover:underline underline-offset-4">View filing on EDGAR →</a>
+      </div>
+    </header>
+
+
+    <!-- ═══════════════ §1 · EXECUTIVE SUMMARY (free) ═══════════════ -->
+    <section class="pt-16 pb-12">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§1  ·  Executive summary</div>
+        <div class="vv-section-tag text-muted-foreground">Free preview</div>
+      </div>
+      <h2 class="vv-section-title text-[40px] md:text-[46px] text-foreground mb-10 max-w-[640px]">
+        {{{executiveSummary.title}}}
+      </h2>
+
+      <div class="prose-report max-w-[680px]">
+        {{#each executiveSummary.lead}}
+        <p{{#if @first}} class="lead"{{/if}}>{{this}}</p>
+        {{/each}}
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-6 max-w-[720px]">
+        {{#each executiveSummary.keyPoints}}
+        <div class="flex gap-5 items-start{{#if @notLast}} pb-6 border-b border-border{{/if}}">
+          <div class="font-mono text-primary text-[13px] tracking-[0.12em] pt-1 min-w-[32px]">{{@i}}</div>
+          <div>
+            <h3 class="font-serif text-[20px] text-foreground mb-2">{{{heading}}}</h3>
+            <p class="text-[15px] leading-[1.7] text-muted-foreground">{{body}}</p>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ §2 · BUSINESS OVERVIEW (free) ═══════════════ -->
+    <section class="pt-16 pb-12 border-t border-border">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§2  ·  Business overview</div>
+        <div class="vv-section-tag text-muted-foreground">Free preview</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-10 max-w-[640px]">
+        {{{businessOverview.title}}}
+      </h2>
+
+      <div class="prose-report max-w-[680px]">
+        {{#each businessOverview.paragraphs}}
+        <p>{{this}}</p>
+        {{/each}}
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ §3 · FINANCIAL ANALYSIS (free) ═══════════════ -->
+    <section class="pt-16 pb-12 border-t border-border">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§3  ·  Financial analysis</div>
+        <div class="vv-section-tag text-muted-foreground">Free preview</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-10 max-w-[640px]">
+        {{{financialAnalysis.title}}}
+      </h2>
+
+      <div class="prose-report max-w-[680px]">
+        <p class="lead">{{financialAnalysis.lead}}</p>
+      </div>
+
+      <div class="mt-8 mb-12 max-w-[720px]">
+        <div class="overflow-x-auto">
+          <table class="w-full font-mono text-[13px]">
+            <thead>
+              <tr class="border-t border-b border-border">
+                <th class="text-left py-3 pr-4 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">$ millions</th>
+                {{#each financialAnalysis.tableColumns}}
+                <th class="text-right py-3 px-3 font-normal{{#if @last}} text-primary{{else}} text-muted-foreground{{/if}} tracking-[0.12em] uppercase text-[10px]">{{this}}</th>
+                {{/each}}
+              </tr>
+            </thead>
+            <tbody class="text-foreground">
+              {{#each financialAnalysis.tableRows}}
+              <tr class="{{#if @notLast}}border-b border-border{{/if}}{{#if mutedRow}} text-muted-foreground{{/if}}">
+                <td class="py-3 pr-4{{#if smallLabel}} text-[11px] tracking-[0.1em] uppercase{{/if}}">{{label}}</td>
+                {{#each cells}}
+                <td class="text-right py-3 {{#if isLast}}pl-3{{else}}px-3{{/if}}{{#if shouldHighlight}} text-primary{{/if}}">{{value}}</td>
+                {{/each}}
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <p class="font-mono text-[10px] tracking-[0.12em] uppercase text-muted-foreground mt-3">
+          {{financialAnalysis.tableSourceNote}}
+        </p>
+      </div>
+
+      <div class="prose-report max-w-[680px]">
+        {{#each financialAnalysis.narrative}}
+        <p><strong class="font-medium text-foreground">{{heading}}</strong> {{body}}</p>
+        {{/each}}
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ PAYWALL TRANSITION ═══════════════ -->
+    <div class="my-20 relative">
+      <div class="border-t border-primary/40 mb-10"></div>
+
+      <div class="vv-eyebrow mb-5">Reserved for Pro subscribers</div>
+      <h3 class="vv-section-title text-[32px] md:text-[36px] text-foreground mb-6 max-w-[620px]">
+        {{{paywall.headline}}}
+      </h3>
+      <p class="text-[16px] leading-[1.75] text-muted-foreground mb-10 max-w-[600px]">
+        {{paywall.blurb}}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10 max-w-[620px]">
+        {{#each paywall.tiles}}
+        <div class="flex items-center gap-3 px-4 py-3 border border-border rounded-[3px] bg-card/40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-primary/70"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="font-mono text-[11px] tracking-[0.18em] uppercase text-muted-foreground">{{tag}}</div>
+        </div>
+        {{/each}}
+      </div>
+
+      <a href="#" class="inline-flex items-center gap-3 bg-primary text-[#0A1514] px-7 py-3.5 rounded-[2px] font-mono text-[11px] tracking-[0.22em] uppercase font-medium hover:opacity-90 transition-opacity">
+        Unlock full report  →
+      </a>
+      <p class="mt-4 font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+        {{paywall.pricing}}
+      </p>
+
+      <div class="border-t border-primary/40 mt-16"></div>
+    </div>
+
+
+    <!-- ═══════════════ §4 · MARKET OPPORTUNITY (Pro) ═══════════════ -->
+    <section class="pt-8 pb-12">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§4  ·  Market opportunity</div>
+        <div class="vv-section-tag text-muted-foreground">Pro</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-10 max-w-[640px]">
+        {{{marketOpportunity.title}}}
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 max-w-[720px]">
+        <div class="p-6 border border-border rounded-[3px] bg-card/30">
+          <div class="vv-section-tag mb-4">TAM</div>
+          <div class="font-serif text-[32px] font-light text-foreground mb-2">{{marketOpportunity.tam.value}}</div>
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+            {{marketOpportunity.tam.label}}
+          </div>
+        </div>
+        <div class="p-6 border border-border rounded-[3px] bg-card/30">
+          <div class="vv-section-tag mb-4">SAM</div>
+          <div class="font-serif text-[32px] font-light text-foreground mb-2">{{marketOpportunity.sam.value}}</div>
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+            {{marketOpportunity.sam.label}}
+          </div>
+        </div>
+        <div class="p-6 border border-primary/50 rounded-[3px] bg-card/50">
+          <div class="vv-section-tag mb-4">SOM (5-yr)</div>
+          <div class="font-serif text-[32px] font-light text-primary mb-2">{{marketOpportunity.som.value}}</div>
+          <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground">
+            {{marketOpportunity.som.label}}
+          </div>
+        </div>
+      </div>
+
+      <div class="prose-report max-w-[680px]">
+        {{#each marketOpportunity.narrative}}
+        <p><strong class="font-medium text-foreground">{{heading}}</strong> {{body}}</p>
+        {{/each}}
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ §5 · RISK ASSESSMENT (Pro) ═══════════════ -->
+    <section class="pt-16 pb-12 border-t border-border">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§5  ·  Risk assessment</div>
+        <div class="vv-section-tag text-muted-foreground">Pro</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-6 max-w-[640px]">
+        {{{risks.title}}}
+      </h2>
+      <p class="text-[15px] leading-[1.7] text-muted-foreground mb-12 max-w-[640px]">
+        {{risks.intro}}
+      </p>
+
+      <div class="space-y-5 max-w-[720px]">
+        {{#each risks.items}}
+        <div class="p-6 border border-border rounded-[3px] bg-card/30">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <div class="font-mono text-[11px] tracking-[0.18em] text-muted-foreground">{{@i}}</div>
+              <h3 class="font-serif text-[22px] font-light text-foreground">{{title}}</h3>
+            </div>
+            <span class="{{severityClass}} font-mono text-[10px] tracking-[0.16em] uppercase px-2.5 py-1 border rounded-[2px]">{{severity}}</span>
+          </div>
+          <p class="text-[15px] leading-[1.75] text-muted-foreground{{#if mitigation}} mb-3{{/if}}">
+            {{body}}
+          </p>
+          {{#if mitigation}}
+          <p class="text-[13px] leading-[1.7] text-muted-foreground/80 italic">
+            <span class="font-mono text-[10px] tracking-[0.16em] uppercase not-italic">Mitigation:</span> {{mitigation}}
+          </p>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="mt-10 p-6 border-l-2 border-primary bg-card/30 max-w-[680px]">
+        <p class="font-serif italic text-[17px] leading-[1.6] text-foreground/90">
+          {{{risks.keyRisk}}}
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ §6 · IPO VALUATION (Pro) ═══════════════ -->
+    <section class="pt-16 pb-12 border-t border-border">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§6  ·  IPO valuation</div>
+        <div class="vv-section-tag text-muted-foreground">Pro</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-10 max-w-[640px]">
+        {{{valuation.title}}}
+      </h2>
+
+      <div class="mb-12 p-8 border border-primary/40 rounded-[3px] bg-card/40">
+        <div class="vv-section-tag mb-5">Fair value range · {{fairValue.unit}}</div>
+        <div class="grid grid-cols-3 gap-6">
+          <div>
+            <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground mb-2">Low</div>
+            <div class="vv-display text-[36px] text-foreground">{{fairValue.low.price}}</div>
+            <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mt-1">{{fairValue.low.cap}}</div>
+          </div>
+          <div class="border-l border-r border-border px-6">
+            <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-primary mb-2">Mid</div>
+            <div class="vv-display text-[36px] text-primary">{{fairValue.mid.price}}</div>
+            <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mt-1">{{fairValue.mid.cap}}</div>
+          </div>
+          <div>
+            <div class="font-mono text-[11px] tracking-[0.14em] uppercase text-muted-foreground mb-2">High</div>
+            <div class="vv-display text-[36px] text-foreground">{{fairValue.high.price}}</div>
+            <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mt-1">{{fairValue.high.cap}}</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="font-serif text-[26px] font-light text-foreground mb-4 mt-12">DCF model</h3>
+      <div class="prose-report max-w-[680px]">
+        <p>{{valuation.dcf.intro}}</p>
+      </div>
+
+      <div class="my-8 max-w-[720px]">
+        <div class="overflow-x-auto">
+          <table class="w-full font-mono text-[13px]">
+            <thead>
+              <tr class="border-t border-b border-border">
+                <th class="text-left py-3 pr-4 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">DCF assumption</th>
+                <th class="text-right py-3 pl-3 font-normal text-primary tracking-[0.12em] uppercase text-[10px]">Value</th>
+              </tr>
+            </thead>
+            <tbody class="text-foreground">
+              {{#each valuation.dcf.rows}}
+              <tr{{#if @notLast}} class="border-b border-border"{{/if}}><td class="py-3 pr-4">{{label}}</td><td class="text-right py-3 pl-3{{#if @last}} text-primary{{/if}}">{{value}}</td></tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 class="font-serif text-[26px] font-light text-foreground mb-4 mt-12">Comparable public companies</h3>
+      <div class="my-8 max-w-[720px]">
+        <div class="overflow-x-auto">
+          <table class="w-full font-mono text-[13px]">
+            <thead>
+              <tr class="border-t border-b border-border">
+                <th class="text-left py-3 pr-4 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">Peer</th>
+                <th class="text-right py-3 px-3 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">Mkt cap</th>
+                <th class="text-right py-3 px-3 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">Growth (NTM)</th>
+                <th class="text-right py-3 pl-3 font-normal text-muted-foreground tracking-[0.12em] uppercase text-[10px]">EV / Rev (NTM)</th>
+              </tr>
+            </thead>
+            <tbody class="text-foreground">
+              {{#each valuation.comps.rows}}
+              <tr class="border-b border-border"><td class="py-3 pr-4">{{peer}}</td><td class="text-right py-3 px-3">{{mktCap}}</td><td class="text-right py-3 px-3">{{growth}}</td><td class="text-right py-3 pl-3">{{evRev}}</td></tr>
+              {{/each}}
+              <tr class="border-b border-border text-muted-foreground"><td class="py-3 pr-4 text-[11px] tracking-[0.12em] uppercase">{{valuation.comps.median.peer}}</td><td class="text-right py-3 px-3">{{valuation.comps.median.mktCap}}</td><td class="text-right py-3 px-3">{{valuation.comps.median.growth}}</td><td class="text-right py-3 pl-3">{{valuation.comps.median.evRev}}</td></tr>
+              <tr><td class="py-3 pr-4 text-primary">{{valuation.comps.subject.peer}}</td><td class="text-right py-3 px-3 text-primary">{{valuation.comps.subject.mktCap}}</td><td class="text-right py-3 px-3 text-primary">{{valuation.comps.subject.growth}}</td><td class="text-right py-3 pl-3 text-primary">{{valuation.comps.subject.evRev}}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="font-mono text-[10px] tracking-[0.12em] uppercase text-muted-foreground mt-3">
+          {{valuation.comps.sourceNote}}
+        </p>
+      </div>
+
+      <div class="prose-report max-w-[680px]">
+        {{#each valuation.comps.narrative}}
+        <p>{{this}}</p>
+        {{/each}}
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ §7 · INVESTMENT VERDICT (Pro) ═══════════════ -->
+    <section class="pt-16 pb-12 border-t border-border">
+      <div class="flex items-center justify-between mb-6">
+        <div class="vv-eyebrow">§7  ·  Investment verdict</div>
+        <div class="vv-section-tag text-muted-foreground">Pro</div>
+      </div>
+      <h2 class="vv-section-title text-[38px] md:text-[42px] text-foreground mb-10 max-w-[640px]">
+        {{{investmentVerdict.title}}}
+      </h2>
+
+      <div class="mb-12 p-10 border border-primary/40 rounded-[3px] bg-card/40">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <div class="vv-section-tag mb-4">Final verdict</div>
+            <div class="vv-display text-[72px] text-primary leading-none mb-4">{{verdict.label}}</div>
+            <div class="font-mono text-[11px] tracking-[0.16em] uppercase text-muted-foreground">
+              Confidence {{verdict.confidence}}
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mb-1">Favorable below</div>
+              <div class="font-mono text-[20px] text-primary">{{verdict.favorableBelow}}</div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mb-1">Neutral between</div>
+              <div class="font-mono text-[20px] text-foreground">{{verdict.neutralBetween}}</div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.14em] uppercase text-muted-foreground mb-1">Cautious above</div>
+              <div class="font-mono text-[20px] text-foreground">{{verdict.cautiousAbove}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="font-serif text-[24px] font-light text-foreground mb-6">Key investment considerations</h3>
+      <div class="space-y-5 max-w-[720px]">
+        {{#each investmentVerdict.points}}
+        <div class="flex gap-5 items-start">
+          <div class="font-mono text-primary text-[13px] tracking-[0.12em] pt-1 min-w-[32px]">{{@i}}</div>
+          <p class="text-[16px] leading-[1.75] text-foreground/90">
+            <strong class="font-medium">{{heading}}</strong> {{body}}
+          </p>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="mt-12 pt-10 border-t border-border max-w-[680px]">
+        <p class="font-serif italic text-[20px] leading-[1.55] text-foreground/90">
+          {{{investmentVerdict.closing}}}
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════ LEGAL DISCLOSURES ═══════════════ -->
+    <footer class="mt-24 pt-16 border-t-2 border-border">
+      <div class="vv-eyebrow mb-8">Important information and legal disclaimers</div>
+
+      <div class="space-y-6 text-[13px] leading-[1.75] text-muted-foreground max-w-[720px]">
+
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Nature of this report</h4><p>This report is produced by IPO Radar, a product of Velocia Ventures ("Velocia," "we," or "our"). Each report is authored by a Velocia editor, supported by AI-based research and drafting tools along with quantitative models developed by Velocia. A named human editor reviews, edits, and approves every report — including the analytical framing, ratings, and conclusions — before publication. The report is intended for informational and educational purposes only and does not constitute investment, legal, accounting, tax, or other professional advice.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Not a recommendation or solicitation</h4><p>This report is not, and should not be construed as, an offer, solicitation, or recommendation to buy, sell, subscribe for, or otherwise transact in any security. No aspect of this report should be relied upon as investment advice tailored to any individual's financial situation, investment objectives, or risk tolerance. Readers are encouraged to consult with qualified financial, legal, and tax advisors before making any investment decision.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Information sources</h4><p>The analysis is based substantially on information contained in public filings with the U.S. Securities and Exchange Commission, including Forms S-1, S-1/A, F-1, F-1/A, and related prospectuses, as well as publicly available third-party data. While Velocia believes the sources used are reliable, we do not warrant the accuracy, completeness, or timeliness of any information. Readers should review the original filings on the SEC's EDGAR system before drawing any conclusions.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Forward-looking statements</h4><p>This report contains forward-looking statements, projections, and estimates regarding company performance, industry trends, market conditions, and valuation ranges. All such statements are based on current expectations and assumptions and are subject to substantial risks and uncertainties. Actual results may differ materially from any forward-looking statement. No assurance can be given that any projected outcome will occur.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">AI tooling and editorial oversight</h4><p>This report is drafted with the assistance of large language models and other AI-based tools, in the same way an analyst uses spreadsheets, data terminals, and writing software. Every report is reviewed, edited, and approved by a named human editor before publication; no report is published without that editor's explicit sign-off. Like any research product, the analysis is subject to the limitations of its inputs — including incomplete disclosure in source filings, evolving market conditions, and the judgments the editor brings to each company. Readers should treat the analysis as one input among many, not as a substitute for their own due diligence.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Opinions subject to change</h4><p>The ratings, confidence scores, fair-value ranges, and views expressed reflect the output of our models and editorial framework as of the date of publication. These may change without notice as additional information becomes available, as subsequent filings are made (including S-1/A amendments), or as market conditions evolve. Velocia undertakes no obligation to update or retract any report.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Conflicts of interest</h4><p>Velocia Ventures, its affiliates, officers, directors, employees, and contributors (collectively, "Covered Persons") may from time to time hold long or short positions in the securities of companies covered in this report, including both before and after publication. Covered Persons may engage in transactions inconsistent with the views expressed. Covered Persons may also provide, or seek to provide, services to issuers or their affiliates. Material relationships affecting the subject company will be disclosed in the report where required.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Editor certification</h4><p>The editor named on this report certifies that the views expressed accurately reflect their personal assessment of the subject company and its securities at the time of publication, and that no part of their compensation is or will be directly or indirectly related to any specific recommendation or view expressed.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Investment risk</h4><p>Investments in securities, and particularly in securities of companies preparing for an initial public offering, carry substantial risk, including the risk of loss of all capital invested. IPO securities may trade below their offering price after listing, and historical performance of comparable offerings is not indicative of future results. Readers should be prepared for the possibility that any decision based in whole or in part on this report results in financial loss.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Past performance</h4><p>Past performance of any company, sector, index, or strategy discussed is not indicative of future results. References to valuation comparables, industry benchmarks, or prior IPO outcomes are historical illustrations only.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Regulatory positioning</h4><p>Velocia Ventures is not registered as an investment adviser, broker-dealer, or other regulated financial intermediary in any jurisdiction unless otherwise specifically disclosed. This report is not tailored to any individual reader and does not constitute personalized financial planning or securities brokerage services. Readers subject to regulatory regimes that restrict access to research or investment recommendations should evaluate their own compliance obligations.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Jurisdictional scope</h4><p>This report is intended primarily for distribution to readers in the United States. The securities discussed may not be registered for offer or sale in all jurisdictions. Distribution of this report in any jurisdiction where such distribution would violate applicable law is prohibited. Non-U.S. readers should review their local regulatory requirements before relying on any portion of this report.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Intellectual property and redistribution</h4><p>The content of this report is copyrighted by Velocia Ventures and is licensed for the personal use of the recipient only. Reproduction, redistribution, republication, or resale, in whole or in part, in any form or by any means, is prohibited without the prior written consent of Velocia Ventures.</p></div>
+        <div><h4 class="font-mono text-[11px] tracking-[0.18em] uppercase text-foreground mb-2">Contact</h4><p>For questions regarding this report, conflicts of interest, or corrections, contact <a href="mailto:legal@velociaventures.com" class="text-primary hover:underline underline-offset-4">legal@velociaventures.com</a>.</p></div>
+
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-border font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
+        © {{meta.year}} Velocia Ventures · All rights reserved · IPO Radar is a product of Velocia Ventures
+      </div>
+    </footer>
+
+  </article>
+
+</body>
+</html>
