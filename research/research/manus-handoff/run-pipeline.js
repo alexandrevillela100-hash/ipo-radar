@@ -431,7 +431,7 @@ async function main() {
   // (input.json, output.path) as positional args.
   const wantV2 = (args.v2 || args.v2only) && !args.skipV2;
   if (wantV2) {
-    const v2Dir   = path.resolve(__dirname, '..', 'initiation-report-v2');
+    const v2Dir   = path.resolve(__dirname, '..', '..', 'initiation-report-v2');
     const v2Json  = path.join(outDir, 'filing.json');
     const v2Html  = path.resolve(outDir, `${tickerLc}-v2-report.html`);
     const v2Pdf   = path.resolve(outDir, `${tickerLc}-v2-report.pdf`);
