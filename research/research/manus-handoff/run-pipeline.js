@@ -165,6 +165,8 @@ function stripS1ToSections(text, maxChars) {
     'RISK FACTORS',
     'MANAGEMENT\'S DISCUSSION AND ANALYSIS',
     'MANAGEMENT’S DISCUSSION AND ANALYSIS',
+    'MANAGEMENT\'S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS',
+    'MANAGEMENT’S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS',
     'BUSINESS',
     'SELECTED FINANCIAL DATA',
     'SUMMARY CONSOLIDATED FINANCIAL DATA',
@@ -173,27 +175,42 @@ function stripS1ToSections(text, maxChars) {
   const stopHeadings = [
     'PRINCIPAL STOCKHOLDERS',
     'CERTAIN RELATIONSHIPS AND RELATED PARTY TRANSACTIONS',
+    'CERTAIN RELATIONSHIPS AND RELATED-PARTY TRANSACTIONS',
     'DESCRIPTION OF CAPITAL STOCK',
     'UNDERWRITING',
     'LEGAL MATTERS',
     'EXPERTS',
-    'WHERE YOU CAN FIND',
+    'WHERE YOU CAN FIND ADDITIONAL INFORMATION',
     'INDEX TO FINANCIAL STATEMENTS',
   ];
-  const upper = text.toUpperCase();
+
+  // Locate a heading where it appears as a section heading — i.e. on its
+  // own line, in the same case as supplied. S-1s render the TOC in mixed
+  // case ("Risk Factors 18") and the actual section heading in ALL CAPS
+  // ("RISK FACTORS"). Anchoring on (^|\n)HEADING(\s*)(\n|$) skips both
+  // TOC entries and inline references.
+  function findHeading(haystack, needle, fromIdx = 0) {
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`(^|\\n)${escaped}[ \\t]*(\\r?\\n|$)`, 'g');
+    re.lastIndex = fromIdx;
+    const m = re.exec(haystack);
+    if (!m) return -1;
+    // Position of the heading itself (skip the leading newline match).
+    return m.index + (m[1] ? m[1].length : 0);
+  }
+
   const slices = [];
   for (const h of keepHeadings) {
-    const start = upper.indexOf(h);
+    const start = findHeading(text, h);
     if (start < 0) continue;
-    // Find the nearest stop heading after start.
     let end = text.length;
     for (const s of stopHeadings) {
-      const stopAt = upper.indexOf(s, start + h.length);
+      const stopAt = findHeading(text, s, start + h.length);
       if (stopAt > 0 && stopAt < end) end = stopAt;
     }
     slices.push({ start, end, h });
   }
-  // If we found nothing, use the first maxChars.
+  // Fallback: nothing matched → first maxChars (lets Claude do best-effort).
   if (!slices.length) return text.slice(0, maxChars);
   // Merge overlapping slices, keep in document order.
   slices.sort((a, b) => a.start - b.start);
