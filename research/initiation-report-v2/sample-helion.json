@@ -1,0 +1,447 @@
+{
+  "meta": {
+    "report_date": "May 1, 2026",
+    "iso_report_date": "2026-05-01",
+    "company_name": "Helion Therapeutics, Inc.",
+    "company_short": "Helion",
+    "ticker": "HLON",
+    "exchange": "NASDAQ",
+    "sector": "Biotechnology",
+    "subsector": "Inflammation & Immunology",
+    "country": "United States",
+    "analyst_name": "Alexandre Villela",
+    "firm_name": "Velocia Ventures",
+    "is_sample": true,
+    "cik": "0001999990",
+    "accession_number": "0001193125-26-XXXXXX",
+    "edgar_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001999990"
+  },
+
+  "ipo": {
+    "size_total": "$150M",
+    "share_count": "10M shrs",
+    "price_range_low": 14,
+    "price_range_high": 16,
+    "price_mid": 15,
+    "post_ipo_market_cap": "~$1.05B",
+    "post_ipo_cash": "~$290M",
+    "implied_ev": "~$760M",
+    "cash_runway": "~3 yrs",
+    "bookrunners": "MS, GS, Cowen",
+    "lockup_days": 180,
+    "pricing_window": "Wk of May 18, 2026",
+    "green_shoe": "1.5M additional shares"
+  },
+
+  "rating": {
+    "label": "BUY",
+    "target_12mo": 22,
+    "implied_return_pct": 47,
+    "bull_case": 32,
+    "bear_case": 9
+  },
+
+  "factor_profile": {
+    "clinical_de_risk": 7.8,
+    "market_size": 8.5,
+    "competitive_moat": 5.5,
+    "capital_efficiency": 7.0,
+    "insider_quality": 8.8,
+    "valuation_entry": 7.2
+  },
+
+  "thesis_pros": [
+    "Best-in-class Phase 2b efficacy in UC at the lowest reported dose in the S1P class",
+    "Clean cardiovascular & hepatic safety profile (no >3x ULN ALT events, no second-degree AV block, lymphocyte recovery within 2 weeks of dose interruption)",
+    "ARCH, Atlas, RTW, Janus Henderson on cap table; ~46% post-IPO insider concentration",
+    "Two follow-on programs (Crohn's, atopic dermatitis) provide platform optionality at no incremental cost in current valuation",
+    "M&A-friendly precedent stack: Pfizer/Arena $6.7B (2022), Merck/Prometheus $10.8B (2023), Sanofi/Provention $2.9B (2023)"
+  ],
+
+  "thesis_cons": [
+    "Phase 3 readout binary; UC induction trials in S1P class have ~58% historical PoS",
+    "Crowded competitive set: Velsipity, Zeposia, Rinvoq, Stelara, Skyrizi, Omvoh — plus emerging biosimilars",
+    "FDA class label requirements for S1Ps (cardiac monitoring, MRI surveillance) may limit community-GI uptake",
+    "Reliance on single asset for ~70% of valuation; pipeline concentration risk",
+    "Dilution risk: at current burn, follow-on equity likely H2 2028 ahead of NDA — exposure to share price into Phase 3"
+  ],
+
+  "summary_paragraph": "Helion is a clinical-stage biotech developing oral, gut-selective S1P receptor modulators for inflammatory bowel disease (IBD) and dermatologic indications. Lead asset HLN-001 reported a best-in-class Phase 2b ulcerative colitis readout in March 2026 (32% clinical remission vs 9% placebo at week 12, p<0.001), with a notably clean cardiovascular and hepatic safety profile relative to approved S1P modulators. We see a credible path to NDA submission in 2H 2028 and a $1.2B+ peak global UC opportunity, supplemented by a Phase 2-ready Crohn's program (HLN-002) and an IND-stage atopic dermatitis asset (HLN-003). At the proposed $1.05B post-money valuation, the market is paying for HLN-001 at less than half of risk-adjusted Phase 3 NPV — a rare entry point in a class where Pfizer paid $6.7B for Arena and Merck paid $10.8B for Prometheus.",
+
+  "lede_quote": "A differentiated S1P modulator with the cleanest Phase 2b readout the IBD class has produced — initiate at Buy with a $22 12-month price target.",
+
+  "financials": {
+    "fiscal_year_end": "December 31",
+    "currency": "USD",
+    "unit": "millions",
+    "columns": ["2024A", "2025A", "2026E", "2027E", "2028E", "2029E", "2030E"],
+    "sections": [
+      {
+        "title": "Income Statement",
+        "rows": [
+          { "label": "Collaboration revenue",      "values": ["0.0","0.0","0.0","0.0","0.0","15.0","40.0"], "style": "normal" },
+          { "label": "Product revenue (HLN-001)",  "values": ["—","—","—","—","—","—","85.0"], "style": "normal" },
+          { "label": "Total revenue",              "values": ["0.0","0.0","0.0","0.0","0.0","15.0","125.0"], "style": "total" },
+          { "label": "Cost of product revenue",    "values": ["—","—","—","—","—","—","(8.5)"], "style": "normal" },
+          { "label": "Gross profit",               "values": ["0.0","0.0","0.0","0.0","0.0","15.0","116.5"], "style": "total" },
+          { "label": "Gross margin %",             "values": ["nm","nm","nm","nm","nm","100.0%","93.2%"], "style": "normal" },
+          { "label": "R&D expense",                "values": ["(34.5)","(42.8)","(72.0)","(118.0)","(135.0)","(110.0)","(95.0)"], "style": "normal" },
+          { "label": "G&A expense",                "values": ["(8.2)","(11.4)","(18.0)","(25.0)","(38.0)","(58.0)","(82.0)"], "style": "normal" },
+          { "label": "Selling & marketing",        "values": ["—","—","—","—","—","(5.0)","(28.0)"], "style": "normal" },
+          { "label": "Total operating expenses",   "values": ["(42.7)","(54.2)","(90.0)","(143.0)","(173.0)","(173.0)","(205.0)"], "style": "total" },
+          { "label": "Operating income (loss)",    "values": ["(42.7)","(54.2)","(90.0)","(143.0)","(173.0)","(158.0)","(88.5)"], "style": "normal" },
+          { "label": "Operating margin",           "values": ["nm","nm","nm","nm","nm","(1053%)","(70.8%)"], "style": "normal" },
+          { "label": "Interest income, net",       "values": ["2.1","3.4","9.5","7.8","4.2","2.1","3.5"], "style": "normal" },
+          { "label": "Other income (expense)",     "values": ["0.0","0.0","0.0","0.0","0.0","0.0","0.0"], "style": "normal" },
+          { "label": "Pre-tax income (loss)",      "values": ["(40.6)","(50.8)","(80.5)","(135.2)","(168.8)","(155.9)","(85.0)"], "style": "normal" },
+          { "label": "Income tax (expense) benefit","values": ["0.0","0.0","0.0","0.0","0.0","5.0","36.5"], "style": "normal" },
+          { "label": "Net income (loss)",          "values": ["(40.6)","(50.8)","(80.5)","(135.2)","(168.8)","(150.9)","(48.5)"], "style": "total" },
+          { "label": "EPS — basic ($)",            "values": ["(2.10)","(1.85)","(1.15)","(1.93)","(2.41)","(2.05)","(0.62)"], "style": "normal" },
+          { "label": "EPS — diluted ($)",          "values": ["(2.10)","(1.85)","(1.15)","(1.93)","(2.41)","(2.05)","(0.62)"], "style": "normal" },
+          { "label": "Wtd avg shares — basic (M)", "values": ["19.3","27.5","70.0","70.0","70.0","73.5","78.0"], "style": "normal" },
+          { "label": "Wtd avg shares — diluted (M)","values": ["19.3","27.5","70.0","70.0","70.0","73.5","78.0"], "style": "normal" }
+        ]
+      },
+      {
+        "title": "Cash Flow Statement (Summary)",
+        "rows": [
+          { "label": "Cash flow from operations",  "values": ["(38.5)","(48.2)","(82.0)","(128.5)","(161.0)","(148.0)","(45.5)"], "style": "normal" },
+          { "label": "Capital expenditures",       "values": ["(2.5)","(3.5)","(4.5)","(5.5)","(6.5)","(7.5)","(8.5)"], "style": "normal" },
+          { "label": "Free cash flow",             "values": ["(41.0)","(51.7)","(86.5)","(134.0)","(167.5)","(155.5)","(54.0)"], "style": "total" },
+          { "label": "Equity financing",           "values": ["120.0","18.5","231.0","0.0","0.0","225.0","25.0"], "style": "normal" },
+          { "label": "Debt financing, net",        "values": ["0.0","0.0","0.0","0.0","0.0","0.0","0.0"], "style": "normal" },
+          { "label": "Other financing/changes",    "values": ["(0.5)","(0.0)","0.0","5.8","3.7","0.5","0.5"], "style": "normal" },
+          { "label": "Net change in cash",         "values": ["78.5","(33.2)","144.5","(128.2)","(163.8)","70.0","(28.5)"], "style": "total" }
+        ]
+      },
+      {
+        "title": "Balance Sheet (Period End)",
+        "rows": [
+          { "label": "Cash & cash equivalents",    "values": ["110.0","85.0","210.0","100.0","(20.0)","45.0","20.0"], "style": "normal" },
+          { "label": "Short-term investments",     "values": ["68.5","60.3","79.8","61.6","17.8","30.0","10.0"], "style": "normal" },
+          { "label": "Cash + investments",         "values": ["178.5","145.3","289.8","161.6","(2.2)","75.0","30.0"], "style": "total" },
+          { "label": "Property, plant & equipment","values": ["8.5","11.0","14.5","18.5","23.5","29.5","36.5"], "style": "normal" },
+          { "label": "Other long-term assets",     "values": ["5.4","4.7","4.2","1.9","0.7","0.7","0.7"], "style": "normal" },
+          { "label": "Total assets",               "values": ["192.4","161.0","308.5","182.0","22.0","105.2","67.2"], "style": "total" },
+          { "label": "Accounts payable & accrued", "values": ["18.5","15.4","18.5","20.5","22.0","28.5","35.5"], "style": "normal" },
+          { "label": "Deferred revenue",           "values": ["0.0","0.0","0.0","0.0","0.0","12.0","18.5"], "style": "normal" },
+          { "label": "Long-term debt",             "values": ["0.0","0.0","0.0","0.0","0.0","0.0","0.0"], "style": "normal" },
+          { "label": "Stockholders' equity",       "values": ["173.9","145.6","290.0","161.5","0.0","64.7","13.2"], "style": "normal" }
+        ]
+      },
+      {
+        "title": "Pipeline & Operating Metrics",
+        "rows": [
+          { "label": "HLN-001 stage",              "values": ["Ph 2a","Ph 2b","Ph 3 init","Ph 3 enr","Ph 3 read","NDA filed","Approval"], "style": "normal" },
+          { "label": "HLN-002 stage",              "values": ["Pre-IND","Ph 1","Ph 1","Ph 2 init","Ph 2","Ph 2 read","Ph 3 init"], "style": "normal" },
+          { "label": "HLN-003 stage",              "values": ["Disc.","IND-en.","IND filing","Ph 1","Ph 1 read","Ph 2","Ph 2"], "style": "normal" },
+          { "label": "FTE headcount (period end)", "values": ["38","54","92","135","185","240","310"], "style": "normal" },
+          { "label": "R&D % of opex",              "values": ["80.8%","79.0%","80.0%","82.5%","78.0%","63.6%","46.3%"], "style": "normal" },
+          { "label": "Quarterly avg burn ($M)",    "values": ["10.6","13.6","22.5","35.8","43.3","38.3","13.0"], "style": "normal" }
+        ]
+      }
+    ],
+    "source_note": "Source: S-1 (file 333-274XXX). 2024–25A audited; 2026–30E IPO Radar estimates. nm = not meaningful. Illustrative for sample purposes."
+  },
+
+  "operating_model_chart": {
+    "title": "R&D + G&A burn ($M) and ending cash position ($M), 2024A–2030E",
+    "labels": ["2024A","2025A","2026E","2027E","2028E","2029E","2030E"],
+    "bar_a": { "label": "R&D expense", "values": [34.5, 42.8, 72.0, 118.0, 135.0, 110.0, 95.0] },
+    "bar_b": { "label": "G&A + S&M",   "values": [8.2, 11.4, 18.0, 25.0, 38.0, 63.0, 110.0] },
+    "line":  { "label": "Ending cash", "values": [178.5, 145.3, 289.8, 161.6, -2.2, 75.0, 30.0] },
+    "y_max": 320
+  },
+
+  "thesis": [
+    {
+      "lead": "Phase 2b efficacy is genuinely best-in-class.",
+      "body": "HLN-001 delivered a 32% clinical remission rate at week 12 (vs 9% placebo, p<0.001) at a 60mg dose — the highest delta of any oral therapy in moderate-to-severe UC, and at one-third the dose of approved S1P modulators. Endoscopic improvement (38%) and histo-endoscopic mucosal healing (24%) tracked similarly. The 30mg arm also met statistical significance (24% remission, p=0.004), giving Helion two viable Phase 3 doses and dose-titration optionality in the label."
+    },
+    {
+      "lead": "The safety profile is what closes the gap on JAKs.",
+      "body": "S1P modulators have historically traded efficacy for tolerability — Zeposia and Velsipity both carry boxed-warning-adjacent class effects (bradycardia, macular edema, lymphopenia, hepatic enzyme elevations). Helion's Phase 2b reported zero >3x ULN ALT events, zero second-degree AV blocks, and lymphocyte counts that recovered within 2 weeks of dose interruption. If this profile holds in Phase 3, HLN-001 plausibly displaces JAK inhibitors as second-line oral therapy after biologic failure — a $1.5–2B opportunity in the U.S. alone."
+    },
+    {
+      "lead": "M&A optionality is real and the comp set is rich.",
+      "body": "Pfizer paid $6.7B for Arena (Velsipity) in 2022 with a Phase 3-ready S1P. Merck paid $10.8B for Prometheus in 2023 for a single Phase 2b IBD asset. Sanofi acquired Provention Bio at $2.9B for a Phase 3 immunology asset; Amgen took out ChemoCentryx at $3.7B. Helion fits the same template: focused, late-stage clinical, immunology category, single decision-maker on cap table, U.S.-based. We assume strategic interest enters the conversation post-Phase 3 readout."
+    },
+    {
+      "lead": "The cap table is unusually disciplined for a $1B+ biotech IPO.",
+      "body": "ARCH, Atlas, RTW and Janus Henderson collectively hold ~46% post-IPO. Management owns 5% with no recent secondaries. Series C closed October 2025 at $720M post-money — the IPO at $1.05B post represents a 46% step-up over six months, restrained relative to the 2025–26 biotech cohort and signaling quality-investor pricing discipline rather than retail-fueled enthusiasm."
+    },
+    {
+      "lead": "Pipeline depth is non-trivial — but not yet priced in.",
+      "body": "HLN-002 (Crohn's, Phase 1 complete) and HLN-003 (atopic dermatitis, IND filing 2Q27) provide two independent shots on goal. We assign HLN-002 a $280M risk-adjusted NPV ($4/share) and HLN-003 plus platform optionality a combined $70M ($1/share) in our SOTP. At the IPO price, the market is implicitly valuing the follow-on programs at zero — historically, this is where the asymmetry has lived in IBD M&A bake-offs."
+    }
+  ],
+
+  "company_overview": {
+    "headline": "Founded to fix what the S1P class got wrong",
+    "paragraphs": [
+      "Helion Therapeutics was founded in March 2019 in Cambridge, Massachusetts by Dr. Anna Reilly (former director of clinical research at the Massachusetts General Hospital Crohn's and Colitis Center; HMS faculty) and Dr. James Okafor (medicinal chemist, ex-Vertex, ex-Forma Therapeutics, PhD MIT). The company's founding hypothesis was that the off-target cardiovascular and hepatic effects of first-generation S1P receptor modulators stem from cross-reactivity at S1P3, and that a sufficiently selective S1P1/5 agonist could deliver equivalent or superior immunomodulatory effect at substantially lower exposure — preserving efficacy while eliminating most class liabilities.",
+      "Atlas Venture seeded the company with $40M Series A in late 2019. Following positive Phase 1 results in 2022 demonstrating the predicted lymphocyte-trafficking effect at sub-Velsipity doses, ARCH Venture Partners led an $80M Series B in early 2023. The Phase 2b ulcerative colitis trial (HELIOS-1, n=240) read out in March 2026, triggering a $120M crossover Series C led by ARCH with participation from RTW Investments, Janus Henderson, and Avoro Capital at a $720M post-money valuation.",
+      "The S-1 was filed April 18, 2026. Helion is targeting a $150M raise at the midpoint, sized to fully fund the Phase 3 UC program (HELIOS-2 induction; HELIOS-3 maintenance), advance HLN-002 into Phase 2 Crohn's, and bring HLN-003 through IND filing and Phase 1. Management and the board have signaled they expect to operate with ~3 years of runway through the Phase 3 induction readout in 3Q28, after which a follow-on equity round of $200–300M (or BD transaction) is anticipated.",
+      "The team has expanded from 38 FTEs at YE 2024 to 54 at YE 2025, with planned growth to ~92 by YE 2026 and ~310 by YE 2030. Roughly 70% of headcount is R&D-aligned; commercial and medical affairs hires begin in 1H 2027 in anticipation of Phase 3 readout. Helion operates from leased lab and office space in Cambridge (East Cambridge, near Kendall) totaling ~28,000 sq ft. Manufacturing is fully outsourced to a Patheon facility in Greenville, NC under a multi-year supply agreement signed concurrently with the Series C.",
+      "Intellectual property is built around three composition-of-matter patent families: core HLN-001 series (granted in US, EU, JP; expires 2039 with potential 5-year PTE), HLN-002 enantiomer series (granted US; pending EU/JP; expires 2041), and a method-of-use family covering combination dosing with TNF inhibitors (granted US; expires 2042). The company has not licensed in any external compounds and is not subject to material royalty obligations on its lead programs. Two preclinical research collaborations (Mass General Brigham 2024; Kennedy Institute Oxford 2025) provide academic visibility but no material near-term economics."
+    ]
+  },
+
+  "cap_table": {
+    "pre_ipo": {
+      "title": "Pre-IPO ownership (100%)",
+      "segments": [
+        { "label": "ARCH",              "pct": 25.0 },
+        { "label": "Atlas",             "pct": 18.0 },
+        { "label": "RTW",               "pct": 13.0 },
+        { "label": "Janus",             "pct": 10.0 },
+        { "label": "Other crossover",   "pct": 15.0 },
+        { "label": "Mgmt & employees",  "pct": 11.0 },
+        { "label": "Other early VCs",   "pct": 8.0 }
+      ]
+    },
+    "post_ipo": {
+      "title": "Post-IPO ownership (pro forma 100%)",
+      "segments": [
+        { "label": "ARCH",              "pct": 21.4 },
+        { "label": "Atlas",             "pct": 15.4 },
+        { "label": "RTW",               "pct": 11.1 },
+        { "label": "Janus",             "pct": 8.6 },
+        { "label": "Other crossover",   "pct": 13.0 },
+        { "label": "Mgmt & employees",  "pct": 9.4 },
+        { "label": "Other early VCs",   "pct": 6.8 },
+        { "label": "Public (IPO)",      "pct": 14.3 }
+      ]
+    }
+  },
+
+  "use_of_proceeds": [
+    { "amount": "$80M", "pct": 53, "purpose": "HLN-001 Phase 3 program (HELIOS-2 induction + HELIOS-3 maintenance, total n≈600)" },
+    { "amount": "$25M", "pct": 17, "purpose": "HLN-002 Phase 2 Crohn's induction (n≈180)" },
+    { "amount": "$15M", "pct": 10, "purpose": "HLN-003 IND-enabling, IND filing, Phase 1 SAD/MAD" },
+    { "amount": "$30M", "pct": 20, "purpose": "G&A, working capital, debt service, IP prosecution" }
+  ],
+
+  "industry": {
+    "headline": "An $18B inflammatory bowel disease market still dominated by injectable biologics",
+    "paragraphs": [
+      "The global ulcerative colitis (UC) market totaled approximately $7.2B in 2025, with the broader inflammatory bowel disease (IBD) category — UC plus Crohn's disease — at $18.4B, per IQVIA estimates. The market is dominated by injectable biologics (anti-TNFs, IL-23 inhibitors, integrin antagonists), which collectively account for roughly 78% of value. Oral small molecules — JAK inhibitors and S1P modulators — represent the fastest-growing segment at ~24% CAGR over 2022–25, but remain below 15% of total IBD revenue today. Growth in the oral category is being driven by patient and prescriber preference (a 2024 ACG survey found 72% of biologic-treated UC patients would switch to an equivalently efficacious oral), payer pressure to shift cost from medical to pharmacy benefits, and improving real-world safety evidence for the JAK class as the boxed-warning data matures.",
+      "The strategic logic for oral therapies is strong, but execution has been mixed. JAK inhibitors (Rinvoq, Xeljanz) deliver biologic-class efficacy but carry a black-box warning for major adverse cardiac events, malignancy, thrombosis, and infection — a labeling burden that has materially limited community-rheumatology and -GI adoption, particularly in patients <50 with cardiovascular risk factors. S1P modulators (Zeposia, Velsipity) avoid the JAK warnings but have delivered comparatively modest efficacy at elevated cardiovascular monitoring burden — first-dose titration, baseline ECG, ophthalmologic exam at 3 months, periodic LFTs. Real-world Velsipity uptake has been slower than Pfizer guided at acquisition ($600M 2025 sales vs $1B+ pre-deal expectation).",
+      "We model the addressable UC opportunity at roughly 1.25M diagnosed patients in the United States and 1.8M in the EU5, with a further 750K across Japan, Australia, and Canada. Of the U.S. diagnosed population, roughly 60% (~750K) are categorized as moderate-to-severe and indicated for advanced therapy. Of those moderate-to-severe patients, approximately 290K are currently on biologic therapy, 95K on JAK inhibitors, 45K on S1P modulators (primarily Velsipity, with declining Zeposia share), and the balance on conventional therapy or untreated. We estimate ~140K patients per year cycle through advanced-therapy switches, representing the addressable annual switching pool for HLN-001 at launch.",
+      "Crohn's disease adds a further $11.2B global market with comparable dynamics — entrenched biologics (Stelara, Skyrizi, Humira biosimilars), nascent oral category, recent small-molecule entrants (Rinvoq received Crohn's indication in 2023). Velsipity has not yet been approved for Crohn's; Zeposia's Crohn's program (TRUE NORTH-2) failed in 2022. HLN-002 — Helion's Crohn's-focused S1P with a longer half-life and refined gut-selectivity profile — would face less direct in-class competition than HLN-001. Atopic dermatitis (HLN-003's target) is a $9B+ market growing at high single digits, currently dominated by Dupixent ($14B+ globally).",
+      "Pricing in advanced UC therapy ranges from approximately $48,000/year (Velsipity WAC) to $76,000/year (Rinvoq); we assume HLN-001 prices at parity to Velsipity at launch, with potential to capture a 5–10% premium given improved Phase 2b efficacy if confirmed in Phase 3. Net-of-rebates ASP assumptions in our valuation work assume 35–40% gross-to-net erosion, consistent with current S1P class economics. Peak penetration assumption: 6% of moderate-to-severe UC, achieved by year 5 post-launch, yielding ~45K U.S. patients on therapy at $44K net annual ASP = ~$2.0B U.S. peak sales (gross-to-net included). EU5 + ROW add a further ~40% on top, less royalty leakage if partnered ex-US."
+    ],
+    "pull_quote": "If HLN-001's Phase 2b efficacy and clean safety profile hold in Phase 3, it has the potential to be the first S1P modulator to reach JAK-class efficacy without the JAK-class boxed warnings — opening a $2B+ commercial opportunity in U.S. UC alone, and a clear path to Crohn's via HLN-002."
+  },
+
+  "pipeline": {
+    "headline": "Three programs across IBD and dermatology — concentrated late-stage focus on UC",
+    "stage_columns": ["Discovery", "IND / Ph 1", "Phase 2", "Phase 3", "Approval"],
+    "rows": [
+      { "asset": "HLN-001",   "subtitle": "UC · S1P1/5 selective",            "progress_pct": 74, "milestone": "Ph 3 init 3Q26" },
+      { "asset": "HLN-002",   "subtitle": "Crohn's · S1P1/5 (long-acting)",   "progress_pct": 38, "milestone": "Ph 2 init 4Q26" },
+      { "asset": "HLN-003",   "subtitle": "Atopic dermatitis · undisclosed",  "progress_pct": 18, "milestone": "IND filing 2Q27" },
+      { "asset": "Discovery", "subtitle": "PsA, AS, vitiligo (preclinical)",  "progress_pct": 6,  "milestone": "Lead opt." }
+    ],
+    "design_sections": [
+      {
+        "heading": "HLN-001 Phase 3 design",
+        "paragraphs": [
+          "The Phase 3 program comprises two pivotal trials registered with FDA under a Special Protocol Assessment (SPA): HELIOS-2, a 12-week induction trial (n=480, three arms: HLN-001 30mg, HLN-001 60mg, placebo, randomization 2:2:1), and HELIOS-3, a 52-week maintenance trial (n=240 induction responders, re-randomized 1:1:1 to 30mg / 60mg / placebo). Primary endpoint in both is clinical remission per modified Mayo score (MMS ≤ 2). Key secondary endpoints include endoscopic improvement, histo-endoscopic mucosal healing, steroid-free remission at week 52, and patient-reported outcomes via the IBDQ instrument. Enrollment began 3Q26 with 95 sites across the U.S., EU, and Canada; primary endpoint readout expected 3Q28.",
+          "Enrollment criteria align tightly with Phase 2b: moderate-to-severe UC defined as MMS 5–9 with endoscopic subscore ≥ 2, prior failure or intolerance of at least one conventional therapy and up to two advanced therapies. The trial allows up to 50% biologic-experienced patients, including up to 25% with prior JAK exposure — a population subset Velsipity and Zeposia have struggled to demonstrate efficacy in. Statistical assumptions: 25% remission rate in HLN-001 arms vs 9% placebo, alpha 0.025 (two arms vs placebo with hierarchical testing), 90% power, ~15% dropout assumption."
+        ]
+      },
+      {
+        "heading": "HLN-002 & HLN-003",
+        "paragraphs": [
+          "HLN-002 is a structurally distinct S1P1/5 modulator with a longer plasma half-life (32 hours vs HLN-001's 18 hours), enabling once-daily dosing without dose titration. Phase 1 results (released August 2025, presented at UEGW) demonstrated a similar lymphocyte trafficking profile to HLN-001 with no >1x ULN ALT elevations and no first-degree AV block. The compound is positioned for Crohn's disease, where Helion has elected to lead with a complementary asset rather than pursue label expansion of HLN-001 — a strategy designed to maximize patent life (HLN-002 expires 2041 vs HLN-001 2039) and preserve optionality across mechanisms.",
+          "HLN-003's mechanism remains undisclosed pending IND filing, but management has indicated it is not an S1P modulator and represents a distinct chemotype identified from the discovery platform. Atopic dermatitis indication selection reflects three considerations: (1) commercial pull from a $9B+ market with documented patient appetite for orals; (2) lower competitive intensity than IBD; (3) clinical proof-of-concept achievable on a relatively short Phase 2 timeline (~18 months from first patient to topline)."
+        ]
+      }
+    ]
+  },
+
+  "competitive": {
+    "headline": "A crowded field — but the relevant comparison is narrower than it looks",
+    "intro_paragraph": "The moderate-to-severe UC treatment landscape includes more than a dozen approved or late-stage agents. For Helion, the relevant near-term competition narrows to four oral mechanisms (JAK inhibitors, S1P modulators) plus the entrenched biologic incumbents Helion will need to displace in the second-line setting. We focus the table below on the most likely head-to-head comparators, with Phase 3 induction remission rates (primary endpoint, week 8–12) as the cleanest cross-trial comparator.",
+    "table_columns": ["Asset", "Sponsor", "Class", "Status", "Ph3 Rem*", "2025 Sales", "Key Liability"],
+    "rows": [
+      { "values": ["Rinvoq (upadacitinib)", "AbbVie", "JAK1 inhibitor",     "Approved",          "33%",        "$1.8B",       "Boxed warning (CV, malig.)"], "highlight": false },
+      { "values": ["Xeljanz (tofacitinib)", "Pfizer", "JAK pan-inhib.",     "Approved",          "18%",        "$0.4B",       "Boxed warning, declining"], "highlight": false },
+      { "values": ["Velsipity (etrasimod)", "Pfizer", "S1P1/4/5 mod.",      "Approved",          "27%",        "$0.6B",       "Bradycardia, hepatic enz."], "highlight": false },
+      { "values": ["Zeposia (ozanimod)",    "BMS",    "S1P1/5 mod.",        "Approved",          "18%",        "$0.4B (UC)",  "Titration; macular edema"], "highlight": false },
+      { "values": ["HLN-001",               "Helion", "S1P1/5 (selective)", "Ph 3 (3Q26)",       "32% (Ph2b)", "—",           "Single asset; Ph 3 binary"], "highlight": true },
+      { "values": ["Stelara (ustekinumab)", "JNJ",    "IL-12/23",           "Approved",          "16%",        "$2.1B (UC)",  "Biosimilars 2024+; inj."], "highlight": false },
+      { "values": ["Skyrizi (risankizumab)","AbbVie", "IL-23",              "Approved",          "20%",        "$0.9B (UC)",  "Injectable; high price"], "highlight": false },
+      { "values": ["Omvoh (mirikizumab)",   "Lilly",  "IL-23",              "Approved",          "24%",        "$0.3B",       "Recent launch; injectable"], "highlight": false },
+      { "values": ["Entyvio (vedolizumab)", "Takeda", "alpha4beta7 integrin","Approved",         "16%",        "$1.5B (UC)",  "IV/SQ; gut-selective"], "highlight": false },
+      { "values": ["Humira (adalimumab)",   "Various","Anti-TNFalpha",      "Approved (biosim.)","17%",        "$1.2B (biosim.)","Biosimilar erosion ongoing"], "highlight": false }
+    ],
+    "footnote": "* Reported clinical remission rate at week 8–12 induction primary endpoint. Cross-trial comparison illustrative only — differences in patient population, endpoint definitions, and prior-therapy mix limit direct comparability.",
+    "differentiation": [
+      {
+        "heading": "vs other S1Ps (Velsipity, Zeposia)",
+        "body": "Higher Phase 2b remission rate at lower dose (32% at 60mg vs Velsipity 27% at 2mg, dose-equivalent ~3x lower exposure). No first-dose titration. Cleaner hepatic profile (no >3x ULN ALT). Faster lymphocyte recovery on dose interruption (2 wks vs 4–8 wks)."
+      },
+      {
+        "heading": "vs JAK inhibitors (Rinvoq, Xeljanz)",
+        "body": "Likely no boxed warning at approval (S1P class doesn't carry MACE/malignancy/VTE warnings). More favorable label for younger, lower-CV-risk patients. Plausibly comparable efficacy (32% vs 33% Rinvoq). Trade-off: cardiac monitoring at initiation; modestly slower onset (week 8 vs week 4)."
+      },
+      {
+        "heading": "vs IL-23 biologics (Skyrizi, Omvoh, Stelara)",
+        "body": "Oral vs injectable — material patient and payer preference (72% switch preference per ACG survey). Lower per-dose price likely (~$48K vs ~$80K Stelara). Faster time-to-effect (clinical response at week 4–8 vs week 8–12 for IL-23). Trade-off: shorter clinical track record."
+      },
+      {
+        "heading": "vs anti-TNFs (Humira, Remicade biosimilars)",
+        "body": "Anti-TNFs first-line standard with biosimilar pricing pressure (Humira biosimilar ~$15K WAC). HLN-001 targets post-anti-TNF setting — ~40% of UC patients fail or lose response to anti-TNF within 24 months — addressable bull's-eye for HLN-001 commercially."
+      }
+    ]
+  },
+
+  "valuation": {
+    "headline": "$22 12-month price target — risk-adjusted SOTP triangulated against M&A and trading comps",
+    "intro_paragraph": "We value Helion using a sum-of-the-parts (SOTP) framework, applying probability-weighted DCF to each pipeline asset and adding net cash. Our $22 price target reflects a 12-month forward view that incorporates incremental Phase 3 progression, HLN-002 Phase 2 initiation, and HLN-003 IND filing. We triangulate against precedent M&A (Pfizer/Arena, Merck/Prometheus) and trading comps among Phase 3-stage immunology biotechs. The football field below summarizes the implied price ranges across methodologies; our $22 target sits at the median of the methodology range.",
+
+    "football_field": {
+      "x_min": 7,
+      "x_max": 39,
+      "ipo_mid": 15,
+      "target": 22,
+      "ranges": [
+        { "method": "Risk-adj SOTP NPV",     "low": 18, "high": 26, "color": "teal_dk" },
+        { "method": "Peer EV/cash multiple", "low": 14, "high": 20, "color": "teal_lt" },
+        { "method": "M&A precedents",        "low": 19, "high": 35, "color": "gold_dk" },
+        { "method": "Analyst consensus",     "low": 17, "high": 24, "color": "gold_lt" },
+        { "method": "Bull/Bear scenario",    "low":  9, "high": 32, "color": "mute" }
+      ]
+    },
+
+    "sotp": {
+      "title": "Sum-of-the-parts (illustrative) · US$M unless noted",
+      "rows": [
+        { "label": "HLN-001 (UC, risk-adj. NPV)",       "value_m": 750,  "value_per_share": "$10.50/sh", "style": "normal" },
+        { "label": "HLN-002 (Crohn's, risk-adj. NPV)",  "value_m": 280,  "value_per_share": "$4.00/sh",  "style": "normal" },
+        { "label": "HLN-003 + platform optionality",    "value_m": 70,   "value_per_share": "$1.00/sh",  "style": "normal" },
+        { "label": "Net cash (post-IPO)",                "value_m": 290,  "value_per_share": "$4.10/sh",  "style": "normal" },
+        { "label": "Total NAV / Price target",           "value_m": 1540, "value_per_share": "$22.00/sh", "style": "total" },
+        { "label": "vs IPO mid ($15)",                   "value_m": null, "value_per_share": "+47%",     "style": "return" }
+      ],
+      "footnote": "70.0M shares; HLN-001 PoS 60%; HLN-002 PoS 40%; HLN-003 PoS 15%; WACC 12%; terminal 5x peak sales."
+    },
+
+    "ma_precedents": {
+      "title": "Selected immunology M&A precedents",
+      "table_columns": ["Target", "Buyer", "Year", "EV ($B)"],
+      "rows": [
+        { "values": ["Prometheus Bio",    "Merck",    "2023", "10.8"] },
+        { "values": ["Arena Pharma",      "Pfizer",   "2022", "6.7"]  },
+        { "values": ["Provention Bio",    "Sanofi",   "2023", "2.9"]  },
+        { "values": ["Chinook Therap.",   "Novartis", "2023", "3.5"]  },
+        { "values": ["ChemoCentryx",      "Amgen",    "2022", "3.7"]  },
+        { "values": ["Pandion Thx",       "Merck",    "2021", "1.9"]  }
+      ],
+      "median_label": "Median (n=6)",
+      "median_value": "$3.6B",
+      "footnote": "Implied take-out multiple at median: 4.7x post-IPO EV."
+    },
+
+    "recommendation_pull_quote": "Initiate at Buy with a 12-month price target of $22 (~47% upside to IPO mid). Bull case $32 (Phase 3 hit + Crohn's Phase 2 positive interim + strategic interest); bear case $9 (Phase 3 fails primary endpoint or shows new safety signal)."
+  },
+
+  "risks": [
+    {
+      "heading": "Clinical risk — Phase 3 binary outcome",
+      "body": "HELIOS-2 induction primary endpoint (week 12 clinical remission) is the company's single most important catalyst, with readout expected 3Q28. Historical S1P-class probability-of-success in moderate-to-severe UC induction trials is approximately 58% (n=12 trials, 2015–25); Phase 2-to-3 attrition in IBD has historically been ~25%. Although Phase 2b results were unusually strong, a Phase 3 primary endpoint miss would invalidate our base-case valuation and likely trigger a 60–75% share price decline, supporting our bear case of $9. HELIOS-3 maintenance readout (mid-2029) is a secondary binary risk with smaller but non-trivial valuation implications."
+    },
+    {
+      "heading": "Regulatory risk — class label requirements",
+      "body": "FDA approval of any S1P modulator carries class-wide labeling requirements: pre-treatment ECG screening, ophthalmologic baseline assessment, periodic LFT monitoring, and routine MRI surveillance for first-line agents. Although Helion's Phase 2b safety profile would support a relatively favorable label, FDA could require Helion to match the most restrictive labeling among approved S1Ps (Velsipity, Zeposia). Restrictive labeling materially impacts community-rheumatology and -gastroenterology adoption, which represent >55% of advanced UC prescribing volume."
+    },
+    {
+      "heading": "Competitive risk — entrenched biologics and improving JAK profiles",
+      "body": "By the time HLN-001 reaches market (assumed 2H 2029), Skyrizi, Omvoh, Rinvoq and Velsipity will have 2–6 years of established usage. Real-world evidence from the JAK class is rapidly improving (CV/malignancy event rates lower than initially feared), narrowing HLN-001's safety differentiation argument. Sponsor-funded head-to-head trials remain the strongest commercial differentiation lever; Helion has not yet committed to one. We assume Phase 4 head-to-head launch ~2031 in our model."
+    },
+    {
+      "heading": "Commercial risk — execution as a first-launch company",
+      "body": "Helion has no commercial infrastructure today. Building a community-gastroenterology-focused field force (target ~150 reps at launch) requires substantial 2027–28 hiring, with associated execution risk. A partnership scenario with a Big Pharma immunology player (e.g., Lilly, BMS, Sanofi) would mitigate this risk while compressing equity upside. Management has indicated openness to ex-US partnerships (EU, Japan likely structured as royalty deals) but commitment to building a U.S. commercial organization in-house."
+    },
+    {
+      "heading": "Financial risk — dilution ahead of NDA",
+      "body": "At our forecast burn, Helion exhausts post-IPO cash by mid-2028 — approximately 6 months ahead of the Phase 3 readout. A pre-readout follow-on equity offering of $200–$300M is likely, with significant dilution risk if the share price has declined into the readout. Management has indicated willingness to consider non-dilutive options (royalty financing, ex-US licensing) but has not signaled specific transaction intent. We assume 5M new shares at $25 in 2029 in our model — actual dilution will be a function of share price trajectory."
+    },
+    {
+      "heading": "IP risk — patent challenges and class encroachment",
+      "body": "Composition-of-matter for HLN-001 expires 2039 with potential 5-year PTE; this is the strongest IP. The HLN-002 enantiomer patent has not yet issued in EU or Japan and could face opposition. The method-of-use family (combination dosing) is broader in scope but historically less defensible. Hatch-Waxman litigation in 2034–36 is modeled in our DCF; we assume a 2-year delay relative to nominal patent expiry as a base case."
+    }
+  ],
+
+  "scenarios": {
+    "bull": {
+      "target": 32,
+      "probability_pct": 30,
+      "description": "Phase 3 primary endpoint hit with effect size ≥ Phase 2b; Crohn's Ph 2 positive interim; M&A interest emerges."
+    },
+    "base": {
+      "target": 22,
+      "probability_pct": 50,
+      "description": "Phase 3 interim positive; HLN-002 progresses; HLN-003 IND filed; partnership conversations begin."
+    },
+    "bear": {
+      "target": 9,
+      "probability_pct": 20,
+      "description": "Phase 3 misses primary endpoint or shows new safety signal; pipeline value compressed; significant dilution required."
+    },
+    "weighted_target": 21.4
+  },
+
+  "management": {
+    "leadership": [
+      {
+        "name": "Anna Reilly, MD, PhD",
+        "role": "Co-Founder & CEO",
+        "background": "Mass General Brigham (Director, Crohn's & Colitis Center); HMS faculty; >40 peer-reviewed pubs in IBD therapeutics",
+        "tenure": "Since 2019"
+      },
+      {
+        "name": "James Okafor, PhD",
+        "role": "Co-Founder & CSO",
+        "background": "Vertex (Director, Med Chem); Forma Therapeutics; Pfizer (early career); PhD MIT chemistry",
+        "tenure": "Since 2019"
+      },
+      {
+        "name": "Sara Lindqvist, MD",
+        "role": "Chief Medical Officer",
+        "background": "BMS (VP, Clinical Development, Immunology); Genentech (Sr Director); PhD Karolinska Institute",
+        "tenure": "Since 2023"
+      },
+      {
+        "name": "David Chen, CPA",
+        "role": "Chief Financial Officer",
+        "background": "Foghorn Therapeutics (CFO, took company public 2021); Goldman Sachs (Healthcare IB, Director)",
+        "tenure": "Since 2024"
+      },
+      {
+        "name": "Priya Naidu, JD",
+        "role": "Chief Legal Officer / GC",
+        "background": "Vertex (Deputy GC, IP & Litigation); Goodwin Procter (partner, life sciences)",
+        "tenure": "Since 2025"
+      },
+      {
+        "name": "Marcus Thiel",
+        "role": "SVP, Commercial Operations",
+        "background": "AbbVie (Sr Director, Rinvoq UC launch); Takeda (Entyvio commercial)",
+        "tenure": "Since 2026"
+      }
+    ],
+    "board_paragraph": "Board chair: Robert Nelsen (ARCH Venture Partners; >25 biotech IPOs as lead investor including Alnylam, Juno, Editas). Independent directors: Dr. Lisa Pang (former CMO, Genentech; led Tecentriq approval), Dr. Peter Adamson (former Senior VP, R&D, Pfizer; led Velsipity Phase 3 program), Maria Chavez (former CFO, Sage Therapeutics; took company public 2014). Investor directors: Bruce Booth (Atlas Venture; serves on 8 biotech boards), Kevin Bitterman (RTW Investments). Anna Reilly (CEO) sits as the management director. Average board tenure: 3.2 years; 4 of 8 directors are women or underrepresented minorities. Audit, compensation, and nominating committees fully independent under NASDAQ rules.",
+    "compensation_paragraph": "CEO 2025 total compensation: $1.2M base + bonus, $4.8M equity grants (RSUs vesting 4yr/1yr cliff). Top-5 NEO 2025 total compensation: $9.4M. All NEOs subject to 180-day IPO lock-up. Outstanding option pool: 12.5% of fully diluted shares; post-IPO available pool: 5.0%. No outstanding promissory notes or related-party transactions disclosed beyond standard director/officer indemnification.",
+    "lockup_paragraph": "No selling stockholders in the offering; all shares are primary issuance. All directors, executive officers, and 5%+ holders are subject to a customary 180-day lock-up agreement with the underwriters. Underwriters' overallotment ('green shoe') is 1.5M additional shares. Helion does not have a dual-class share structure; one share, one vote across all outstanding common stock. Anti-takeover provisions (staggered board, supermajority voting for charter amendments) are standard for Delaware-incorporated biotechs."
+  },
+
+  "disclosures": {
+    "rating_distribution": { "buy_pct": 48, "hold_pct": 41, "sell_pct": 11 },
+    "ib_relationships": "Velocia Ventures has not provided investment banking services to Helion Therapeutics in the past 12 months and does not expect to receive compensation for investment banking services from Helion in the next 3 months. Velocia Ventures is not acting as advisor or underwriter to the IPO. Bookrunners on the offering (Morgan Stanley, Goldman Sachs, Cowen, Stifel) are unaffiliated with Velocia Ventures.",
+    "position_disclosure": "Velocia Ventures and its affiliates may hold positions in the securities of companies covered in IPO Radar reports. As of the date of this report: (a) Velocia Ventures holds no position in HLON; (b) the lead analyst holds no personal position in HLON; (c) members of the analyst's household hold no positions in HLON. Position changes will be disclosed within 5 business days of trade execution per our internal compliance policy.",
+    "price_target_methodology": "Our $22 12-month price target reflects probability-weighted SOTP analysis: HLN-001 risk-adjusted NPV $750M (60% PoS, 12% WACC, 5x peak sales terminal); HLN-002 risk-adjusted NPV $280M (40% PoS); HLN-003 + platform $70M; net cash $290M. Total $1,540M / 70.0M shares = $22.00. Risks to price target include but are not limited to: Phase 3 clinical failure, regulatory delays or restrictive labeling, competitive entry, commercial execution risk, dilution, and macro biotech sector risk."
+  }
+}

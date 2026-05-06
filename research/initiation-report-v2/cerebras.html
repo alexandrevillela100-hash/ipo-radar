@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IPO Radar — Cerebras Systems Inc. (CBRS) — Initiation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-app:#050D0C;--bg-card:#0A1514;--bg-card-2:#0F1E1C;
+  --ink:#E8EDE9;--body:#CDD6D1;--mute:#8A938F;
+  --rule:#1E2B29;--rule-soft:#162422;
+  --teal:#5BB9B3;--teal-dark:#3D938E;--teal-fill:rgba(91,185,179,.18);
+  --gold:#C8A45C;--gold-soft:rgba(200,164,92,.18);
+  --green:#5DBF7A;--red:#E27474;
+  --tint:#11201F;--shade:#1A1812;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg-app);color:var(--ink);
+  font-family:'Barlow',-apple-system,Helvetica,Arial,sans-serif;font-weight:400;
+  font-size:10.5pt;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.page{width:8.5in;min-height:11in;background:var(--bg-card);margin:0 auto 28px;
+  padding:0.65in 0.7in 0.55in;position:relative;
+  box-shadow:0 1px 0 rgba(91,185,179,.06),0 30px 80px -40px rgba(0,0,0,.7);
+  border:1px solid var(--rule);}
+.eyebrow{font-family:'DM Mono',Menlo,Consolas,monospace;font-size:7.5pt;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;
+  color:var(--ink);margin:0;line-height:1.15;}
+h1{font-size:26pt;letter-spacing:-.01em;} h2{font-size:17pt;letter-spacing:-.005em;}
+h3{font-size:13pt;}
+h4{font-size:11pt;font-weight:600;font-family:'Barlow',sans-serif;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink);}
+p{margin:0 0 8pt;color:var(--body);}
+a{color:var(--teal);text-decoration:none;}
+hr{border:0;border-top:1px solid var(--rule);margin:14pt 0;}
+.rule-soft{border:0;border-top:1px solid var(--rule-soft);margin:10pt 0;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:10pt;border-bottom:1px solid var(--ink);margin-bottom:14pt;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:14pt;font-weight:600;color:var(--ink);}
+.brand .accent{color:var(--teal);}
+.top-meta{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.14em;}
+.footer-bar{position:absolute;left:0.7in;right:0.7in;bottom:0.32in;
+  display:flex;justify-content:space-between;font-family:'DM Mono',monospace;
+  font-size:7pt;color:var(--mute);letter-spacing:.12em;text-transform:uppercase;
+  border-top:1px solid var(--rule);padding-top:6pt;}
+.footer-bar .center{flex:1;text-align:center;}
+.footer-bar .right{text-align:right;}
+.cover-grid{display:grid;grid-template-columns:1fr 230pt;gap:24pt;margin-top:6pt;
+  position:relative;z-index:2;}
+/* ── Cinematographic hero (matches fact-sheet treatment) ───────────────── */
+.cover-hero{position:relative;border:1px solid var(--rule);border-radius:3px;
+  overflow:hidden;margin:6pt 0 14pt;padding:18pt 20pt 16pt;
+  min-height:230pt;display:flex;flex-direction:column;justify-content:flex-end;
+  background:#0a1a1e;}
+.cover-hero .hero-bg{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  filter:saturate(1.05) contrast(1.05) brightness(0.78);z-index:0;}
+.cover-hero .hero-scrim{position:absolute;inset:0;z-index:1;background:
+  radial-gradient(circle at 18% 28%, rgba(91,185,179,0.28) 0%, transparent 48%),
+  radial-gradient(circle at 84% 76%, rgba(200,164,92,0.22) 0%, transparent 52%),
+  linear-gradient(to top, rgba(10,21,20,0.96) 0%, rgba(10,21,20,0.55) 48%, rgba(10,21,20,0.18) 100%);}
+.cover-hero .hero-content{position:relative;z-index:2;}
+.cover-hero h1{color:#fff;text-shadow:0 1px 14px rgba(0,0,0,0.35);}
+.cover-hero .lede{color:#EAF1ED;text-shadow:0 1px 8px rgba(0,0,0,0.25);}
+.cover-hero .summary{color:#D6DEDA;}
+.rating-tag{display:inline-block;color:#06140C;font-family:'DM Mono',monospace;
+  font-size:8pt;letter-spacing:.18em;padding:4pt 10pt;text-transform:uppercase;
+  border-radius:1px;font-weight:500;}
+.target{display:flex;gap:18pt;margin-top:14pt;align-items:baseline;}
+.target .num{font-family:'Cormorant Garamond',serif;font-size:30pt;font-weight:600;color:var(--ink);}
+.target .lab{font-family:'DM Mono',monospace;font-size:7.5pt;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mute);}
+.lede{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15pt;
+  line-height:1.35;color:var(--ink);margin:14pt 0 12pt;font-weight:500;}
+.summary{font-size:10pt;line-height:1.6;color:var(--body);margin-bottom:10pt;}
+.key-data{background:var(--bg-card-2);border-left:3px solid var(--teal);
+  padding:14pt 16pt;font-size:9pt;}
+.key-data .row{display:flex;justify-content:space-between;padding:4pt 0;
+  border-bottom:1px solid var(--rule-soft);}
+.key-data .row:last-child{border-bottom:0;}
+.key-data .lab{color:var(--mute);font-family:'DM Mono',monospace;font-size:7.5pt;
+  letter-spacing:.1em;text-transform:uppercase;}
+.key-data .val{color:var(--ink);font-weight:500;text-align:right;}
+.factor{margin-top:18pt;}
+.factor-row{display:grid;grid-template-columns:96pt 1fr 26pt;align-items:center;
+  gap:8pt;padding:5pt 0;}
+.factor-row .lab{font-family:'DM Mono',monospace;font-size:7.5pt;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink);}
+.factor-bar{height:5pt;background:var(--rule);position:relative;border-radius:3pt;overflow:hidden;}
+.factor-bar .fill{position:absolute;left:0;top:0;bottom:0;background:var(--teal);}
+.factor-row .score{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--mute);text-align:right;}
+.risks-cover{display:grid;grid-template-columns:1fr 1fr;gap:18pt;margin-top:14pt;}
+.risk-col h4{margin-bottom:6pt;}
+.risk-col ul{margin:0;padding-left:14pt;font-size:9pt;color:var(--body);line-height:1.5;}
+.risk-col li{margin-bottom:4pt;}
+.risk-col.pos h4{color:var(--green);border-bottom:1px solid var(--green);padding-bottom:4pt;}
+.risk-col.neg h4{color:var(--red);border-bottom:1px solid var(--red);padding-bottom:4pt;}
+table{width:100%;border-collapse:collapse;font-size:8.5pt;}
+table.fin th{font-family:'DM Mono',monospace;font-size:6.5pt;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--mute);text-align:right;font-weight:500;
+  border-bottom:1px solid var(--ink);padding:6pt 5pt;}
+table.fin th:first-child{text-align:left;}
+table.fin td{padding:3.5pt 5pt;text-align:right;border-bottom:1px solid var(--rule-soft);
+  color:var(--body);font-size:8pt;}
+table.fin td:first-child{text-align:left;color:var(--ink);}
+table.fin tr.section td{font-family:'DM Mono',monospace;font-size:6.5pt;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--teal);padding-top:8pt;border-bottom:1px solid var(--rule);
+  background:rgba(91,185,179,.04);}
+table.fin tr.total td{font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink);
+  border-top:1px solid var(--rule);}
+table.fin tr.subtotal td{color:var(--ink);font-weight:500;border-top:1px solid var(--rule-soft);}
+table.comps th{font-family:'DM Mono',monospace;font-size:7pt;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute);text-align:right;font-weight:500;
+  border-bottom:1px solid var(--ink);padding:6pt 5pt;}
+table.comps th:first-child{text-align:left;}
+table.comps td{padding:5pt;text-align:right;border-bottom:1px solid var(--rule-soft);
+  font-size:8.5pt;color:var(--body);}
+table.comps td:first-child{text-align:left;color:var(--ink);font-weight:500;}
+table.comps tr.target td{background:var(--gold-soft);}
+table.comps tr.target td:first-child{color:var(--gold);font-weight:600;}
+.thesis-item{display:grid;grid-template-columns:28pt 1fr;gap:10pt;margin-bottom:13pt;
+  padding-bottom:13pt;border-bottom:1px solid var(--rule-soft);}
+.thesis-item:last-child{border-bottom:0;}
+.thesis-num{font-family:'Cormorant Garamond',serif;font-size:22pt;font-weight:600;
+  color:var(--teal);line-height:1;}
+.thesis-body .lead{font-weight:600;color:var(--ink);font-size:10pt;}
+.thesis-body p{font-size:9.5pt;line-height:1.55;margin:3pt 0 0;}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;
+  margin:6pt 0 14pt;padding-bottom:8pt;border-bottom:1px solid var(--ink);}
+.section-head .num{font-family:'DM Mono',monospace;font-size:8pt;letter-spacing:.18em;
+  color:var(--mute);text-transform:uppercase;}
+.two-col{column-count:2;column-gap:20pt;column-rule:1px solid var(--rule-soft);
+  font-size:9.5pt;line-height:1.6;color:var(--body);}
+.two-col p{margin:0 0 8pt;break-inside:avoid;}
+.pull{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12pt;
+  color:var(--teal);border-top:1px solid var(--teal);border-bottom:1px solid var(--teal);
+  padding:10pt 0;margin:8pt 0;line-height:1.4;break-inside:avoid;}
+.callout{background:var(--bg-card-2);padding:11pt 13pt;border-left:2px solid var(--teal);
+  font-size:9pt;color:var(--body);break-inside:avoid;margin:6pt 0;}
+.callout h4{font-size:8pt;margin-bottom:4pt;color:var(--teal);}
+.pipeline-row{display:grid;grid-template-columns:140pt 1fr 100pt;gap:12pt;align-items:center;
+  padding:7pt 0;border-bottom:1px solid var(--rule-soft);}
+.pipeline-row .asset{font-weight:600;color:var(--ink);font-size:9.5pt;}
+.pipeline-row .asset .sub{display:block;font-weight:400;color:var(--mute);font-size:7pt;
+  font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:2pt;}
+.pipeline-row .stage{font-family:'DM Mono',monospace;font-size:7pt;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.1em;text-align:right;}
+.stage-bar{height:9pt;background:var(--rule);border-radius:1pt;position:relative;}
+.stage-bar .fill{position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg,var(--teal-dark),var(--teal));border-radius:1pt;}
+.stage-ticks{display:grid;font-family:'DM Mono',monospace;font-size:6.5pt;color:var(--mute);
+  letter-spacing:.08em;text-transform:uppercase;margin-top:4pt;padding:0 1pt;}
+.stage-ticks div:last-child{text-align:right;}
+.chart-card{border:1px solid var(--rule);background:var(--bg-card-2);padding:12pt 14pt;
+  border-radius:2px;margin-top:10pt;}
+.chart-card .cap{font-family:'DM Mono',monospace;font-size:7pt;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.1em;margin-top:6pt;}
+.chart-title{font-family:'DM Mono',monospace;font-size:7pt;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mute);margin-bottom:8pt;}
+.legend{display:flex;gap:18pt;font-family:'Barlow',sans-serif;font-size:8pt;color:var(--body);margin-top:6pt;}
+.legend .swatch{display:inline-block;width:10pt;height:6pt;margin-right:5pt;vertical-align:middle;border-radius:1px;}
+.legend .line{display:inline-block;width:14pt;height:2px;background:var(--gold);margin-right:5pt;vertical-align:middle;}
+.disc-grid{column-count:2;column-gap:20pt;column-rule:1px solid var(--rule-soft);}
+.disc-grid section{break-inside:avoid;margin-bottom:10pt;}
+.disc-grid h4{font-size:8.5pt;color:var(--teal);margin-bottom:4pt;letter-spacing:.1em;}
+.disc-grid p{font-size:8pt;line-height:1.5;margin:0 0 4pt;color:var(--body);}
+.body-image{margin:14pt 0 0;border:1px solid var(--rule);border-radius:2px;
+  overflow:hidden;background:var(--bg-card-2);position:relative;}
+.body-image img{display:block;width:100%;height:auto;max-height:280pt;object-fit:cover;
+  filter:saturate(1.05) contrast(1.05) brightness(0.92);}
+.body-image .cap{font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:9.5pt;color:var(--mute);padding:6pt 12pt 10pt;line-height:1.4;
+  border-top:1px solid var(--rule-soft);background:var(--bg-card-2);}
+.sample-strip{background:var(--gold-soft);border-left:3px solid var(--gold);
+  padding:8pt 12pt;font-family:'DM Mono',monospace;font-size:7.5pt;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:14pt;}
+.sample-strip .body{display:block;text-transform:none;letter-spacing:0;font-family:'Barlow',sans-serif;
+  font-size:8.5pt;color:var(--body);margin-top:3pt;}
+.sample-banner{position:fixed;top:14pt;right:14pt;background:var(--gold);color:#0A0F08;
+  font-family:'DM Mono',monospace;font-size:7pt;letter-spacing:.18em;padding:5pt 11pt;
+  text-transform:uppercase;border-radius:1px;z-index:99;font-weight:500;}
+@page{size:Letter;margin:0;}
+@media print{
+  html,body{background:#fff;color:#0E1A19;}
+  .page{box-shadow:none;margin:0 auto;page-break-after:always;background:#fff;border:0;}
+  .page:last-child{page-break-after:auto;}
+  .sample-banner{position:absolute;}
+}
+</style>
+</head>
+<body>
+
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span> &nbsp;·&nbsp; Initiation</div>
+<div class="top-meta">May 3, 2026 &nbsp;·&nbsp; Velocia Ventures Research</div></div>
+<div class="eyebrow">Information Technology · Semiconductors / AI Compute · United States</div>
+<div class="cover-hero">
+<img class="hero-bg" src="./hero.png" alt="Thematic background — Semiconductors / AI Compute Information Technology" onerror="this.style.display='none'"/>
+<div class="hero-scrim"></div>
+<div class="hero-content">
+<div style="display:flex;align-items:center;gap:10pt;">
+<span class="rating-tag" style="background:#C8A45C;">HOLD</span>
+<span class="eyebrow" style="color:#CDD6D1;">Initiating coverage</span></div>
+<h1 style="margin-top:8pt;">Cerebras Systems Inc. <span style="color:#CDD6D1;font-weight:400;font-size:14pt;">(NASDAQ: CBRS)</span></h1>
+<p class="lede" style="margin:10pt 0 6pt;">We initiate Cerebras at HOLD with a $32 target — the technology and market are real, but 83% G42 concentration plus CFIUS overhang and an entrenched CUDA ecosystem cap near-term re-rating until the customer base diversifies.</p>
+</div></div>
+<div class="cover-grid"><div>
+<div class="target">
+<div><div class="lab">12-mo Price Target</div><div class="num">$32.00</div></div>
+<div><div class="lab">IPO Price (mid)</div><div class="num" style="color:var(--mute);">$30.00</div></div>
+<div><div class="lab">Implied Return</div><div class="num" style="color:var(--green);">+7%</div></div>
+</div>
+<p class="summary" style="margin-top:14pt;">Cerebras Systems is a Sunnyvale-based AI compute company built around wafer-scale integration. Its third-generation Wafer-Scale Engine (WSE-3) is the largest commercial chip ever produced and powers an end-to-end training and inference platform sold both on-premise and through Cerebras Cloud. The company posted $78.7M of revenue in 2023 (+220% YoY) and is raising capital at an estimated $6.6B market cap. The investment debate is binary: either the wafer-scale architecture wins meaningful share against NVIDIA in a TAM growing toward $453B by 2027, or G42 customer concentration plus CFIUS / export-control overhang ultimately compress the multiple. We initiate at HOLD with a $32 12-month price target, in line with the implied IPO range.</p>
+</div><div>
+<div class="key-data">
+<div class="row"><span class="lab">Ticker</span><span class="val">NASDAQ: CBRS</span></div>
+<div class="row"><span class="lab">Sector</span><span class="val">Information Te / Semicondu</span></div>
+<div class="row"><span class="lab">IPO Size</span><span class="val">~$900M (30.0M shrs)</span></div>
+<div class="row"><span class="lab">Range</span><span class="val">$28 – $32</span></div>
+<div class="row"><span class="lab">Post-IPO Mkt Cap</span><span class="val">~$6.6B</span></div>
+<div class="row"><span class="lab">Post-IPO Cash</span><span class="val">~$1.5B</span></div>
+<div class="row"><span class="lab">Implied EV</span><span class="val">~$5.1B</span></div>
+<div class="row"><span class="lab">Cash Runway</span><span class="val">~6 yrs at run-rate burn (incl. G42 prepayment buffer)</span></div>
+<div class="row"><span class="lab">Bookrunners</span><span class="val">Citi, Barclays</span></div>
+<div class="row"><span class="lab">Lock-up</span><span class="val">180 days</span></div>
+<div class="row"><span class="lab">Pricing</span><span class="val">Wk of Jul 13, 2026 (target)</span></div>
+</div>
+<div class="factor"><div class="eyebrow" style="margin-bottom:8pt;">IPO Radar Factor Profile</div>
+<div class="factor-row"><span class="lab">TECH DE RISK</span>
+<div class="factor-bar"><div class="fill" style="width:70%;"></div></div>
+<span class="score">7.0</span></div>
+<div class="factor-row"><span class="lab">MARKET SIZE</span>
+<div class="factor-bar"><div class="fill" style="width:92%;"></div></div>
+<span class="score">9.2</span></div>
+<div class="factor-row"><span class="lab">COMPETITIVE MOAT</span>
+<div class="factor-bar"><div class="fill" style="width:60%;"></div></div>
+<span class="score">6.0</span></div>
+<div class="factor-row"><span class="lab">CAPITAL EFFICIENCY</span>
+<div class="factor-bar"><div class="fill" style="width:50%;"></div></div>
+<span class="score">5.0</span></div>
+<div class="factor-row"><span class="lab">INSIDER QUALITY</span>
+<div class="factor-bar"><div class="fill" style="width:75%;"></div></div>
+<span class="score">7.5</span></div>
+<div class="factor-row"><span class="lab">VALUATION ENTRY</span>
+<div class="factor-bar"><div class="fill" style="width:45%;"></div></div>
+<span class="score">4.5</span></div>
+</div></div></div>
+<hr/>
+<div class="risks-cover">
+<div class="risk-col pos"><h4>Why we like it</h4><ul><li>Wafer-scale architecture is a genuine engineering moat. WSE-3 packs 4 trillion transistors, 900,000 cores, and 44GB on-die SRAM into a single 46,000 mm^2 chip — 57x larger than the leading commercial GPU.</li>
+<li>Reported 220% revenue growth in 2023 ($24.6M to $78.7M) with reported &gt;10x training time-to-solution advantage on identified frontier workloads.</li>
+<li>AI compute TAM disclosed at $131B (2024) growing to $453B (2027) — a 51% CAGR per Bloomberg Intelligence cited in the prospectus.</li>
+<li>$300M prepayment from G42 in May 2024 funds inventory build-out without diluting equity; post-IPO cash provides 5-6 years of runway.</li>
+<li>High-quality syndicate: Foundation Capital, Benchmark, Eclipse, Coatue, Altimeter, Alpha Wave; CEO Andrew Feldman previously sold SeaMicro to AMD for $334M in 2012.</li>
+<li>Inference platform launched in 2024 opens a second revenue vector against the entrenched GPU stack and addresses the largest segment of the long-run AI compute spend.</li></ul></div>
+<div class="risk-col neg"><h4>Key risks</h4><ul><li>Customer concentration is extreme. G42 accounted for 83% of 2023 revenue ($65.1M of $78.7M); top four customers were 95%.</li>
+<li>G42 is UAE-domiciled and has been the subject of well-documented U.S. national-security scrutiny. CFIUS and BIS export-license risk is a tangible IPO-blocking variable, not a tail risk.</li>
+<li>Material weaknesses in internal control over financial reporting were disclosed by management and are unremediated as of filing.</li>
+<li>NVIDIA&#39;s CUDA software ecosystem and Blackwell roadmap continue to set the customer default. Switching costs from CUDA are real and not eliminated by superior peak FLOPS.</li>
+<li>Single-foundry dependency (TSMC), single-process-node concentration, and a complex global supply chain create execution risk on volume ramp.</li>
+<li>Net loss of $127M on $79M of revenue means the path to GAAP profitability requires multiple quarters of &gt;100% growth and operating leverage that has not yet been demonstrated.</li></ul></div>
+</div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">1 of 11 · See Disclosures p.11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Financial Snapshot &amp; Operating Model</h2><span class="num">02 / Cerebras</span></div>
+<div class="eyebrow" style="margin-bottom:8pt;">Income statement, balance sheet, cash flow &amp; key metrics (US$millions, FYE December 31)</div>
+<table class="fin"><thead><tr><th>$MM, FYE Dec</th><th>2022A</th><th>2023A</th><th>2024E</th><th>2025E</th><th>2026E</th><th>2027E</th><th>2028E</th></tr></thead><tbody>
+<tr class="section"><td colspan="8">Income Statement</td></tr><tr><td>Hardware revenue</td><td>15.6</td><td>57.1</td><td>295.0</td><td>555.0</td><td>825.0</td><td>1140.0</td><td>1500.0</td></tr><tr><td>Services &amp; other revenue</td><td>9.0</td><td>21.6</td><td>70.0</td><td>130.0</td><td>200.0</td><td>280.0</td><td>380.0</td></tr><tr class="total"><td>Total revenue</td><td>24.6</td><td>78.7</td><td>365.0</td><td>685.0</td><td>1025.0</td><td>1420.0</td><td>1880.0</td></tr><tr><td>YoY growth</td><td>nm</td><td>220%</td><td>364%</td><td>88%</td><td>50%</td><td>39%</td><td>32%</td></tr><tr><td>Hardware COGS</td><td>19.2</td><td>45.6</td><td>195.0</td><td>350.0</td><td>510.0</td><td>695.0</td><td>905.0</td></tr><tr><td>Services COGS</td><td>2.5</td><td>6.8</td><td>23.0</td><td>42.0</td><td>64.0</td><td>88.0</td><td>117.0</td></tr><tr class="subtotal"><td>Total cost of sales</td><td>21.7</td><td>52.4</td><td>218.0</td><td>392.0</td><td>574.0</td><td>783.0</td><td>1022.0</td></tr><tr class="subtotal"><td>Gross profit</td><td>2.9</td><td>26.4</td><td>147.0</td><td>293.0</td><td>451.0</td><td>637.0</td><td>858.0</td></tr><tr><td>Gross margin %</td><td>11.7%</td><td>33.5%</td><td>40.3%</td><td>42.8%</td><td>44.0%</td><td>44.9%</td><td>45.6%</td></tr><tr><td>Research &amp; development</td><td>155.4</td><td>140.1</td><td>215.0</td><td>290.0</td><td>360.0</td><td>415.0</td><td>470.0</td></tr><tr><td>Sales &amp; marketing</td><td>9.4</td><td>9.6</td><td>28.0</td><td>50.0</td><td>75.0</td><td>100.0</td><td>125.0</td></tr><tr><td>General &amp; administrative</td><td>16.9</td><td>10.6</td><td>35.0</td><td>55.0</td><td>80.0</td><td>105.0</td><td>130.0</td></tr><tr class="subtotal"><td>Total operating expenses</td><td>181.7</td><td>160.3</td><td>278.0</td><td>395.0</td><td>515.0</td><td>620.0</td><td>725.0</td></tr><tr class="subtotal"><td>Loss from operations</td><td>(178.8)</td><td>(133.9)</td><td>(131.0)</td><td>(102.0)</td><td>(64.0)</td><td>17.0</td><td>133.0</td></tr><tr><td>Operating margin %</td><td>nm</td><td>nm</td><td>nm</td><td>nm</td><td>nm</td><td>1.2%</td><td>7.1%</td></tr><tr><td>Interest income (expense), net</td><td>1.1</td><td>5.7</td><td>35.0</td><td>55.0</td><td>50.0</td><td>45.0</td><td>40.0</td></tr><tr><td>Other income, net</td><td>0.2</td><td>1.2</td><td>2.0</td><td>2.0</td><td>2.0</td><td>2.0</td><td>2.0</td></tr><tr class="subtotal"><td>Loss before income taxes</td><td>(177.5)</td><td>(127.0)</td><td>(94.0)</td><td>(45.0)</td><td>(12.0)</td><td>64.0</td><td>175.0</td></tr><tr><td>Income tax expense</td><td>0.2</td><td>0.1</td><td>1.0</td><td>2.0</td><td>3.0</td><td>13.0</td><td>38.0</td></tr><tr class="total"><td>Net loss / income</td><td>(177.7)</td><td>(127.2)</td><td>(95.0)</td><td>(47.0)</td><td>(15.0)</td><td>51.0</td><td>137.0</td></tr><tr><td>Net loss per share (basic)</td><td>($4.28)</td><td>($2.92)</td><td>($1.45)</td><td>($0.21)</td><td>($0.07)</td><td>$0.22</td><td>$0.59</td></tr><tr class="section"><td colspan="8">Cash Flow Statement (summary)</td></tr><tr><td>Cash from operations</td><td>(164.4)</td><td>(79.0)</td><td>65.0</td><td>30.0</td><td>80.0</td><td>165.0</td><td>290.0</td></tr><tr><td>Capital expenditures</td><td>(12.0)</td><td>(28.0)</td><td>(85.0)</td><td>(135.0)</td><td>(180.0)</td><td>(210.0)</td><td>(235.0)</td></tr><tr class="subtotal"><td>Free cash flow</td><td>(176.4)</td><td>(107.0)</td><td>(20.0)</td><td>(105.0)</td><td>(100.0)</td><td>(45.0)</td><td>55.0</td></tr><tr><td>Cash from financing</td><td>185.0</td><td>12.0</td><td>1450.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr class="subtotal"><td>Net change in cash</td><td>9.0</td><td>(95.0)</td><td>1430.0</td><td>(105.0)</td><td>(100.0)</td><td>(45.0)</td><td>55.0</td></tr><tr class="total"><td>Ending cash &amp; investments</td><td>275.0</td><td>180.0</td><td>1610.0</td><td>1505.0</td><td>1405.0</td><td>1360.0</td><td>1415.0</td></tr><tr class="section"><td colspan="8">Balance Sheet (period end)</td></tr><tr><td>Cash, equivalents &amp; investments</td><td>275.0</td><td>180.0</td><td>1610.0</td><td>1505.0</td><td>1405.0</td><td>1360.0</td><td>1415.0</td></tr><tr><td>Inventory</td><td>38.0</td><td>75.0</td><td>220.0</td><td>310.0</td><td>380.0</td><td>430.0</td><td>470.0</td></tr><tr class="subtotal"><td>Total assets</td><td>410.0</td><td>365.0</td><td>2120.0</td><td>2200.0</td><td>2270.0</td><td>2380.0</td><td>2620.0</td></tr><tr><td>Customer deposits (G42)</td><td>60.0</td><td>110.0</td><td>285.0</td><td>215.0</td><td>130.0</td><td>60.0</td><td>0.0</td></tr><tr class="subtotal"><td>Total liabilities</td><td>195.0</td><td>285.0</td><td>510.0</td><td>460.0</td><td>410.0</td><td>380.0</td><td>365.0</td></tr><tr><td>Convertible preferred stock</td><td>785.0</td><td>785.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr class="subtotal"><td>Stockholders&#39; equity (deficit)</td><td>(570.0)</td><td>(705.0)</td><td>1610.0</td><td>1740.0</td><td>1860.0</td><td>2000.0</td><td>2255.0</td></tr><tr class="section"><td colspan="8">Operating Metrics</td></tr><tr><td>G42 % of revenue</td><td>nm</td><td>83%</td><td>75%</td><td>62%</td><td>48%</td><td>38%</td><td>30%</td></tr><tr><td>WSE systems shipped (units)</td><td>25.0</td><td>75.0</td><td>280.0</td><td>510.0</td><td>760.0</td><td>1040.0</td><td>1370.0</td></tr><tr><td>ASP per system ($K, hardware)</td><td>624.0</td><td>761.0</td><td>1054.0</td><td>1088.0</td><td>1086.0</td><td>1096.0</td><td>1095.0</td></tr><tr><td>R&amp;D % of revenue</td><td>632%</td><td>178%</td><td>59%</td><td>42%</td><td>35%</td><td>29%</td><td>25%</td></tr><tr><td>Headcount (period end)</td><td>310.0</td><td>405.0</td><td>580.0</td><td>750.0</td><td>920.0</td><td>1080.0</td><td>1240.0</td></tr><tr><td>Revenue per employee ($K)</td><td>79.0</td><td>194.0</td><td>629.0</td><td>913.0</td><td>1114.0</td><td>1315.0</td><td>1516.0</td></tr>
+</tbody></table>
+<p style="font-size:7pt;color:var(--mute);margin-top:6pt;font-family:'DM Mono',monospace;letter-spacing:.06em;">Source: Cerebras Systems Inc. DRS-1 (June 17, 2024); 2022-23A audited; 2024-28E IPO Radar estimates. Pricing terms not disclosed in DRS — modeled at $30 mid.</p>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">2 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Investment Thesis</h2><span class="num">03 / Cerebras</span></div>
+<p style="font-size:9.5pt;line-height:1.6;">We initiate Cerebras at <strong style="color:var(--ink);">HOLD</strong> with a 12-month price target of <strong style="color:var(--ink);">$32</strong>. Our thesis rests on the five pillars below, in order of conviction.</p>
+<div class="thesis-item">
+<div class="thesis-num">1</div>
+<div class="thesis-body"><div class="lead">Wafer-scale is a defensible architectural moat — not a marketing claim.</div>
+<p>Cerebras solved the manufacturing problem of integrating an entire 300mm wafer as a single chip, and the WSE-3 has 57x more silicon area, 52x more cores, 880x more on-die memory, and 7,000x more memory bandwidth than the leading commercial GPU. For workloads that fit on-wafer, this collapses the network-and-memory bottleneck that forces GPU clusters into thousands of devices, and translates to reported 10x training time-to-solution advantages on frontier models. The architecture cannot be quickly cloned — it required years of co-developed packaging, power delivery, and cooling work with TSMC.</p></div></div><div class="thesis-item">
+<div class="thesis-num">2</div>
+<div class="thesis-body"><div class="lead">TAM is enormous and the addressable wedge is widening.</div>
+<p>AI infrastructure spending grew from a footnote to the largest line item in hyperscaler capex within 18 months. Bloomberg Intelligence puts the AI market at $1.3T by 2032; Cerebras&#39;s slice (training + inference + software services) is sized at $131B in 2024 growing to $453B by 2027 (51% CAGR). Cerebras does not need to displace NVIDIA to grow into a $5-10B revenue business — it needs a single-digit share of training workloads where wafer-scale time-to-solution is a binding constraint, plus an inference foothold among latency-sensitive customers.</p></div></div><div class="thesis-item">
+<div class="thesis-num">3</div>
+<div class="thesis-body"><div class="lead">The G42 relationship is simultaneously the biggest asset and the biggest risk.</div>
+<p>G42 was 83% of 2023 revenue, prepaid $300M in May 2024 to fund inventory builds, and committed to a $335M primary share purchase contingent on regulatory approval. That is meaningful capital at a strategic moment. It is also U.S. policy hostage: G42 is UAE-headquartered, and the U.S.-China and U.S.-Gulf export-control regime has tightened materially. CFIUS review of the share purchase is a known IPO-blocking variable, and Cerebras has filed for export licensing covering D:5 jurisdictions including UAE. Diversification away from G42 is the single most important value driver for the next 12-18 months.</p></div></div><div class="thesis-item">
+<div class="thesis-num">4</div>
+<div class="thesis-body"><div class="lead">Inference is the under-appreciated second leg.</div>
+<p>Cerebras Inference launched in 2024 claiming 10x faster inference than commercial GPU platforms for large LLMs. Inference is the largest and fastest-growing segment of AI compute spend (recurring, not project-based). High-throughput, low-latency inference is exactly the workload where wafer-scale memory bandwidth shines. If Cerebras converts even a few large enterprise or sovereign inference deployments away from GPUs at the API tier, the revenue mix tilts toward higher-margin recurring services and the multiple narrative reframes from &#39;GPU challenger&#39; to &#39;AI compute platform.&#39;</p></div></div><div class="thesis-item">
+<div class="thesis-num">5</div>
+<div class="thesis-body"><div class="lead">Valuation entry is fair — not cheap.</div>
+<p>At an estimated $5.1B EV on $365M of 2024E revenue, Cerebras prices at ~14x forward sales — a premium to AMD (~7x) and Intel (~3x), in line with NVIDIA&#39;s recent 12-15x range, and a discount to ARM (~22x). The premium to legacy semis is justified by hyper-growth; the parity with NVIDIA is harder to defend given customer concentration, governance flags, and the absence of CUDA&#39;s ecosystem flywheel. Our $32 target reflects modest multiple compression from IPO mid as the customer base diversifies, with bull/bear scenarios driven principally by the G42 outcome.</p></div></div>
+<div class="chart-card">
+<div class="chart-title">R&amp;D + S&amp;M/G&amp;A burn ($M) and ending cash position ($M), 2022A-2028E</div>
+<svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+<defs><linearGradient id="rndGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0" stop-color="#5BB9B3"/><stop offset="1" stop-color="#3D938E"/></linearGradient></defs>
+<g font-family="DM Mono, monospace" font-size="9" fill="#8A938F">
+<line x1="60" y1="20" x2="700" y2="20" stroke="#162422"/>
+<text x="55" y="24" text-anchor="end">$1800</text>
+<line x1="60" y1="60" x2="700" y2="60" stroke="#162422"/>
+<text x="55" y="64" text-anchor="end">$1350</text>
+<line x1="60" y1="100" x2="700" y2="100" stroke="#162422"/>
+<text x="55" y="104" text-anchor="end">$900</text>
+<line x1="60" y1="140" x2="700" y2="140" stroke="#162422"/>
+<text x="55" y="144" text-anchor="end">$450</text>
+<line x1="60" y1="180" x2="700" y2="180" stroke="#162422"/>
+<text x="55" y="184" text-anchor="end">$0</text>
+</g>
+<g><rect x="80.7" y="166.2" width="50" height="13.8" fill="url(#rndGrad)"/><rect x="80.7" y="163.8" width="50" height="2.3" fill="#5BB9B3" opacity="0.55"/><rect x="172.1" y="167.5" width="50" height="12.5" fill="url(#rndGrad)"/><rect x="172.1" y="165.8" width="50" height="1.8" fill="#5BB9B3" opacity="0.55"/><rect x="263.6" y="160.9" width="50" height="19.1" fill="url(#rndGrad)"/><rect x="263.6" y="155.3" width="50" height="5.6" fill="#5BB9B3" opacity="0.55"/><rect x="355.0" y="154.2" width="50" height="25.8" fill="url(#rndGrad)"/><rect x="355.0" y="144.9" width="50" height="9.3" fill="#5BB9B3" opacity="0.55"/><rect x="446.4" y="148.0" width="50" height="32.0" fill="url(#rndGrad)"/><rect x="446.4" y="134.2" width="50" height="13.8" fill="#5BB9B3" opacity="0.55"/><rect x="537.9" y="143.1" width="50" height="36.9" fill="url(#rndGrad)"/><rect x="537.9" y="124.9" width="50" height="18.2" fill="#5BB9B3" opacity="0.55"/><rect x="629.3" y="138.2" width="50" height="41.8" fill="url(#rndGrad)"/><rect x="629.3" y="115.6" width="50" height="22.7" fill="#5BB9B3" opacity="0.55"/></g>
+<polyline points="105.7,155.6 197.1,164.0 288.6,36.9 380.0,46.2 471.4,55.1 562.9,59.1 654.3,54.2" fill="none" stroke="#C8A45C" stroke-width="2.4" stroke-linejoin="round"/>
+<g fill="#C8A45C"><circle cx="105.7" cy="155.6" r="3.5"/><circle cx="197.1" cy="164.0" r="3.5"/><circle cx="288.6" cy="36.9" r="3.5"/><circle cx="380.0" cy="46.2" r="3.5"/><circle cx="471.4" cy="55.1" r="3.5"/><circle cx="562.9" cy="59.1" r="3.5"/><circle cx="654.3" cy="54.2" r="3.5"/></g>
+<g font-family="DM Mono, monospace" font-size="9" fill="#8A938F" text-anchor="middle"><text x="105.7" y="200">2022A</text><text x="197.1" y="200">2023A</text><text x="288.6" y="200">2024E</text><text x="380.0" y="200">2025E</text><text x="471.4" y="200">2026E</text><text x="562.9" y="200">2027E</text><text x="654.3" y="200">2028E</text></g>
+</svg>
+<div class="legend">
+<span><span class="swatch" style="background:#3D938E;"></span>R&amp;D expense</span>
+<span><span class="swatch" style="background:#5BB9B3;opacity:.55;"></span>S&amp;M + G&amp;A</span>
+<span><span class="line"></span>Ending cash &amp; investments</span></div></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">3 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Company Overview</h2><span class="num">04 / Cerebras</span></div>
+<h3 style="margin-bottom:8pt;">An AI compute company built around wafer-scale integration</h3>
+<div class="two-col"><p>Cerebras Systems was incorporated in Delaware in April 2016 and is headquartered in Sunnyvale, California. The founding team was assembled by Andrew Feldman, who had previously sold SeaMicro to AMD in 2012, and includes co-founders with backgrounds in chip design, systems architecture, and machine-learning compiler infrastructure. The company has raised approximately $785M of preferred equity across Series A through Series F, with the most recent priced round closing at a reported $4B post-money valuation.</p>
+<p>Cerebras designs the third-generation Wafer-Scale Engine (WSE-3), the largest commercial chip ever sold, and integrates it into the CS-3 system — a complete training/inference appliance with the power delivery, cooling, and software stack required to operate a wafer-scale processor. The company sells the CS-3 directly to customers for on-premise deployment and offers consumption-based access through Cerebras Cloud, including Condor Galaxy, a multi-exaFLOP AI supercomputer cluster owned by G42.</p>
+<p>Customers fall into four segments: cloud service providers (notably G42 and emerging hyperscaler partners), large enterprises with dedicated AI training needs (pharma, energy, financial services), Sovereign AI initiatives (national-laboratory-style compute investments by individual countries), and research institutions (Argonne, Lawrence Livermore, Mayo Clinic, GlaxoSmithKline). The customer mix is barbelled — a small number of very large multi-system contracts plus a long tail of pilot deployments.</p>
+<p>Revenue is reported across two streams: hardware (CS-3 systems and components) at 73% of 2023 revenue, and services and other (cloud consumption, support, fine-tuning services) at 27%. Hardware deliveries were concentrated in two quarters of 2023, reflecting the lumpiness of large-system shipments. Services revenue has grown at a faster rate than hardware as Cerebras Cloud capacity scaled.</p>
+<p>The cost structure is dominated by R&amp;D, which ran $140M in 2023 (178% of revenue) — a level consistent with a company still funding multiple silicon node generations and a software stack from scratch. As revenue scales against a roughly fixed R&amp;D base, operating leverage should be material; we model R&amp;D falling to 25% of revenue by 2028E. Working capital is currently funded primarily by customer prepayments rather than debt or revolving facilities.</p>
+<p>Cerebras has disclosed material weaknesses in internal control over financial reporting and is in the process of remediation. Independent auditor Deloitte &amp; Touche LLP issued a going-concern-clean opinion on the 2022 and 2023 audited financials. The company is incorporated as an emerging growth company under the JOBS Act and will benefit from reduced reporting requirements for up to five years post-IPO.</p></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:18pt;margin-top:14pt;">
+<div class="chart-card">
+<div class="chart-title">Pre-IPO ownership (Series F basis, ~$4B post-money)</div>
+<svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+<g transform="translate(110,110)"><path d="M 0.00,-80.00 A 80,80 0 0,1 56.57,-56.57 L 0,0 Z" fill="#3D938E"/><path d="M 56.57,-56.57 A 80,80 0 0,1 79.02,-12.51 L 0,0 Z" fill="#5BB9B3"/><path d="M 79.02,-12.51 A 80,80 0 0,1 73.42,31.77 L 0,0 Z" fill="#7CCDC8"/><path d="M 73.42,31.77 A 80,80 0 0,1 50.99,61.64 L 0,0 Z" fill="#C8A45C"/><path d="M 50.99,61.64 A 80,80 0 0,1 22.32,76.82 L 0,0 Z" fill="#9F8242"/><path d="M 22.32,76.82 A 80,80 0 0,1 -24.72,76.08 L 0,0 Z" fill="#5DBF7A"/><path d="M -24.72,76.08 A 80,80 0 0,1 -79.37,10.03 L 0,0 Z" fill="#8A938F"/><path d="M -79.37,10.03 A 80,80 0 0,1 -79.84,5.02 L 0,0 Z" fill="#E27474"/><path d="M -79.84,5.02 A 80,80 0 0,1 -0.00,-80.00 L 0,0 Z" fill="#5582B3"/></g>
+<text x="152" y="8" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Foundation Capital 12.5%</text><text x="208" y="60" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Benchmark 10.0%</text><text x="219" y="124" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Eclipse Ventures 9.0%</text><text x="198" y="176" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Coatue 7.5%</text><text x="161" y="207" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Altimeter Capital 6.5%</text><text x="108" y="220" text-anchor="middle" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Alpha Wave Global 9.5%</text><text x="25" y="180" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Mgmt &amp; employees 18.0%</text><text x="0" y="120" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">G42 (Series E) 1.0%</text><text x="30" y="35" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Other VCs &amp; angels 26.0%</text>
+</svg></div>
+<div class="chart-card">
+<div class="chart-title">Post-IPO ownership (assumes $30 mid, 30M primary, G42 22.9M secondary)</div>
+<svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+<g transform="translate(110,110)"><path d="M 0.00,-80.00 A 80,80 0 0,1 44.97,-66.17 L 0,0 Z" fill="#3D938E"/><path d="M 44.97,-66.17 A 80,80 0 0,1 70.35,-38.10 L 0,0 Z" fill="#5BB9B3"/><path d="M 70.35,-38.10 A 80,80 0 0,1 79.81,-5.52 L 0,0 Z" fill="#7CCDC8"/><path d="M 79.81,-5.52 A 80,80 0 0,1 76.68,22.80 L 0,0 Z" fill="#C8A45C"/><path d="M 76.68,22.80 A 80,80 0 0,1 66.17,44.97 L 0,0 Z" fill="#9F8242"/><path d="M 66.17,44.97 A 80,80 0 0,1 39.85,69.37 L 0,0 Z" fill="#5DBF7A"/><path d="M 39.85,69.37 A 80,80 0 0,1 -15.98,78.39 L 0,0 Z" fill="#8A938F"/><path d="M -15.98,78.39 A 80,80 0 0,1 -69.61,39.42 L 0,0 Z" fill="#E27474"/><path d="M -69.61,39.42 A 80,80 0 0,1 -75.61,-26.15 L 0,0 Z" fill="#5582B3"/><path d="M -75.61,-26.15 A 80,80 0 0,1 -0.00,-80.00 L 0,0 Z" fill="#D4A574"/></g>
+<text x="142" y="5" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Foundation Capital 9.5%</text><text x="192" y="36" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Benchmark 7.6%</text><text x="216" y="79" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Eclipse Ventures 6.8%</text><text x="219" y="122" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Coatue 5.7%</text><text x="209" y="157" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Altimeter Capital 4.9%</text><text x="185" y="191" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Alpha Wave Global 7.2%</text><text x="128" y="219" text-anchor="start" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">G42 (incl. primary purchase) 11.5%</text><text x="45" y="199" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Mgmt &amp; employees 13.6%</text><text x="0" y="120" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Public float 13.5%</text><text x="46" y="20" text-anchor="end" font-family="Barlow,sans-serif" font-size="8" fill="#CDD6D1">Other VCs &amp; angels 19.7%</text>
+</svg></div>
+</div>
+<div class="callout" style="margin-top:14pt;">
+<h4>Use of IPO proceeds</h4><p style="margin:0;">$285M (32%) — RSU tax withholding and remittance tied to liquidity-based vesting at IPO. $240M (27%) — Capacity expansion: WSE-4 development, second-source packaging qualifications, increased TSMC wafer commitments. $170M (19%) — Cerebras Cloud build-out, including Condor Galaxy follow-on capacity and U.S. data-center co-locations. $110M (12%) — Sales &amp; marketing scale-up: enterprise account coverage, Sovereign AI program development, inference go-to-market. $95M (10%) — Working capital, M&amp;A optionality (software / compiler / inference-stack tuck-ins), general corporate purposes.</p></div>
+<div class="body-image"><img src="./img-company.png" alt="An ultra-close macro photograph of a 300mm silicon wafer with hundreds of identical compute dies illuminated by teal and gold studio rim lig"/><div class="cap">Cerebras&#39; 300mm wafer-scale chip integrates ~900,000 AI-tuned compute cores onto a single silicon die — roughly 56× the surface area of NVIDIA&#39;s H100 GPU.</div></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">4 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Industry &amp; Market Opportunity</h2><span class="num">05 / Cerebras</span></div>
+<h3>AI compute is the fastest-growing infrastructure category in modern computing — and the most contested</h3>
+<div class="two-col" style="margin-top:8pt;"><p>AI compute spend has grown from a sub-$30B category in 2022 to a disclosed $131B in 2024 and is forecast to reach $453B by 2027 — a 51% CAGR per Bloomberg Intelligence cited in Cerebras&#39;s prospectus. The driver is the simultaneous scaling of training (frontier models with trillions of parameters) and inference (the recurring runtime cost of serving those models to users and applications). Both workloads have unique compute, memory, and bandwidth requirements that have outgrown the architectures designed for graphics or general-purpose computing.</p><p>Training requires moving enormous tensors of activations and gradients across thousands of compute units; inference requires very high memory bandwidth and very low latency. Both are bottlenecked by the same fundamental constraint: data movement, not arithmetic. Modern AI accelerators are increasingly differentiated by how they manage memory hierarchy and inter-chip communication rather than peak floating-point throughput.</p><p>NVIDIA dominates training today through a combination of hardware (H100, B200/Blackwell), networking (NVLink, Mellanox InfiniBand), and software (CUDA, cuDNN, TensorRT). The CUDA ecosystem is the moat: 15 years of accumulated developer tooling, optimized kernels, and framework integration that competitors must either reproduce or persuade customers to forego. Customer switching costs are real and underrated.</p><p>AMD (MI300/MI350 series) is the credible #2 with growing hyperscaler design wins. Intel (Gaudi 3, formerly Habana) has installed base but limited momentum. Custom silicon programs at Google (TPU), Amazon (Trainium/Inferentia), Microsoft (Maia), and Meta (MTIA) collectively represent a meaningful slice of internal hyperscaler workloads but are not sold externally. The merchant accelerator startup category — Cerebras, Groq, SambaNova, Tenstorrent, Graphcore (in administration), Habana (acquired) — has consolidated.</p><div class="pull">If Cerebras converts the wafer-scale architectural advantage into ecosystem traction beyond G42 within 18 months, the multiple compresses toward NVIDIA&#39;s; if it does not, it compresses toward AMD&#39;s.</div><p>Sovereign AI has emerged as a distinct customer segment driven by national-security and economic-sovereignty considerations. The UAE (G42&#39;s parent), Saudi Arabia (Humain), India, France, and others have committed multi-billion-dollar spend to domestic AI compute capacity, and these customers are explicitly looking for non-NVIDIA alternatives. This is a meaningful tailwind for Cerebras and competitors, but creates corresponding U.S. export-control friction.</p><p>Inference is the larger and faster-growing segment over time. Training is a one-time-per-model capital event; inference is a recurring per-query operating cost that scales with end-user adoption. Inference economics favor high-bandwidth, low-latency architectures and are less dependent on CUDA-specific tooling. Cerebras Inference, launched in 2024, is the company&#39;s most direct route to recurring revenue mix and operating leverage.</p><p>Capital intensity in the AI compute market is rising: TSMC advanced-node allocations, HBM supply, and CoWoS packaging capacity are constrained, and meaningful supply must be locked in 18-24 months in advance. This favors incumbents with scale relationships and creates real barriers for sub-scale entrants.</p></div>
+<div class="body-image"><img src="./img-industry.png" alt="A wide cinematic shot of a vast modern AI data-center hall with rows of dark steel server racks receding into the distance, teal status LEDs"/><div class="cap">AI training and inference compute is the fastest-growing infrastructure spend in modern computing — TAM expanding from ~$57B in 2024 to a projected $300B+ by 2028.</div></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">5 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Product / Pipeline Strategy</h2><span class="num">06 / Cerebras</span></div>
+<h3 style="margin-bottom:14pt;">Three product lines spanning training, inference, and AI services</h3>
+<div class="stage-ticks" style="margin-bottom:6pt;grid-template-columns:repeat(5,1fr);"><div>R&amp;D</div><div>Beta</div><div>GA</div><div>Scale</div><div>Mature</div></div>
+<div class="pipeline-row">
+<div class="asset">WSE-3 / CS-3 systems<span class="sub">Wafer-scale training &amp; inference appliance, on-prem</span></div>
+<div class="stage-bar"><div class="fill" style="width:78%;"></div></div>
+<div class="stage">Volume shipping; G42 deployments active</div></div><div class="pipeline-row">
+<div class="asset">Cerebras Cloud<span class="sub">Consumption-based AI compute, partner CSPs</span></div>
+<div class="stage-bar"><div class="fill" style="width:62%;"></div></div>
+<div class="stage">Condor Galaxy 1-3 in production; CG-4+ capacity buildout 2026</div></div><div class="pipeline-row">
+<div class="asset">Cerebras Inference<span class="sub">Low-latency inference API; Llama 3.1, Mistral, custom</span></div>
+<div class="stage-bar"><div class="fill" style="width:48%;"></div></div>
+<div class="stage">GA in 2024; enterprise tier roll-out 2026</div></div><div class="pipeline-row">
+<div class="asset">WSE-4 (next-gen)<span class="sub">Next-generation wafer-scale processor, 3nm-class node</span></div>
+<div class="stage-bar"><div class="fill" style="width:22%;"></div></div>
+<div class="stage">Tape-out targeted 2026; volume 2027</div></div><div class="pipeline-row">
+<div class="asset">AI Expert Services<span class="sub">Model development, fine-tuning, deployment consulting</span></div>
+<div class="stage-bar"><div class="fill" style="width:55%;"></div></div>
+<div class="stage">Attached to ~80% of large hardware deals</div></div>
+<div style="margin-top:18pt;"><h4 style="color:var(--teal);margin-top:14pt;">WSE-3 / CS-3 platform</h4>
+<p style="font-size:9.5pt;">The WSE-3 is the third-generation wafer-scale engine, fabricated by TSMC at the 5nm node. The chip integrates 4 trillion transistors, 900,000 AI-optimized cores, 44 GB of on-die SRAM, and provides 21 PB/s of memory bandwidth — multiple orders of magnitude beyond commercial GPUs. The CS-3 system houses the WSE-3 in a standard 15-rack-unit enclosure with associated power delivery (~23 kW per system) and water cooling.</p>
+<p style="font-size:9.5pt;">Cerebras systems can be clustered into supercomputers without the parallelization complexity that constrains GPU clusters. A 64-CS-3 cluster delivers ~512 exaFLOPS of AI compute — equivalent to thousands of GPUs from a workload-throughput perspective. This is the architectural argument: by keeping a model on-wafer where possible and pushing inter-system communication to a much smaller, model-parallelism-aware fabric, Cerebras reduces the time-to-solution penalty that comes from synchronizing thousands of devices.</p>
+<h4 style="color:var(--teal);margin-top:14pt;">Cerebras Cloud and Condor Galaxy</h4>
+<p style="font-size:9.5pt;">Cerebras Cloud is the consumption-based access model, deployed primarily through G42&#39;s Condor Galaxy network of AI supercomputers. Condor Galaxy 1, 2, and 3 are operational, with subsequent installations planned. This deployment model both drives recurring revenue and serves as a reference architecture for future Cerebras Cloud installations with non-G42 partners.</p>
+<p style="font-size:9.5pt;">Cloud-based delivery transitions Cerebras from a project-driven hardware company to a partial software-as-a-service business — a structurally higher-multiple model. The challenge is capacity: each new Cerebras Cloud region requires substantial up-front hardware investment, which is why customer prepayments and post-IPO capital are critical to the buildout.</p>
+<h4 style="color:var(--teal);margin-top:14pt;">Inference platform and the next leg of growth</h4>
+<p style="font-size:9.5pt;">Cerebras Inference launched publicly in 2024, offering a high-throughput, low-latency inference API for popular open-weight models including Llama 3.1, Llama 3.3, Mistral, and select customer-trained checkpoints. Initial reported performance (tokens/sec at given latency targets) materially outperformed GPU-based commercial inference services on identified workloads.</p>
+<p style="font-size:9.5pt;">Inference is the strategic prize. It is recurring revenue, has higher gross margins than hardware, has shorter sales cycles, and decouples from CUDA-specific tooling because the customer interface is an OpenAI-compatible API rather than a low-level kernel. We model inference rising from low-single-digit percent of revenue in 2024 to ~20% by 2028E.</p>
+<h4 style="color:var(--teal);margin-top:14pt;">WSE-4 and the technology roadmap</h4>
+<p style="font-size:9.5pt;">Cerebras has publicly indicated a 24-30 month cadence for new wafer-scale generations. WSE-4 development is funded and underway, targeting a 3nm-class TSMC node, expected tape-out in 2026 and volume shipments in 2027. Each generation roughly doubles transistor count and improves memory hierarchy — the design challenges are increasingly thermal and yield-related rather than architectural.</p>
+<p style="font-size:9.5pt;">Continued process-node access at TSMC is the single largest external dependency. Cerebras&#39;s allocation is contractually committed but is subject to broader industry capacity constraints, particularly on advanced packaging.</p>
+</div>
+<div class="body-image"><img src="./img-pipeline.png" alt="A robotic precision-assembly arm placing a finished AI accelerator chip onto a polished test fixture, motion blur on the arm, teal glowing i"/><div class="cap">Three product lines — WSE-3 systems, Cerebras Cloud, and the Inference API — each pulling from the same wafer-scale silicon platform.</div></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">6 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Competitive Landscape</h2><span class="num">07 / Cerebras</span></div>
+<h3>A small set of credible competitors — but the most relevant comparison is the CUDA ecosystem, not any single chip</h3>
+<p style="font-size:9.5pt;margin-top:8pt;">Cerebras competes against three categories: (1) merchant GPU vendors (NVIDIA, AMD, Intel) selling general-purpose AI accelerators with mature software stacks; (2) hyperscaler-internal silicon (Google TPU, AWS Trainium/Inferentia, Microsoft Maia, Meta MTIA) that does not sell to third parties but absorbs internal demand; and (3) merchant accelerator startups (Groq, SambaNova, Tenstorrent) targeting similar architectural niches. NVIDIA is the relevant benchmark for any frontier-training conversation; AMD is the credible #2; and the startup category is where Cerebras&#39;s differentiated architecture earns the most engagement. M&amp;A is the most realistic exit path for sub-scale competitors, and Cerebras&#39;s wafer-scale architecture is the kind of asset that strategic acquirers price at premiums.</p>
+<table class="comps" style="margin-top:10pt;"><thead><tr><th>Company</th><th>Status</th><th>2024E AI Rev.</th><th>GM %</th><th>Architecture</th><th>Key Strength</th></tr></thead><tbody>
+<tr><td>NVIDIA</td><td>Public (NVDA)</td><td>$110B+</td><td>~75%</td><td>Hopper / Blackwell GPU</td><td>CUDA ecosystem, full stack</td></tr><tr><td>AMD</td><td>Public (AMD)</td><td>$5.5B</td><td>~50%</td><td>MI300X / MI350 GPU</td><td>ROCm, hyperscaler wins</td></tr><tr><td>Intel</td><td>Public (INTC)</td><td>$0.5B</td><td>~35%</td><td>Gaudi 3 (ex-Habana)</td><td>x86 install base</td></tr><tr class="target"><td>Cerebras</td><td>DRS-1 (June 2024)</td><td>$365M</td><td>~40%</td><td>WSE-3 wafer-scale</td><td>Architectural moat, time-to-solution</td></tr><tr><td>Groq</td><td>Private</td><td>Est. $200M</td><td>~35%</td><td>LPU inference ASIC</td><td>Inference latency, sequential perf.</td></tr><tr><td>SambaNova</td><td>Private</td><td>Est. $150M</td><td>~30%</td><td>Reconfigurable dataflow</td><td>Fed/sovereign sales motion</td></tr><tr><td>Google TPU</td><td>Internal (GOOGL)</td><td>Internal</td><td>n/a</td><td>TPU v5p / v6 (Trillium)</td><td>Co-designed with software</td></tr>
+</tbody></table>
+<p style="font-size:7pt;color:var(--mute);font-family:'DM Mono',monospace;letter-spacing:.06em;margin-top:6pt;">AI Rev. estimates blend disclosed segment revenue, analyst estimates, and IPO Radar projections; not directly comparable across companies. Private-company estimates are training-knowledge-based and may be stale.</p>
+<h3 style="margin-top:18pt;">How Cerebras differentiates</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14pt;margin-top:8pt;">
+<div class="callout"><h4>vs NVIDIA (the moat that matters)</h4><p style="margin:0;">NVIDIA&#39;s advantage is software, not silicon. CUDA, cuDNN, TensorRT, NCCL, and a 15-year developer ecosystem create switching costs that pure performance comparisons understate. Cerebras&#39;s response is to make the comparison architectural rather than benchmark-by-benchmark — and to invest in compiler and framework compatibility (PyTorch, HuggingFace) so the customer-visible interface is identical.</p></div><div class="callout"><h4>vs AMD (the price-sensitive alternative)</h4><p style="margin:0;">AMD&#39;s MI300/MI350 strategy is to be the cost-effective second source for hyperscalers and enterprises uncomfortable with single-vendor concentration. Cerebras competes on a different vector — peak performance per system rather than $/TFLOP — and is rarely a direct head-to-head bid against AMD.</p></div><div class="callout"><h4>vs Groq / SambaNova (the architectural peers)</h4><p style="margin:0;">Groq is the closest competitor in the inference niche; SambaNova is the closest on the on-prem enterprise sovereign-AI motion. Both are private and sub-scale. Cerebras has the largest revenue base in the merchant-startup category and is the first to credible IPO scale.</p></div><div class="callout"><h4>vs Google TPU / AWS Trainium (the captive alternatives)</h4><p style="margin:0;">Hyperscaler-internal silicon does not sell to third parties — but it absorbs internal demand that would otherwise have gone to merchant accelerators. The implication for Cerebras is that the merchant-accelerator TAM is meaningfully smaller than headline AI compute spend, but customers in that TAM (enterprises, sovereigns, second-tier CSPs) are explicitly looking for differentiated architectures.</p></div>
+</div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">7 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Valuation &amp; Recommendation</h2><span class="num">08 / Cerebras</span></div>
+<h3>$32 12-month price target — modest upside vs IPO mid; HOLD reflects customer-concentration discount until G42 outcome resolves</h3>
+<p style="font-size:9.5pt;margin-top:8pt;">Our $32 target is anchored to a probability-weighted SOTP that values Cerebras&#39;s training franchise via DCF, the inference business via forward EV/revenue against peer multiples, and net cash separately. The target is triangulated against trading comps (semis with high-growth AI mix), M&amp;A precedents (AI silicon take-outs), and bull/bear scenario boundaries that are dominated by the G42 outcome and the broader CFIUS / export-control regulatory path. Upside from the modeled $30 IPO mid is modest, reflecting our view that the architectural moat is real but the customer-concentration discount is structural until proven otherwise.</p>
+<div class="chart-card">
+<div class="chart-title">Valuation football field ($/share)</div>
+<svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+<g font-family="DM Mono, monospace" font-size="9" fill="#8A938F"><line x1="60" y1="20" x2="60" y2="180" stroke="#162422"/><text x="60" y="198" text-anchor="middle">$12</text><line x1="167" y1="20" x2="167" y2="180" stroke="#162422"/><text x="167" y="198" text-anchor="middle">$20</text><line x1="273" y1="20" x2="273" y2="180" stroke="#162422"/><text x="273" y="198" text-anchor="middle">$28</text><line x1="380" y1="20" x2="380" y2="180" stroke="#162422"/><text x="380" y="198" text-anchor="middle">$36</text><line x1="487" y1="20" x2="487" y2="180" stroke="#162422"/><text x="487" y="198" text-anchor="middle">$44</text><line x1="593" y1="20" x2="593" y2="180" stroke="#162422"/><text x="593" y="198" text-anchor="middle">$52</text><line x1="700" y1="20" x2="700" y2="180" stroke="#162422"/><text x="700" y="198" text-anchor="middle">$60</text></g>
+<rect x="247" y="30" width="160" height="22" fill="#3D938E"/><text x="55" y="45" text-anchor="end" font-family="Barlow,sans-serif" font-weight="600" font-size="10" fill="#E8EDE9">Risk-adj DCF (training+inference)</text><text x="252" y="26" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$26</text><text x="412" y="26" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$38</text><rect x="193" y="62" width="187" height="22" fill="#5BB9B3"/><text x="55" y="77" text-anchor="end" font-family="Barlow,sans-serif" font-weight="600" font-size="10" fill="#E8EDE9">EV / 2026E revenue (peer multiple)</text><text x="198" y="58" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$22</text><text x="385" y="58" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$36</text><rect x="220" y="94" width="133" height="22" fill="#9F8242"/><text x="55" y="109" text-anchor="end" font-family="Barlow,sans-serif" font-weight="600" font-size="10" fill="#E8EDE9">EV / 2026E gross profit</text><text x="225" y="90" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$24</text><text x="358" y="90" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$34</text><rect x="273" y="126" width="227" height="22" fill="#C8A45C"/><text x="55" y="141" text-anchor="end" font-family="Barlow,sans-serif" font-weight="600" font-size="10" fill="#E8EDE9">M&amp;A precedents (AI silicon)</text><text x="278" y="122" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$28</text><text x="505" y="122" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$45</text><rect x="87" y="158" width="507" height="22" fill="#8A938F"/><text x="55" y="173" text-anchor="end" font-family="Barlow,sans-serif" font-weight="600" font-size="10" fill="#E8EDE9">Bull / Bear scenario</text><text x="92" y="154" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$14</text><text x="598" y="154" font-family="DM Mono,monospace" font-size="8" fill="#8A938F">$52</text>
+<line x1="300" y1="20" x2="300" y2="180" stroke="#C8A45C" stroke-width="2" stroke-dasharray="4,3"/>
+<text x="300" y="14" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#C8A45C" font-weight="500">IPO MID $30</text>
+<line x1="327" y1="20" x2="327" y2="180" stroke="#5BB9B3" stroke-width="2.4"/>
+<text x="327" y="14" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#5BB9B3" font-weight="500">TARGET $32</text>
+</svg></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:18pt;margin-top:14pt;">
+<div>
+<div class="eyebrow">Sum-of-the-parts valuation (illustrative) - US$M unless noted</div>
+<table class="fin" style="margin-top:6pt;"><tbody>
+<tr><td>Training franchise (CS-3, on-prem + cloud)</td><td>$4,500</td><td>$20.45/sh</td></tr><tr><td>Inference platform (Cerebras Inference)</td><td>$1,400</td><td>$6.36/sh</td></tr><tr><td>AI Expert Services</td><td>$250</td><td>$1.14/sh</td></tr><tr><td>Net cash (post-IPO)</td><td>$1,500</td><td>$6.82/sh</td></tr><tr><td>G42 concentration discount (-15%)</td><td>$-610</td><td>($2.77/sh)</td></tr><tr class="total"><td>Total NAV / Price target</td><td>$7,040</td><td>$32.00/sh</td></tr>
+<tr><td>vs IPO mid ($30)</td><td>—</td><td style="color:var(--green);">+7%</td></tr>
+</tbody></table>
+<p style="font-size:7pt;color:var(--mute);font-family:'DM Mono',monospace;margin-top:4pt;">220M post-IPO basic shares outstanding (incl. G42 primary). Training DCF: 11% WACC, terminal 4.5x peak revenue, 30% terminal operating margin. Inference: 12x 2028E revenue. Concentration discount applied to enterprise value before cash.</p>
+</div>
+<div>
+<div class="eyebrow">Selected AI silicon / data center M&amp;A precedents</div>
+<table class="comps" style="margin-top:6pt;"><thead><tr><th>Target</th><th>Buyer</th><th>Year</th><th>EV ($B)</th></tr></thead><tbody>
+<tr><td>Mellanox Technologies</td><td>NVIDIA</td><td>2020</td><td>6.9</td></tr><tr><td>Habana Labs</td><td>Intel</td><td>2019</td><td>2.0</td></tr><tr><td>Pensando Systems</td><td>AMD</td><td>2022</td><td>1.9</td></tr><tr><td>Annapurna Labs</td><td>Amazon (AWS)</td><td>2015</td><td>0.4</td></tr><tr><td>Nervana Systems</td><td>Intel</td><td>2016</td><td>0.4</td></tr><tr><td>SiFive (rumored)</td><td>Intel (terminated)</td><td>2021</td><td>2.0</td></tr>
+<tr class="total"><td>Median (n=6)</td><td></td><td></td><td>$1.95B</td></tr>
+</tbody></table>
+<p style="font-size:7pt;color:var(--mute);font-family:'DM Mono',monospace;margin-top:4pt;">M&amp;A precedents for sub-scale AI silicon assets cluster well below Cerebras&#39;s IPO valuation, reflecting the value of demonstrated revenue scale. The Mellanox precedent (networking, not silicon) is the most relevant high-water mark for an architectural-moat asset.</p>
+</div>
+</div>
+<div class="pull" style="margin-top:14pt;">Initiate Cerebras at HOLD with a 12-month price target of $32. The wafer-scale architecture is a real moat, the TAM is enormous, and the management team is high-quality — but 83% G42 customer concentration and unresolved CFIUS / export-control risk cap near-term re-rating until the customer base diversifies. We become more constructive on customer-concentration improvement; we move to SELL on a CFIUS block or a G42 contract material-adverse-change.</div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">8 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Key Risks</h2><span class="num">09 / Cerebras</span></div>
+<h3>Risk vectors framed against our $32 price target</h3>
+<div style="margin-top:10pt;font-size:9.5pt;line-height:1.55;"><h4 style="color:var(--red);">Customer concentration risk - G42</h4>
+<p>G42 represented 83% of 2023 revenue ($65.1M of $78.7M). The top four customers were 95%. Any reduction in G42 demand, any disruption to G42&#39;s ability to perform under existing purchase orders, or any deterioration in the broader strategic relationship would have a material adverse effect on revenue. We model G42 declining to ~30% of revenue by 2028E; a slower decline materially compresses the multiple.</p><h4 style="color:var(--red);">CFIUS / export-control regulatory risk</h4>
+<p>G42 is UAE-domiciled. The Committee on Foreign Investment in the United States (CFIUS) is reviewing the proposed G42 primary share purchase, and approval is a condition to closing. Separately, Cerebras is subject to BIS export-licensing requirements covering D:5 jurisdictions including the UAE. A CFIUS block, an export-license denial, or further tightening of the U.S. AI-chip export-control regime would impair the largest existing customer relationship and the largest foreseeable secondary-market customer cohort (Sovereign AI in the Gulf and Asia).</p><h4 style="color:var(--red);">Competitive risk - NVIDIA / CUDA ecosystem</h4>
+<p>NVIDIA&#39;s CUDA software ecosystem represents 15+ years of accumulated developer tooling, optimized kernel libraries, and framework integration. Customer switching costs are real and frequently underrated by hardware-only comparisons. NVIDIA&#39;s Blackwell roadmap and the announced Rubin successor close some of the architectural gap that drove Cerebras&#39;s early differentiation. A successful NVIDIA execution on memory-bandwidth-per-system would compress Cerebras&#39;s wafer-scale advantage on the workloads where it is most pronounced.</p><h4 style="color:var(--red);">Supply chain and manufacturing risk</h4>
+<p>Cerebras is single-sourced at TSMC for wafer fabrication and depends on a small number of advanced-packaging and assembly vendors. A disruption at TSMC, a geopolitical event affecting Taiwan, or a tightening of CoWoS / advanced-packaging capacity industry-wide would directly impact Cerebras&#39;s ability to ship volume. The company purchases substantially all of its manufacturing services on a purchase-order basis without long-term capacity commitments.</p><h4 style="color:var(--red);">Internal controls - material weaknesses</h4>
+<p>Cerebras has disclosed material weaknesses in internal control over financial reporting that are unremediated as of filing. Until these are remediated, the risk of misstated financials is elevated, and an SEC comment-letter cycle or a delayed audit completion could affect investor confidence. Remediation has historically taken 12-24 months for similarly-situated emerging growth companies.</p><h4 style="color:var(--red);">Capital intensity and dilution risk</h4>
+<p>Wafer-scale system manufacturing is working-capital-intensive (long inventory cycles, large unit values) and the next-generation WSE-4 program will require sustained R&amp;D investment. Although the IPO proceeds and G42 prepayment provide multi-year runway, a slower-than-modeled customer-diversification trajectory would extend the negative-FCF window and could require a follow-on equity raise within 24-36 months at potentially compressed multiples.</p><h4 style="color:var(--red);">Talent and key-person risk</h4>
+<p>Cerebras&#39;s wafer-scale architecture is the product of a small, highly-specialized engineering team. Loss of CEO Andrew Feldman, CTO Gary Lauterbach, or other senior chip-architecture personnel would impair execution on the WSE-4 program. The competitive labor market for senior AI silicon engineers is intense and compensation-driven retention costs are rising.</p><h4 style="color:var(--red);">Macro / AI-spend cyclicality risk</h4>
+<p>AI capex spending grew at an unprecedented rate in 2023-2025. A normalization of hyperscaler capex (already discussed publicly by some operators), a recession-driven cut in enterprise AI experimentation budgets, or a shift in model-development economics toward smaller specialized models would compress demand for top-end AI training systems. Cerebras&#39;s strongest workload fit is at the frontier end; a market shift to smaller models reduces the relative advantage of wafer-scale.</p></div>
+<div class="callout" style="margin-top:14pt;">
+<h4>Summary risk-adjusted scenario weighting</h4>
+<p style="margin:0;font-size:8.5pt;">
+<strong style="color:var(--green);">Bull ($52, 25% prob.):</strong> G42 share purchase clears CFIUS; Cerebras adds two non-G42 sovereign / hyperscaler customers each contributing &gt;$200M of bookings; inference platform wins enterprise design slots; FY2027 revenue tracks above $1.6B with operating profitability achieved by 2H27. Multiple expands toward NVIDIA-adjacent levels.
+<strong style="color:var(--ink);">Base ($32, 50% prob.):</strong> G42 transaction closes with reduced scope or modified structure; customer diversification proceeds at modeled pace; FY2026 revenue lands $950M-$1.1B; operating losses narrow but full-year GAAP profitability slips to 2027E. Multiple holds in the low-to-mid teens forward EV/revenue range.
+<strong style="color:var(--red);">Bear ($14, 25% prob.):</strong> CFIUS block or material adverse change in G42 relationship; NVIDIA Blackwell deployment captures most frontier training capacity; Cerebras revenue in 2026 falls below $700M; operating losses persist; equity follow-on required at compressed multiple. The architectural moat is real but the commercial trajectory is impaired.
+<span style="font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--mute);">Probability-weighted target: ~$32.5.</span>
+</p></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">9 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Management, Board &amp; Governance</h2><span class="num">10 / Cerebras</span></div>
+<h3>Leadership</h3>
+<table class="comps" style="margin-top:8pt;">
+<thead><tr><th>Name</th><th>Role</th><th>Selected background</th><th>Tenure</th></tr></thead>
+<tbody><tr><td>Andrew D. Feldman</td><td>Co-Founder, CEO &amp; President</td><td>Previously CEO/Founder of SeaMicro (sold to AMD for $334M, 2012); 20+ years in chip and systems entrepreneurship; key public face of the company</td><td>Since 2016 (founder)</td></tr><tr><td>Gary Lauterbach</td><td>Co-Founder &amp; CTO</td><td>Former Sun Microsystems chief architect (UltraSPARC III/IV); SeaMicro co-founder; principal architect of WSE / WSE-2 / WSE-3</td><td>Since 2016 (founder)</td></tr><tr><td>Sean Lie</td><td>Co-Founder &amp; Chief Hardware Architect</td><td>Former AMD principal engineer; SeaMicro co-founder; leads the wafer-scale engineering organization</td><td>Since 2016 (founder)</td></tr><tr><td>Bob Komin</td><td>Chief Financial Officer</td><td>Former CFO at Skybox Imaging (sold to Google) and Wallaby Financial; 25+ years finance leadership across enterprise software and hardware</td><td>Since 2022</td></tr><tr><td>Shirley X. Li</td><td>General Counsel and Secretary</td><td>Securities and corporate-law experience; lead counsel on the IPO and on G42 commercial and equity arrangements</td><td>Since 2022</td></tr><tr><td>Andy Hock, Ph.D.</td><td>VP, Product</td><td>Astrophysics background; led product organization through CS-1 / CS-2 / CS-3 launches; key customer-facing leader</td><td>Since 2017</td></tr></tbody></table>
+<h3 style="margin-top:18pt;">Board of Directors</h3>
+<p style="font-size:9.5pt;">Board chair: Andrew Feldman. Independent directors include representatives from lead investors Foundation Capital and Benchmark, plus added independents in advance of public-company governance requirements. The board has standing audit, compensation, and nominating &amp; corporate governance committees, with the audit committee chaired by an independent director with public-company CFO experience. Two G42-related board observation rights are documented in the Series F-1 financing agreements.</p>
+<h3 style="margin-top:14pt;">Compensation &amp; equity</h3>
+<p style="font-size:9.5pt;">CEO 2023 total compensation: $0.6M base + cash bonus, plus performance and time-based equity grants. Material RSU vesting will occur in connection with the IPO, which will trigger ~$285M of stock-based compensation expense at completion. The 2024 Incentive Award Plan (becomes effective at IPO) and an Employee Stock Purchase Plan (also IPO-effective) provide the post-IPO equity refresh framework, including standard automatic annual share-pool increases.</p>
+<h3 style="margin-top:14pt;">Selling stockholders &amp; lock-ups</h3>
+<p style="font-size:9.5pt;">Standard 180-day lockup for executives, directors, and employee stockholders, with customary release exceptions for indirect transfers and 5b5-1 plans. No selling stockholders in the offering itself; all 30M shares are primary issuance. The G42 22.9M-share primary purchase under the May 2024 stock purchase agreement settles at IPO closing pricing, contingent on regulatory approvals.</p>
+<div class="body-image"><img src="./img-management.png" alt="A cinematic boardroom scene viewed from a low angle, long polished table receding into the distance, five executive silhouettes seated, larg"/><div class="cap">CEO Andrew Feldman and CTO Gary Lauterbach previously founded SeaMicro (acquired by AMD, 2012); Feldman is the public face of the company&#39;s wafer-scale thesis.</div></div>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">10 of 11</div></div>
+</section>
+<section class="page">
+<div class="top-bar"><div class="brand">IPO <span class="accent">Radar</span></div>
+<div class="top-meta">CBRS · Initiation · May 3, 2026</div></div>
+<div class="section-head"><h2>Disclosure Appendix</h2><span class="num">11 / Cerebras</span></div>
+
+<div class="disc-grid">
+<section><h4>Analyst certification (Reg AC)</h4>
+<p>I, Alexandre Villela, certify that the views expressed in this report accurately reflect my personal views about the subject company and securities. I further certify that no part of my compensation was, is, or will be directly or indirectly related to the specific recommendations or views expressed. Reg AC certification applies to all analysts contributing to research published by Velocia Ventures.</p></section>
+<section><h4>Beneficial ownership disclosure</h4>
+<p>(a) Velocia Ventures holds no position in CBRS as of the report date; (b) the lead analyst (Alexandre Villela) holds no personal position in CBRS or any of the named comparable companies (NVIDIA, AMD, Intel, ARM, Marvell); (c) comparable-company multiples and M&amp;A precedent data reflect IPO Radar training data through the model training cutoff and may be stale relative to current market levels - investors should refresh comp data at pricing.</p></section>
+<section><h4>Investment banking relationships</h4>
+<p>Velocia Ventures has not provided investment banking services to Cerebras in the past 12 months and does not currently expect to do so in the next 90 days. Velocia Ventures has no compensation arrangement with the issuer or its bookrunners related to this report.</p></section>
+<section><h4>Rating system</h4>
+<p>Velocia Ventures uses a three-tier rating system: BUY (expected return &gt;15% over 12 months), HOLD (-10% to +15%), SELL (expected return &lt;−10%). Price targets reflect 12-month forward expectations and are derived from a combination of DCF, comparable companies, precedent transactions, and scenario analysis. Ratings and price targets are subject to revision without notice.</p></section>
+<section><h4>Rating distribution (Velocia Ventures coverage universe)</h4>
+<p>As of report date, Velocia Ventures coverage distribution: BUY 38%, HOLD 49%, SELL 13%. Distribution among companies for which Velocia Ventures has provided investment banking services in the past 12 months: not applicable (no IB relationships maintained).</p></section>
+<section><h4>Price target methodology &amp; risks</h4>
+<p>Our $32 12-month price target reflects probability-weighted SOTP analysis: training franchise valued via DCF (11% WACC, 4.5x terminal revenue multiple), inference platform via forward EV / 2028E revenue at 12x (peer-implied), AI Expert Services at 8x EBITDA, plus net cash, less a 15% G42 customer-concentration discount applied to enterprise value. Triangulated against EV / 2026E revenue against AI-exposed semis (NVIDIA, AMD, ARM), against M&amp;A precedents (median Mellanox-anchored at ~$1.95B), and against bull/bear scenarios. Implied return at $32 vs $30 IPO mid is +6.7%, which falls within the HOLD band (-10% to +15%) per Velocia Ventures methodology.</p></section>
+<section><h4>General risk disclosures</h4>
+<p>Investment in IPO securities involves significant risk, including risk of total loss of capital. Price volatility is materially elevated relative to broader equity markets. Past performance is not a reliable indicator of future results. Forward-looking statements in this report — including price targets, financial estimates, and milestone timing — are subject to risks and uncertainties that may cause actual outcomes to differ materially.</p></section>
+<section><h4>Sources &amp; data providers</h4>
+<p>Primary sources: U.S. Securities and Exchange Commission EDGAR system (S-1, S-1/A, 8-K, 10-K, DEF 14A); company investor presentations and conference call transcripts. Secondary sources: Capital IQ, FactSet, Bloomberg (capitalization, share price, comparable company data); industry research providers; ClinicalTrials.gov where applicable. All non-EDGAR sources are cited inline in production reports.</p></section>
+<section><h4>Jurisdictional notices</h4>
+<p>U.S.: This report is intended for institutional investors and qualified retail clients. EU/UK: Distribution restricted to professional clients and eligible counterparties under MiFID II. Japan: Distribution restricted to qualified institutional investors. Australia: Wholesale clients only. Canada: Distribution restricted to permitted clients under National Instrument 31-103. This report is not directed to persons in jurisdictions where its distribution would be unlawful.</p></section>
+<section><h4>Conflicts management</h4>
+<p>Velocia Ventures maintains a research independence policy under which research analysts (a) are not supervised by, and do not report to, personnel responsible for investment banking or capital markets activities; (b) are not compensated based on specific investment banking transactions; (c) are subject to pre-publication review by Compliance for accuracy and conflicts but not for editorial direction. Personal trading by analysts in covered securities is restricted under blackout windows.</p></section>
+</div>
+<p style="font-size:7.5pt;color:var(--mute);margin-top:10pt;line-height:1.5;">Forward-Looking Statements: This report contains forward-looking statements within the meaning of Section 27A of the Securities Act of 1933 and Section 21E of the Securities Exchange Act of 1934. Forward-looking statements involve known and unknown risks, uncertainties, and other factors which may cause actual results, performance, or achievements to differ materially. Velocia Ventures undertakes no obligation to update forward-looking statements except as required by applicable law.</p>
+<p style="font-size:7pt;color:var(--mute);margin-top:6pt;font-family:'DM Mono',monospace;letter-spacing:.06em;">Copyright © 2026 Velocia Ventures. All rights reserved. IPO Radar is a research product of Velocia Ventures. Distribution outside intended recipients is prohibited. Source: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&amp;CIK=0001937891&amp;type=S-1.</p>
+<div class="footer-bar"><div>IPO Radar · Velocia Ventures</div>
+<div class="center">Cerebras — Initiation</div>
+<div class="right">11 of 11 · End of report</div></div>
+</section>
+</body>
+</html>
