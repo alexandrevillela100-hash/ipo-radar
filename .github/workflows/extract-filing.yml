@@ -52,9 +52,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python deps
-        # cairosvg rasterises Claude-generated SVGs → PNG for the PDF
-        # renderer (ReportLab can't read SVG). libcairo2 is preinstalled
-        # on ubuntu-latest; we just install the Python binding.
+        # cairosvg is kept as a fallback in case OPENAI_API_KEY is missing
+        # and the pipeline drops back to Claude-generated SVGs (which
+        # ReportLab can't read natively). libcairo2 is preinstalled on
+        # ubuntu-latest; we just install the Python binding.
         run: pip install reportlab Pillow cairosvg
 
       - name: Install Node deps (skip Chromium download)
@@ -72,6 +73,12 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: claude-sonnet-4-6
+          # OPENAI_API_KEY drives DALL-E 3 hero + body image generation.
+          # If it's absent the pipeline falls back to Claude SVGs (svg mode).
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: dall-e-3
+          OPENAI_QUALITY: standard
+          OPENAI_SIZE: 1792x1024
           # SEC requires a real User-Agent with contact email, otherwise it 403s.
           SEC_USER_AGENT: 'IPO Radar research@velociaventures.com'
         run: |
@@ -84,7 +91,7 @@ jobs:
             --industry "${{ inputs.industry }}" \
             --filingDate "${{ inputs.filing_date }}" \
             --editor "Alexandre Villela" \
-            --svgImages \
+            --dalleImages \
             --v2only \
             --outDir out/${{ steps.vars.outputs.ticker_lc }}
 
