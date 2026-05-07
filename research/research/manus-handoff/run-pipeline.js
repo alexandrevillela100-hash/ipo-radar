@@ -50,8 +50,8 @@
  *   --facts path          supplementary-facts.txt (peer comps, editor bias, etc.)
  *   --skipClaude path     load a pre-made filing.json, skip the LLM. Offline/debug.
  *   --skipImage           skip ALL image generation (hero + body images). Renderers fall back to placeholder strips.
- *   --svgImages           use Claude-generated SVG images (one-platform, default in v2 mode unless --skipImage).
- *   --dalleImages         use DALL-E 3 hero (legacy path; requires OPENAI_API_KEY).
+ *   --dalleImages         use DALL-E 3 hero + body images (cinematic, default in v2 mode when OPENAI_API_KEY is set).
+ *   --svgImages           use Claude-generated SVG images (one-platform fallback when no OPENAI_API_KEY).
  *   --outDir path         default: ./out/{ticker}/
  *   --v2                  also render the v2 11-page initiation report (Python renderers).
  *   --v2only              skip v1 renderers; only run v2. Useful while v2 is the focus.
@@ -483,12 +483,12 @@ async function main() {
   // and both v1 + v2 renderers pick them up.
   //
   // Two paths, one branch chooses:
-  //   (1) SVG path  — Claude generates self-contained SVGs, then cairosvg
+  //   (1) DALL-E    — OpenAI DALL-E 3 hero + body images. Cinematic
+  //                   editorial look. Default in v2 mode when
+  //                   OPENAI_API_KEY is set. ~$0.40/filing for 5 images.
+  //   (2) SVG path  — Claude generates self-contained SVGs, then cairosvg
   //                   rasterises to PNG so ReportLab can embed them.
-  //                   One-platform (Anthropic only). Default in v2 mode.
-  //   (2) DALL-E    — legacy hero-only image via OpenAI. Activated by
-  //                   --dalleImages or by setting OPENAI_API_KEY without
-  //                   --svgImages.
+  //                   One-platform fallback when OPENAI_API_KEY is absent.
   //
   // Skip cleanly if --skipImage is set OR no relevant API key is in the
   // environment OR the filing has no prompts yet (offline JSON without
@@ -496,18 +496,20 @@ async function main() {
   const hasHeroPrompt = filing.meta && (filing.meta.hero_prompt || filing.meta.heroPrompt);
   const hasBodyPrompts = filing.body_images && Object.values(filing.body_images || {}).some((v) => v && v.prompt);
 
-  // Decide which image path to take. SVG is the default for v2 mode.
-  // DALL-E is opt-in (--dalleImages) or fallback when ANTHROPIC_API_KEY is
-  // absent for the image step (rare — the same key powers extraction).
+  // Decide which image path to take. DALL-E is the v2 default when
+  // OPENAI_API_KEY is set (cinematic). SVG is the fallback when only
+  // ANTHROPIC_API_KEY is available.
   let imageMode = 'none';
   if (args.skipImage) {
     imageMode = 'none';
-  } else if (args.svgImages) {
-    imageMode = 'svg';
   } else if (args.dalleImages) {
     imageMode = 'dalle';
+  } else if (args.svgImages) {
+    imageMode = 'svg';
+  } else if (wantV2 && process.env.OPENAI_API_KEY && (hasHeroPrompt || hasBodyPrompts)) {
+    imageMode = 'dalle';                                     // v2 default (cinematic)
   } else if (wantV2 && process.env.ANTHROPIC_API_KEY && (hasHeroPrompt || hasBodyPrompts)) {
-    imageMode = 'svg';                                       // v2 default
+    imageMode = 'svg';                                       // v2 fallback (no OpenAI key)
   } else if (process.env.OPENAI_API_KEY && hasHeroPrompt) {
     imageMode = 'dalle';                                     // v1 default
   }
@@ -518,7 +520,7 @@ async function main() {
     else console.log('[pipeline] no API key available for image generation; renderers will use placeholder strips');
   } else if (imageMode === 'svg') {
     const svgScript = path.join(__dirname, 'report-generator', 'generate-svg-images.js');
-    console.log(`[pipeline] running ${svgScript} (Claude SVG, one-platform)`);
+    console.log(`[pipeline] running ${svgScript} (Claude SVG, one-platform fallback)`);
     try {
       execFileSync('node', [svgScript, '--filing', filingPath, '--out', outDir], {
         stdio: 'inherit',
@@ -528,14 +530,19 @@ async function main() {
     }
     filing = JSON.parse(fs.readFileSync(filingPath, 'utf8'));
   } else if (imageMode === 'dalle') {
-    const heroScript = path.join(__dirname, 'report-generator', 'generate-hero-image.js');
-    console.log(`[pipeline] running ${heroScript} (DALL-E hero, legacy path)`);
+    // Prefer the new multi-image generator (hero + body images via DALL-E 3).
+    // Fall back to the legacy hero-only script if the new file isn't present
+    // (e.g. running from an older checkout).
+    const dalleScript = path.join(__dirname, 'report-generator', 'generate-dalle-images.js');
+    const heroScript  = path.join(__dirname, 'report-generator', 'generate-hero-image.js');
+    const script = fs.existsSync(dalleScript) ? dalleScript : heroScript;
+    console.log(`[pipeline] running ${script} (DALL-E ${script === dalleScript ? 'hero + body' : 'hero only (legacy)'})`);
     try {
-      execFileSync('node', [heroScript, '--filing', filingPath, '--out', outDir], {
+      execFileSync('node', [script, '--filing', filingPath, '--out', outDir], {
         stdio: 'inherit',
       });
     } catch (e) {
-      console.error('[pipeline] hero image generation failed; continuing with placeholder hero');
+      console.error('[pipeline] DALL-E image generation failed; continuing with placeholder strips');
     }
     filing = JSON.parse(fs.readFileSync(filingPath, 'utf8'));
   }
