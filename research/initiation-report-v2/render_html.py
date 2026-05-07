@@ -168,13 +168,16 @@ table.fin tr.section td{font-family:'DM Mono',monospace;font-size:6.5pt;letter-s
 table.fin tr.total td{font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink);
   border-top:1px solid var(--rule);}
 table.fin tr.subtotal td{color:var(--ink);font-weight:500;border-top:1px solid var(--rule-soft);}
+table.comps{table-layout:fixed;}
 table.comps th{font-family:'DM Mono',monospace;font-size:7pt;letter-spacing:.1em;
   text-transform:uppercase;color:var(--mute);text-align:right;font-weight:500;
   border-bottom:1px solid var(--ink);padding:6pt 5pt;}
-table.comps th:first-child{text-align:left;}
+table.comps th:first-child,table.comps th:last-child{text-align:left;}
 table.comps td{padding:5pt;text-align:right;border-bottom:1px solid var(--rule-soft);
-  font-size:8.5pt;color:var(--body);}
-table.comps td:first-child{text-align:left;color:var(--ink);font-weight:500;}
+  font-size:8.5pt;color:var(--body);word-wrap:break-word;overflow-wrap:break-word;
+  vertical-align:top;}
+table.comps td:first-child{text-align:left;color:var(--ink);font-weight:500;width:22%;}
+table.comps td:last-child{text-align:left;width:28%;}
 table.comps tr.target td{background:var(--gold-soft);}
 table.comps tr.target td:first-child{color:var(--gold);font-weight:600;}
 .thesis-item{display:grid;grid-template-columns:28pt 1fr;gap:10pt;margin-bottom:13pt;

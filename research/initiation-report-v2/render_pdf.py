@@ -834,43 +834,72 @@ def page_7_competitive(c, D):
                            CONTENT_W, F_BODY, 9, BODY, 11.5) - 6
 
     headers = COMP["table_columns"]
-    # Compute column widths proportional with first column wider
+    # Compute column widths. First and last columns get wider allotments
+    # because they hold the longest content (company name + key differentiator
+    # sentence); both wrap to multiple lines if needed. Middle columns hold
+    # short tags ("Searching", "$100M", etc.) and stay single-line.
     n = len(headers)
-    first_w = 82
-    rem_w = CONTENT_W - first_w
-    last_w = rem_w * 0.28
-    mid_w = (rem_w - last_w) / (n - 2) if n > 2 else rem_w
-    col_ws = [first_w] + [mid_w] * (n - 2) + [last_w]
+    first_w = 112
+    last_w = 138
+    rem_w = CONTENT_W - first_w - last_w
+    mid_w = rem_w / max(1, n - 2) if n > 2 else 0
+    col_ws = [first_w] + [mid_w] * (n - 2) + ([last_w] if n > 1 else [])
     col_xs = [MARGIN_L]
     for w in col_ws[:-1]: col_xs.append(col_xs[-1] + w)
 
+    # Header row — first and last columns left-aligned (text), middle right-aligned (tags).
     c.setFont(F_MONO, 6); c.setFillColor(MUTE)
     for i, h in enumerate(headers):
-        if i == 0: c.drawString(col_xs[i] + 2, y, h.upper())
-        else: draw_right(c, col_xs[i] + col_ws[i] - 2, y, h.upper(), F_MONO, 6, MUTE)
+        if i == 0 or i == n - 1:
+            c.drawString(col_xs[i] + 2, y, h.upper())
+        else:
+            draw_right(c, col_xs[i] + col_ws[i] - 2, y, h.upper(), F_MONO, 6, MUTE)
     y -= 4
-    hr(c, MARGIN_L, y, PAGE_W - MARGIN_R, INK, 0.5); y -= 9
+    hr(c, MARGIN_L, y, PAGE_W - MARGIN_R, INK, 0.5); y -= 10
 
+    # Body rows — wrap first + last columns and grow row height to fit.
+    leading = 9.5
     for row in COMP["rows"]:
         is_target = row.get("highlight", False)
+        vals = row["values"]
+        first_lines = wrap(c, str(vals[0]), first_w - 4, F_BODY_BD, 7.5) or [""]
+        last_lines = (wrap(c, str(vals[-1]), last_w - 4, F_BODY, 7.5) or [""]) if n > 1 else [""]
+        n_lines = max(len(first_lines), len(last_lines), 1)
+        row_h = (n_lines - 1) * leading + 11
+
         if is_target:
-            filled_rect(c, MARGIN_L, y - 3, CONTENT_W, 11, SHADE)
+            filled_rect(c, MARGIN_L, y - row_h + 6, CONTENT_W, row_h + 1, SHADE)
             name_color = GOLD
         else:
             name_color = INK
-        vals = row["values"]
-        c.setFont(F_BODY_BD, 7.5); c.setFillColor(name_color)
-        c.drawString(col_xs[0] + 2, y, str(vals[0]))
-        for i in range(1, len(vals)):
-            draw_right(c, col_xs[i] + col_ws[i] - 2, y, str(vals[i]), F_BODY, 7.5, BODY)
-        y -= 4
-        c.setStrokeColor(RULE_SOFT); c.setLineWidth(0.3)
-        c.line(MARGIN_L, y, PAGE_W - MARGIN_R, y); y -= 7
 
-    y -= 4
+        # First column (wrapped, left-aligned, bold)
+        c.setFont(F_BODY_BD, 7.5); c.setFillColor(name_color)
+        for li, line in enumerate(first_lines):
+            c.drawString(col_xs[0] + 2, y - li * leading, line)
+
+        # Middle columns (single-line, right-aligned, regular)
+        for i in range(1, n - 1):
+            if i < len(vals):
+                draw_right(c, col_xs[i] + col_ws[i] - 2, y, str(vals[i]), F_BODY, 7.5, BODY)
+
+        # Last column (wrapped, left-aligned within its cell, regular)
+        if n > 1:
+            c.setFont(F_BODY, 7.5); c.setFillColor(BODY)
+            for li, line in enumerate(last_lines):
+                c.drawString(col_xs[-1] + 2, y - li * leading, line)
+
+        y -= row_h
+        c.setStrokeColor(RULE_SOFT); c.setLineWidth(0.3)
+        c.line(MARGIN_L, y + 2, PAGE_W - MARGIN_R, y + 2); y -= 5
+
+    y -= 6
+    # Footnote — wrap so it doesn't run off the right margin.
     if COMP.get("footnote"):
-        eyebrow(c, MARGIN_L, y, COMP["footnote"])
-        y -= 16
+        c.setFont(F_MONO, 6.5); c.setFillColor(MUTE)
+        for line in wrap(c, COMP["footnote"].upper(), CONTENT_W, F_MONO, 6.5):
+            c.drawString(MARGIN_L, y, line); y -= 9
+        y -= 6
 
     if COMP.get("differentiation"):
         c.setFont(F_DISP, 11.5); c.setFillColor(INK)
