@@ -834,60 +834,63 @@ def page_7_competitive(c, D):
                            CONTENT_W, F_BODY, 9, BODY, 11.5) - 6
 
     headers = COMP["table_columns"]
-    # Compute column widths. First and last columns get wider allotments
-    # because they hold the longest content (company name + key differentiator
-    # sentence); both wrap to multiple lines if needed. Middle columns hold
-    # short tags ("Searching", "$100M", etc.) and stay single-line.
+    # Compute column widths. First col holds the company name (long, bold);
+    # last col holds the key differentiator sentence (longest); middle cols
+    # hold descriptive tags that are sometimes long ("Listed closed-end fund,
+    # London"), sometimes short ("$10B+"). Every cell wraps via simpleSplit
+    # so nothing overflows. Row height grows to accommodate the tallest cell.
     n = len(headers)
-    first_w = 112
-    last_w = 138
-    rem_w = CONTENT_W - first_w - last_w
-    mid_w = rem_w / max(1, n - 2) if n > 2 else 0
-    col_ws = [first_w] + [mid_w] * (n - 2) + ([last_w] if n > 1 else [])
-    col_xs = [MARGIN_L]
+    first_w = 100
+    last_w  = 130
+    rem_w   = CONTENT_W - first_w - last_w
+    mid_w   = rem_w / max(1, n - 2) if n > 2 else 0
+    col_ws  = [first_w] + [mid_w] * (n - 2) + ([last_w] if n > 1 else [])
+    col_xs  = [MARGIN_L]
     for w in col_ws[:-1]: col_xs.append(col_xs[-1] + w)
 
-    # Header row — first and last columns left-aligned (text), middle right-aligned (tags).
+    # Header row — all left-aligned (mono caps).
     c.setFont(F_MONO, 6); c.setFillColor(MUTE)
     for i, h in enumerate(headers):
-        if i == 0 or i == n - 1:
-            c.drawString(col_xs[i] + 2, y, h.upper())
-        else:
-            draw_right(c, col_xs[i] + col_ws[i] - 2, y, h.upper(), F_MONO, 6, MUTE)
-    y -= 4
+        # Wrap header in case the column is narrow + the label is long.
+        head_lines = wrap(c, h.upper(), col_ws[i] - 4, F_MONO, 6) or [h.upper()]
+        for li, line in enumerate(head_lines):
+            c.drawString(col_xs[i] + 2, y - li * 7, line)
+    # Drop y by header height (max lines across columns).
+    head_max = max(
+        len(wrap(c, h.upper(), col_ws[i] - 4, F_MONO, 6) or [h.upper()])
+        for i, h in enumerate(headers)
+    )
+    y -= (head_max - 1) * 7 + 4
     hr(c, MARGIN_L, y, PAGE_W - MARGIN_R, INK, 0.5); y -= 10
 
-    # Body rows — wrap first + last columns and grow row height to fit.
+    # Body rows — wrap EVERY cell, grow row height to the tallest cell.
     leading = 9.5
     for row in COMP["rows"]:
         is_target = row.get("highlight", False)
         vals = row["values"]
-        first_lines = wrap(c, str(vals[0]), first_w - 4, F_BODY_BD, 7.5) or [""]
-        last_lines = (wrap(c, str(vals[-1]), last_w - 4, F_BODY, 7.5) or [""]) if n > 1 else [""]
-        n_lines = max(len(first_lines), len(last_lines), 1)
+        # Wrap each cell: first col bold, others regular.
+        cell_lines = []
+        for i in range(n):
+            v = str(vals[i]) if i < len(vals) else ""
+            font = F_BODY_BD if i == 0 else F_BODY
+            lines = wrap(c, v, col_ws[i] - 4, font, 7.5) or [""]
+            cell_lines.append(lines)
+        n_lines = max((len(l) for l in cell_lines), default=1)
         row_h = (n_lines - 1) * leading + 11
 
         if is_target:
             filled_rect(c, MARGIN_L, y - row_h + 6, CONTENT_W, row_h + 1, SHADE)
-            name_color = GOLD
+            first_color = GOLD
         else:
-            name_color = INK
+            first_color = INK
 
-        # First column (wrapped, left-aligned, bold)
-        c.setFont(F_BODY_BD, 7.5); c.setFillColor(name_color)
-        for li, line in enumerate(first_lines):
-            c.drawString(col_xs[0] + 2, y - li * leading, line)
-
-        # Middle columns (single-line, right-aligned, regular)
-        for i in range(1, n - 1):
-            if i < len(vals):
-                draw_right(c, col_xs[i] + col_ws[i] - 2, y, str(vals[i]), F_BODY, 7.5, BODY)
-
-        # Last column (wrapped, left-aligned within its cell, regular)
-        if n > 1:
-            c.setFont(F_BODY, 7.5); c.setFillColor(BODY)
-            for li, line in enumerate(last_lines):
-                c.drawString(col_xs[-1] + 2, y - li * leading, line)
+        # Draw each cell, top-aligned within the row.
+        for i in range(n):
+            font  = F_BODY_BD if i == 0 else F_BODY
+            color = first_color if i == 0 else BODY
+            c.setFont(font, 7.5); c.setFillColor(color)
+            for li, line in enumerate(cell_lines[i]):
+                c.drawString(col_xs[i] + 2, y - li * leading, line)
 
         y -= row_h
         c.setStrokeColor(RULE_SOFT); c.setLineWidth(0.3)
