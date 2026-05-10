@@ -470,6 +470,20 @@ async function main() {
       console.log(`[pipeline] stripped S-1 to ${s1Text.length} chars (raw: ${rawText.length})`);
     }
 
+    // Defensive guard — if the stripped S-1 is suspiciously small, the URL
+    // almost certainly points at an exhibit (filename ends in `_ex.htm` or
+    // similar) rather than the main S-1 body. A real filing strips to
+    // 50k–500k chars; anything under MIN_STRIPPED_CHARS will starve Claude
+    // and we'll get a prose response that fails JSON.parse downstream.
+    // Fail loudly here with a useful message instead.
+    const MIN_STRIPPED_CHARS = parseInt(process.env.MIN_STRIPPED_CHARS || '30000', 10);
+    if (s1Text.length < MIN_STRIPPED_CHARS) {
+      console.error(`[pipeline] stripped S-1 is only ${s1Text.length} chars (min ${MIN_STRIPPED_CHARS}).`);
+      console.error('[pipeline] this URL probably points to an exhibit, not the main S-1 body.');
+      console.error('[pipeline] open the accession index page (chop the filename off the URL) and pick the .htm whose form type is S-1 or S-1/A — not EX-*.');
+      console.error(`[pipeline] override with MIN_STRIPPED_CHARS=<lower> if this filing really is that short.`);
+      process.exit(2);
+    }
     const facts = args.facts ? fs.readFileSync(args.facts, 'utf8') : '';
     filing = await callClaude({ meta, facts, s1Text, useV2: wantV2 });
   }
