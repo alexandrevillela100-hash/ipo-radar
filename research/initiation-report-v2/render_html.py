@@ -683,8 +683,11 @@ def page_valuation(D):
     sotp_rows = []
     for r in val["sotp"]["rows"]:
         cls = ' class="total"' if r.get("style") == "total" else ""
-        sotp_rows.append(f'<tr{cls}><td>{esc(r["label"])}</td><td>${r["value_m"]:,}</td><td>{esc(r["value_per_share"])}</td></tr>')
-
+        v_m = r.get("value_m")
+        v_m_str = f"${v_m:,}" if isinstance(v_m, (int, float)) else "—"
+        v_ps = r.get("value_per_share") or "—"
+        sotp_rows.append(f'<tr{cls}><td>{esc(r.get("label") or "—")}</td><td>{v_m_str}</td><td>{esc(v_ps)}</td></tr>')
+    
     impl = D["rating"]["implied_return_pct"]
     impl_color = "var(--green)" if impl > 0 else ("var(--red)" if impl < 0 else "var(--mute)")
     impl_str = f"+{impl}%" if impl > 0 else f"{impl}%"
