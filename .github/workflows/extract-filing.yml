@@ -95,7 +95,6 @@ jobs:
             --v2only \
             --outDir out/${{ steps.vars.outputs.ticker_lc }}
 
-```yaml
       - name: Render Fact Sheet HTML
         # Reads the same filing.json that produced the long-form report
         # and writes a one-page HTML file. The publish step picks it up
