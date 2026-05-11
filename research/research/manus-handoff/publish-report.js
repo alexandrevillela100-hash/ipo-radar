@@ -1,49 +1,46 @@
 #!/usr/bin/env node
 /**
- * IPO Radar — publish a rendered initiation report bundle to Sanity.
+ * IPO Radar — publish a rendered initiation report bundle to Sanity. (v2)
  *
- * Reads a report directory (the output of run-pipeline.js, e.g.
- * /research/research/manus-handoff/out/psus/) containing:
+ * v2 changes from the original publish-report.js:
+ *   - Now also uploads the Fact Sheet HTML asset (factSheetHtmlAsset
+ *     field on initiationReport doc), if present in the input directory.
+ *   - Image src= rewriting now also rewrites <img> tags inside the fact
+ *     sheet HTML, using the SAME image asset URLs as the long-form
+ *     report (so both artifacts share the cinematographic hero).
  *
- *   filing.json                — extracted v2 schema
- *   <ticker>-v2-report.html    — rendered HTML (relative <img src="./hero.png">)
- *   <ticker>-v2-report.pdf     — rendered PDF
- *   hero.png + body images     — the assets referenced from the HTML
+ * Reads a report directory (the output of run-pipeline.js + render_factsheet.py),
+ * e.g. /research/research/manus-handoff/out/psus/ containing:
  *
- * And does the following, in order:
+ *   filing.json                  — extracted v2 schema
+ *   <ticker>-v2-report.html      — rendered long-form HTML
+ *   <ticker>-v2-report.pdf       — rendered long-form PDF
+ *   <ticker>-v2-factsheet.html   — rendered one-pager HTML  (NEW)
+ *   hero.png + body images       — assets referenced from BOTH HTMLs
  *
- *   1. Uploads each PNG (hero + body images) to Sanity as image assets,
- *      collects the returned CDN URLs.
- *   2. Rewrites every <img src="./X.png"> in the HTML to the matching
- *      Sanity CDN URL — so the HTML is now self-contained against
- *      cdn.sanity.io and can be served from any origin.
- *   3. Uploads the rewritten HTML and the PDF as Sanity *file* assets.
- *   4. Looks up the matching `filing` document by accession number
- *      (or ticker as fallback) so we can reference it.
- *   5. Upserts an `initiationReport` document keyed by `_id =
- *      "report-<slug>"`, populated with summary metadata pulled from
- *      filing.json + the asset references from steps 1–3.
- *   6. Patches the matching filing's `reportSlug` field so the calendar
- *      tile starts linking through to /reports/{slug}.
+ * Pipeline:
+ *   1. Upload each PNG (hero + body images) → Sanity image assets, collect URLs
+ *   2. Rewrite <img src="./X.png"> in BOTH the long-form HTML and the fact
+ *      sheet HTML to the matching Sanity CDN URLs
+ *   3. Upload rewritten long-form HTML → Sanity file asset
+ *   4. Upload rewritten fact sheet HTML → Sanity file asset (NEW)
+ *   5. Upload PDF → Sanity file asset
+ *   6. Look up the matching `filing` document by accessionNumber
+ *   7. Upsert `initiationReport` doc (now with both htmlAsset and
+ *      factSheetHtmlAsset fields populated)
+ *   8. Patch the filing's reportSlug → calendar tile + digest start linking
  *
  * Idempotent: re-running with the same ticker overwrites assets and
- * patches the existing report doc in place. Use --dryRun to preview
- * without writing.
+ * patches the existing report doc in place. Use --dryRun to preview.
  *
  * Usage:
  *   node publish-report.js --in path/to/out/<ticker>/ [--dryRun]
  *
- * Required env:
- *   SANITY_PROJECT_ID    — defaults to "8896dke9" (IPO Radar production)
+ * Required env (unchanged from v1):
+ *   SANITY_PROJECT_ID    — defaults to "8896dke9"
  *   SANITY_DATASET       — defaults to "production"
  *   SANITY_API_VERSION   — defaults to "2024-10-01"
  *   SANITY_TOKEN         — write-scoped token. Required.
- *
- * Notes on URL strategy:
- *   The HTML is uploaded as a Sanity file asset (not as a string field)
- *   so it's served from cdn.sanity.io with proper caching. The Vercel
- *   /reports/[slug] route fetches the doc, reads htmlAsset.url, and
- *   either redirects or proxies — see api/reports/[slug].ts.
  */
 
 const fs   = require('fs');
@@ -72,10 +69,6 @@ function requireArg(n) {
 }
 
 // ------------------------- SANITY CLIENT (no SDK) -------------------------
-//
-// We deliberately avoid pulling in @sanity/client to keep the manus-handoff
-// node deps minimal. The HTTP API is small and well-documented.
-// Reference: https://www.sanity.io/docs/http-api
 
 const PROJECT_ID  = process.env.SANITY_PROJECT_ID  || '8896dke9';
 const DATASET     = process.env.SANITY_DATASET     || 'production';
@@ -83,7 +76,7 @@ const API_VERSION = process.env.SANITY_API_VERSION || '2024-10-01';
 const TOKEN       = process.env.SANITY_TOKEN;
 
 const API_BASE     = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}`;
-const ASSETS_BASE  = `${API_BASE}/assets`;     // /images/<dataset> or /files/<dataset>
+const ASSETS_BASE  = `${API_BASE}/assets`;
 const MUTATE_BASE  = `${API_BASE}/data/mutate/${DATASET}`;
 const QUERY_BASE   = `${API_BASE}/data/query/${DATASET}`;
 
@@ -93,7 +86,6 @@ function authHeaders(extra = {}) {
 }
 
 async function uploadAsset(kind, filePath, filename) {
-  // kind: 'images' or 'files'
   const buf = fs.readFileSync(filePath);
   const ct  = guessContentType(filePath);
   const url = `${ASSETS_BASE}/${kind}/${DATASET}?filename=${encodeURIComponent(filename)}`;
@@ -107,7 +99,7 @@ async function uploadAsset(kind, filePath, filename) {
     throw new Error(`asset upload ${res.status} for ${filename}: ${txt.slice(0, 500)}`);
   }
   const j = await res.json();
-  return j.document; // { _id, url, ... }
+  return j.document;
 }
 
 function guessContentType(p) {
@@ -147,22 +139,13 @@ async function mutate(mutations) {
 
 // ------------------------- HTML REWRITE -------------------------
 
-/**
- * Replace every relative <img src="./key.png"> with the matching Sanity
- * CDN URL. Returns the rewritten HTML plus a list of (key, oldSrc, newSrc)
- * for logging.
- *
- * We're deliberately conservative: only `src="./*.png"` is rewritten.
- * Anything absolute (https://) is left alone — useful if the HTML grows
- * to embed third-party images later.
- */
 function rewriteHtmlImageSrcs(html, keyToCdnUrl) {
   const re = /src="\.\/([^"]+\.png)"/g;
   const rewrites = [];
   const out = html.replace(re, (full, fname) => {
     const key = fname.replace(/\.png$/, '');
     const cdn = keyToCdnUrl[key];
-    if (!cdn) return full; // no upload for this asset; leave broken rather than hide
+    if (!cdn) return full;
     rewrites.push({ key, oldSrc: `./${fname}`, newSrc: cdn });
     return `src="${cdn}"`;
   });
@@ -180,7 +163,6 @@ async function main() {
     process.exit(2);
   }
 
-  // Locate filing.json and the rendered HTML/PDF.
   const filingPath = path.join(inDir, 'filing.json');
   if (!fs.existsSync(filingPath)) {
     console.error(`[publish-report] filing.json not found in ${inDir}`);
@@ -192,9 +174,6 @@ async function main() {
   if (!ticker) { console.error('[publish-report] filing.meta.ticker missing'); process.exit(2); }
   const slug = ticker.toLowerCase();
 
-  // Filenames the renderer writes — by convention `<ticker_lc>-v2-report.<ext>`.
-  // Fall back to anything matching `*-v2-report.<ext>` to stay robust if the
-  // renderer's naming evolves.
   function findOne(patterns) {
     const files = fs.readdirSync(inDir);
     for (const re of patterns) {
@@ -205,17 +184,23 @@ async function main() {
   }
   const htmlPath = findOne([new RegExp(`^${slug}-v2-report\\.html$`, 'i'), /-v2-report\.html$/i]);
   const pdfPath  = findOne([new RegExp(`^${slug}-v2-report\\.pdf$`,  'i'), /-v2-report\.pdf$/i]);
+  // NEW — find the fact sheet HTML if it exists.
+  const factSheetPath = findOne([
+    new RegExp(`^${slug}-v2-factsheet\\.html$`, 'i'),
+    /-v2-factsheet\.html$/i,
+    /^factsheet\.html$/i,
+  ]);
+
   if (!htmlPath || !fs.existsSync(htmlPath)) {
-    console.error(`[publish-report] HTML report not found in ${inDir}`); process.exit(2);
+    console.error(`[publish-report] long-form HTML report not found in ${inDir}`); process.exit(2);
   }
 
   console.log(`[publish-report] ticker=${ticker} slug=${slug}`);
-  console.log(`[publish-report] html=${htmlPath}`);
-  console.log(`[publish-report] pdf=${pdfPath || '(none)'}`);
+  console.log(`[publish-report] long-form html=${htmlPath}`);
+  console.log(`[publish-report] long-form pdf=${pdfPath || '(none)'}`);
+  console.log(`[publish-report] fact sheet html=${factSheetPath || '(none — skipping)'}`);
 
-  // Discover the PNGs we need to upload. Hero is mandatory (if it exists);
-  // body images come from filing.body_images keys.
-  const imageTasks = []; // { key, file }
+  const imageTasks = [];
   const heroFile = path.join(inDir, 'hero.png');
   if (fs.existsSync(heroFile)) imageTasks.push({ key: 'hero', file: heroFile });
 
@@ -243,19 +228,33 @@ async function main() {
     console.log(`[publish-report]   → ${doc.url}`);
   }
 
-  // ─── 2. Rewrite HTML and upload ──────────────────────────────
+  // ─── 2. Rewrite long-form HTML and upload ────────────────────
   const rawHtml = fs.readFileSync(htmlPath, 'utf8');
   const { html: rewrittenHtml, rewrites } = rewriteHtmlImageSrcs(rawHtml, keyToCdnUrl);
-  console.log(`[publish-report] rewrote ${rewrites.length} <img src> in HTML`);
-  for (const r of rewrites) console.log(`[publish-report]   ${r.oldSrc}  →  ${r.newSrc}`);
+  console.log(`[publish-report] long-form: rewrote ${rewrites.length} <img src>`);
 
   const tmpHtml = path.join(inDir, `.publish-${slug}.html`);
   fs.writeFileSync(tmpHtml, rewrittenHtml);
   const htmlAsset = await uploadAsset('files', tmpHtml, `${slug}-v2-report.html`);
   fs.unlinkSync(tmpHtml);
-  console.log(`[publish-report] uploaded HTML: ${htmlAsset.url}`);
+  console.log(`[publish-report] uploaded long-form HTML: ${htmlAsset.url}`);
 
-  // ─── 3. Upload PDF (optional — soft fail) ────────────────────
+  // ─── 3. Rewrite fact sheet HTML and upload (NEW) ─────────────
+  let factSheetAssetId = null;
+  if (factSheetPath && fs.existsSync(factSheetPath)) {
+    const rawFs = fs.readFileSync(factSheetPath, 'utf8');
+    const { html: rewrittenFs, rewrites: fsRewrites } = rewriteHtmlImageSrcs(rawFs, keyToCdnUrl);
+    console.log(`[publish-report] fact sheet: rewrote ${fsRewrites.length} <img src>`);
+
+    const tmpFs = path.join(inDir, `.publish-${slug}-fs.html`);
+    fs.writeFileSync(tmpFs, rewrittenFs);
+    const fsAsset = await uploadAsset('files', tmpFs, `${slug}-v2-factsheet.html`);
+    fs.unlinkSync(tmpFs);
+    factSheetAssetId = fsAsset._id;
+    console.log(`[publish-report] uploaded fact sheet HTML: ${fsAsset.url}`);
+  }
+
+  // ─── 4. Upload PDF ───────────────────────────────────────────
   let pdfAssetId = null;
   if (pdfPath && fs.existsSync(pdfPath)) {
     const pdfAsset = await uploadAsset('files', pdfPath, `${slug}-v2-report.pdf`);
@@ -263,7 +262,7 @@ async function main() {
     console.log(`[publish-report] uploaded PDF: ${pdfAsset.url}`);
   }
 
-  // ─── 4. Look up source filing by accession number ────────────
+  // ─── 5. Look up source filing ────────────────────────────────
   let filingRefId = null;
   const accession = meta.accession_number || meta.accessionNumber;
   if (accession) {
@@ -275,13 +274,13 @@ async function main() {
       filingRefId = found._id;
       console.log(`[publish-report] linked to filing ${filingRefId} (accession=${accession})`);
     } else {
-      console.warn(`[publish-report] no filing doc found for accession ${accession}; report will publish without link`);
+      console.warn(`[publish-report] no filing doc found for accession ${accession}`);
     }
   } else {
     console.warn('[publish-report] filing.json has no accession_number; cannot link to filing doc');
   }
 
-  // ─── 5. Upsert the initiationReport document ─────────────────
+  // ─── 6. Upsert the initiationReport document ─────────────────
   const reportId = `report-${slug}`;
   const heroAssetId = keyToAssetId['hero'] || null;
   const bodyImagesArr = Object.keys(keyToAssetId)
@@ -293,8 +292,6 @@ async function main() {
       image: { _type: 'image', asset: { _type: 'reference', _ref: keyToAssetId[k] } },
     }));
 
-  // Pull summary metadata from the v2 schema. These keys exist in v2
-  // filings; gracefully degrade for older filings missing fields.
   const headline = meta.headline || filing.lede_quote || '';
   const summary  = filing.summary_paragraph || '';
   const rating   = (filing.rating && filing.rating.label) || meta.rating || null;
@@ -309,6 +306,8 @@ async function main() {
     slug: { _type: 'slug', current: slug },
     htmlAsset: { _type: 'file', asset: { _type: 'reference', _ref: htmlAsset._id } },
     ...(pdfAssetId ? { pdfAsset: { _type: 'file', asset: { _type: 'reference', _ref: pdfAssetId } } } : {}),
+    // NEW — fact sheet HTML asset, if rendered
+    ...(factSheetAssetId ? { factSheetHtmlAsset: { _type: 'file', asset: { _type: 'reference', _ref: factSheetAssetId } } } : {}),
     ...(heroAssetId ? { heroImage: { _type: 'image', asset: { _type: 'reference', _ref: heroAssetId } } } : {}),
     bodyImages: bodyImagesArr,
     headline,
@@ -329,13 +328,14 @@ async function main() {
   console.log(`[publish-report] upserting initiationReport ${reportId}`);
   await mutate([{ createOrReplace: reportDoc }]);
 
-  // ─── 6. Patch the source filing's reportSlug ─────────────────
+  // ─── 7. Patch the source filing's reportSlug ─────────────────
   if (filingRefId) {
     console.log(`[publish-report] patching filing.reportSlug → ${slug}`);
     await mutate([{ patch: { id: filingRefId, set: { reportSlug: slug } } }]);
   }
 
-  console.log(`[publish-report] done — report published at /reports/${slug}`);
+  const factSheetNote = factSheetAssetId ? ' + fact sheet' : '';
+  console.log(`[publish-report] done — report${factSheetNote} published at /reports/${slug}`);
 }
 
 main().catch((e) => {
