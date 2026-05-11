@@ -95,7 +95,7 @@ jobs:
             --v2only \
             --outDir out/${{ steps.vars.outputs.ticker_lc }}
 
-      - - name: Render Fact Sheet HTML
+- name: Render Fact Sheet HTML
         # Reads the same filing.json that produced the long-form report
         # and writes a one-page HTML file. The publish step picks it up
         # automatically and uploads to Sanity alongside the long-form
@@ -104,9 +104,8 @@ jobs:
         run: |
           python3 research/initiation-report-v2/render_factsheet.py \
             research/research/manus-handoff/out/${{ steps.vars.outputs.ticker_lc }}/filing.json \
-            research/research/manus-handoff/out/${{ steps.vars.outputs.ticker_lc }}/${{ steps.vars.outputs.ticker_lc }}-v2-factsheet.html            manus-handoff/out/${{ steps.vars.outputs.ticker_lc }}/filing.json \
-            manus-handoff/out/${{ steps.vars.outputs.ticker_lc }}/${{ steps.vars.outputs.ticker_lc }}-v2-factsheet.html
-
+            research/research/manus-handoff/out/${{ steps.vars.outputs.ticker_lc }}/${{ steps.vars.outputs.ticker_lc }}-v2-factsheet.html
+     
       - name: Publish report to Sanity
         # Uploads the rendered HTML + PDF + PNGs to Sanity, rewrites image
         # paths to CDN URLs, creates the initiationReport doc, and patches
